@@ -3263,7 +3263,7 @@ const AppearanceEditor = memo(function AppearanceEditor({ theme, setTheme, profi
                                                             />
                                                         </div>
                                                     </div>
-                                                    
+
                                                     {/* Audio Controls */}
                                                     <div className="flex flex-col gap-4 p-4 rounded-xl bg-black/20 border border-white/5">
                                                         <div className="flex items-center justify-between">
@@ -3278,7 +3278,7 @@ const AppearanceEditor = memo(function AppearanceEditor({ theme, setTheme, profi
                                                                 <div className={`absolute top-1 w-3 h-3 rounded-full transition-all ${theme.videoAudioEnabled ? 'left-6 bg-white' : 'left-1 bg-white/40'}`} />
                                                             </button>
                                                         </div>
-                                                        
+
                                                         {theme.videoAudioEnabled && (
                                                             <div className="flex flex-col gap-4 pt-3 border-t border-white/5">
                                                                 <div className="flex items-center justify-between px-1">
@@ -4880,14 +4880,12 @@ const AppearanceEditor = memo(function AppearanceEditor({ theme, setTheme, profi
                                                     className={`flex-1 flex items-center justify-center gap-2 py-2 rounded-xl text-[10px] font-black uppercase tracking-widest transition-all border ${theme.socialStyle === 'icons-only' ? 'bg-purple-500/20 border-purple-500/40 text-white shadow-xl shadow-purple-500/5' : 'bg-transparent border-transparent text-white/40 hover:text-white/60'}`}
                                                 >
                                                     <Square size={14} />
-                                                    Icons Only
                                                 </button>
                                                 <button
                                                     onClick={() => setTheme({ ...theme, socialStyle: 'icon-text' })}
                                                     className={`flex-1 flex items-center justify-center gap-2 py-2 rounded-xl text-[10px] font-black uppercase tracking-widest transition-all border ${theme.socialStyle === 'icon-text' ? 'bg-purple-500/20 border-purple-500/40 text-white shadow-xl shadow-purple-500/5' : 'bg-transparent border-transparent text-white/40 hover:text-white/60'}`}
                                                 >
                                                     <Type size={14} />
-                                                    Icon + Text
                                                 </button>
                                             </div>
                                         </div>
@@ -4900,14 +4898,12 @@ const AppearanceEditor = memo(function AppearanceEditor({ theme, setTheme, profi
                                                     className={`flex-1 flex items-center justify-center gap-2 py-2 rounded-xl text-[10px] font-black uppercase tracking-widest transition-all border ${theme.socialPosition === 'top' ? 'bg-indigo-500/20 border-indigo-500/40 text-white shadow-xl shadow-indigo-500/5' : 'bg-transparent border-transparent text-white/40 hover:text-white/60'}`}
                                                 >
                                                     <ArrowUp size={14} />
-                                                    Top
                                                 </button>
                                                 <button
                                                     onClick={() => setTheme({ ...theme, socialPosition: 'bottom' })}
                                                     className={`flex-1 flex items-center justify-center gap-2 py-2 rounded-xl text-[10px] font-black uppercase tracking-widest transition-all border ${theme.socialPosition === 'bottom' ? 'bg-indigo-500/20 border-indigo-500/40 text-white shadow-xl shadow-indigo-500/5' : 'bg-transparent border-transparent text-white/40 hover:text-white/60'}`}
                                                 >
                                                     <ArrowDown size={14} />
-                                                    Bottom
                                                 </button>
                                             </div>
                                         </div>
@@ -4920,21 +4916,18 @@ const AppearanceEditor = memo(function AppearanceEditor({ theme, setTheme, profi
                                                     className={`flex-1 flex items-center justify-center gap-2 py-2 rounded-xl text-[10px] font-black uppercase tracking-widest transition-all border ${theme.socialAlignment === 'left' ? 'bg-purple-500/20 border-purple-500/40 text-white shadow-xl shadow-purple-500/5' : 'bg-transparent border-transparent text-white/40 hover:text-white/60'}`}
                                                 >
                                                     <AlignLeft size={14} />
-                                                    Left
                                                 </button>
                                                 <button
                                                     onClick={() => setTheme({ ...theme, socialAlignment: 'center' })}
                                                     className={`flex-1 flex items-center justify-center gap-2 py-2 rounded-xl text-[10px] font-black uppercase tracking-widest transition-all border ${theme.socialAlignment === 'center' ? 'bg-purple-500/20 border-purple-500/40 text-white shadow-xl shadow-purple-500/5' : 'bg-transparent border-transparent text-white/40 hover:text-white/60'}`}
                                                 >
                                                     <AlignCenter size={14} />
-                                                    Center
                                                 </button>
                                                 <button
                                                     onClick={() => setTheme({ ...theme, socialAlignment: 'right' })}
                                                     className={`flex-1 flex items-center justify-center gap-2 py-2 rounded-xl text-[10px] font-black uppercase tracking-widest transition-all border ${theme.socialAlignment === 'right' ? 'bg-purple-500/20 border-purple-500/40 text-white shadow-xl shadow-purple-500/5' : 'bg-transparent border-transparent text-white/40 hover:text-white/60'}`}
                                                 >
                                                     <AlignRight size={14} />
-                                                    Right
                                                 </button>
                                             </div>
                                         </div>
@@ -5160,9 +5153,13 @@ const AppearanceEditor = memo(function AppearanceEditor({ theme, setTheme, profi
                                                         type="text"
                                                         value={currentSocial?.url || ''}
                                                         onChange={(e) => {
-                                                            setSocials(prev => prev.map(s =>
-                                                                s.platform === p.id ? { ...s, url: e.target.value } : s
-                                                            ));
+                                                            setSocials(prev => {
+                                                                const exists = prev.some(s => s.platform === p.id);
+                                                                if (exists) {
+                                                                    return prev.map(s => s.platform === p.id ? { ...s, url: e.target.value } : s);
+                                                                }
+                                                                return [...prev, { platform: p.id, url: e.target.value }];
+                                                            });
                                                         }}
                                                         placeholder={p.placeholder}
                                                         className="w-full bg-black/20 border border-white/5 rounded-2xl px-5 py-4 text-sm font-medium text-white outline-none focus:border-purple-500/20 focus:bg-black/30 transition-all placeholder:text-white/5"

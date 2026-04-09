@@ -441,7 +441,8 @@ const PreviewSection = memo(({ theme, profile, links, socials, layoutType, previ
 
                         <BackgroundEffects theme={theme} />
 
-                        <div className={`relative z-10 flex flex-col items-center px-6 py-10 min-h-full mx-auto ${previewDevice === 'desktop' ? 'max-w-4xl' : previewDevice === 'tablet' ? 'max-w-2xl' : 'w-full'}`}>
+                        <div className={`relative z-10 flex flex-col items-center min-h-full mx-auto ${previewDevice === 'desktop' ? 'w-full pt-10 pb-20 px-4' : (previewDevice === 'tablet' ? 'max-w-2xl px-6 py-10' : 'w-full px-6 py-10')}`}>
+                            <div className={`w-full flex flex-col items-center ${previewDevice === 'desktop' ? 'max-w-[420px] bg-white/[0.03] border border-white/10 rounded-[32px] overflow-hidden backdrop-blur-[2px] shadow-[0_0_0_1px_rgba(255,255,255,0.04),0_32px_80px_rgba(0,0,0,0.55),0_8px_24px_rgba(0,0,0,0.35)] p-6' : ''}`}>
                             {/* Profile Area */}
                             <div className={`flex flex-col items-center w-full transition-all duration-300 ${profile.headerLayout === 'hero' ? 'mb-6' : ''}`} style={profile.headerLayout === 'hero' ? { marginTop: `${profile.spacingAvatar ?? 16}px` } : {}}>
                                 {profile.headerLayout === 'hero' ? (
@@ -529,7 +530,7 @@ const PreviewSection = memo(({ theme, profile, links, socials, layoutType, previ
                                     className={`flex flex-wrap w-full ${theme.socialAlignment === 'left' ? 'justify-start' : theme.socialAlignment === 'right' ? 'justify-end' : 'justify-center'}`}
                                     style={{ gap: `${(theme.socialSpacing || 16) * 0.75}px`, marginTop: '4px' }}
                                 >
-                                    {socials.filter(s => s.url).map(social => {
+                                    {socials.filter(s => s.url).map((social, index) => {
                                         const platform = social.platform;
                                         const Icon = platform === 'instagram' ? Instagram :
                                             platform === 'twitter' ? Twitter :
@@ -555,7 +556,8 @@ const PreviewSection = memo(({ theme, profile, links, socials, layoutType, previ
                                                 style={{
                                                     color: theme.socialColorType === 'brand' ? undefined : color,
                                                     fontFamily: theme.socialFont || 'Inter',
-                                                    fontWeight: theme.socialTextWeight || 700
+                                                    fontWeight: theme.socialTextWeight || 700,
+                                                    animationDelay: `${index * 0.3}s`
                                                 }}
                                                 className={`opacity-70 hover:opacity-100 transition-all duration-300 flex items-center gap-2 transform-gpu ${hoverClass} ${theme.socialColorType === 'brand' ? (pData?.color || '') : ''} ${theme.socialAnimation && theme.socialAnimation !== 'none' ? (theme.socialAnimation === 'sweep' ? 'animate-sweep' : `animate-${theme.socialAnimation}`) : ''}`}
                                             >
@@ -587,7 +589,7 @@ const PreviewSection = memo(({ theme, profile, links, socials, layoutType, previ
                                     className={`flex flex-wrap mt-auto pt-5 w-full border-t border-white/5 ${theme.socialAlignment === 'left' ? 'justify-start' : theme.socialAlignment === 'right' ? 'justify-end' : 'justify-center'}`}
                                     style={{ gap: `${(theme.socialSpacing || 16) * 0.75}px` }}
                                 >
-                                    {socials.filter(s => s.url).map(social => {
+                                    {socials.filter(s => s.url).map((social, index) => {
                                         const platform = social.platform;
                                         const Icon = platform === 'instagram' ? Instagram :
                                             platform === 'twitter' ? Twitter :
@@ -613,7 +615,8 @@ const PreviewSection = memo(({ theme, profile, links, socials, layoutType, previ
                                                 style={{
                                                     color: theme.socialColorType === 'brand' ? undefined : color,
                                                     fontFamily: theme.socialFont || 'Inter',
-                                                    fontWeight: theme.socialTextWeight || 700
+                                                    fontWeight: theme.socialTextWeight || 700,
+                                                    animationDelay: `${index * 0.3}s`
                                                 }}
                                                 className={`opacity-70 hover:opacity-100 transition-all duration-300 flex items-center gap-2 transform-gpu ${hoverClass} ${theme.socialColorType === 'brand' ? (pData?.color || '') : ''} ${theme.socialAnimation && theme.socialAnimation !== 'none' ? (theme.socialAnimation === 'sweep' ? 'animate-sweep' : `animate-${theme.socialAnimation}`) : ''}`}
                                             >
@@ -779,6 +782,7 @@ const PreviewSection = memo(({ theme, profile, links, socials, layoutType, previ
                                         </div>
                                     </div>
                                 )}
+                                </div>
                             </div>
                         </div>
                     </div>

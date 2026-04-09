@@ -92,8 +92,10 @@ body {
 }
 
 @keyframes colorPulse {
-    0%, 100% { filter: hue-rotate(0deg) brightness(1) saturate(1); opacity: 1; }
-    50% { filter: sepia(0.3) hue-rotate(180deg) brightness(1.3) saturate(3); opacity: 0.9; }
+    0%, 100% { color: inherit; filter: brightness(1) drop-shadow(0 0 0px transparent); }
+    25% { color: #ff3366; filter: brightness(1.2) drop-shadow(0 0 8px rgba(255, 51, 102, 0.5)); }
+    50% { color: #33ff66; filter: brightness(1.2) drop-shadow(0 0 8px rgba(51, 255, 102, 0.5)); }
+    75% { color: #3366ff; filter: brightness(1.2) drop-shadow(0 0 8px rgba(51, 102, 255, 0.5)); }
 }
 
 @keyframes float {
@@ -620,7 +622,7 @@ CSSPLACEHOLDER
             
             ${theme.socialPosition === 'top' ? `<div class="flex flex-wrap w-full ${theme.socialAlignment === 'left' ? 'justify-start' : theme.socialAlignment === 'right' ? 'justify-end' : 'justify-center'} animate-fade-in-up" style="gap: ${(theme.socialSpacing || 16) * 0.75}px; margin-top: 16px; animation-delay: 0.1s;">${socials.filter(s => s.url).map((s, i) => `
             <div class="animate-fade-in-up shrink-0" style="animation-delay: ${0.2 + (i * 0.1)}s;">
-                <a href="${s.url}" target="_blank" class="social-btn ${theme.socialHover === 'lift' ? 'hover-lift' : theme.socialHover === 'scale' ? 'hover-scale' : theme.socialHover === 'glow' ? 'hover-glow' : ''} ${theme.socialAnimation && theme.socialAnimation !== 'none' ? (theme.socialAnimation === 'sweep' ? 'animate-sweep' : `animate-${theme.socialAnimation}`) : ''}" style="color: ${getSocialColor(s.platform, theme)}; font-family: ${theme.socialFont || 'Inter'}; font-weight: ${theme.socialTextWeight || 700};">
+                <a href="${s.url}" target="_blank" class="social-btn ${theme.socialHover === 'lift' ? 'hover-lift' : theme.socialHover === 'scale' ? 'hover-scale' : theme.socialHover === 'glow' ? 'hover-glow' : ''} ${theme.socialAnimation && theme.socialAnimation !== 'none' ? (theme.socialAnimation === 'sweep' ? 'animate-sweep' : `animate-${theme.socialAnimation}`) : ''}" style="color: ${getSocialColor(s.platform, theme)}; font-family: ${theme.socialFont || 'Inter'}; font-weight: ${theme.socialTextWeight || 700}; animation-delay: ${i * 0.3}s;">
                     ${getSocialSvg(s.platform, theme.socialSize)}
                     ${theme.socialStyle === 'icon-text' ? `<span${theme.socialAnimation === 'sweep' ? ' class="animate-sweep-text"' : ''}>${s.platform}</span>` : ''}
                 </a>
@@ -682,7 +684,7 @@ CSSPLACEHOLDER
         <!-- Bottom Socials -->
         ${theme.socialPosition === 'bottom' ? `<div class="flex flex-wrap w-full border-t border-white/5 pt-5 mt-10 mb-6 ${theme.socialAlignment === 'left' ? 'justify-start' : theme.socialAlignment === 'right' ? 'justify-end' : 'justify-center'} animate-fade-in-up" style="gap: ${(theme.socialSpacing || 16) * 0.75}px; animation-delay: 0.3s;">${socials.filter(s => s.url).map((s, i) => `
             <div class="animate-fade-in-up shrink-0" style="animation-delay: ${0.4 + (i * 0.1)}s;">
-                <a href="${s.url}" target="_blank" class="social-btn ${theme.socialHover === 'lift' ? 'hover-lift' : theme.socialHover === 'scale' ? 'hover-scale' : theme.socialHover === 'glow' ? 'hover-glow' : ''} ${theme.socialAnimation && theme.socialAnimation !== 'none' ? (theme.socialAnimation === 'sweep' ? 'animate-sweep' : `animate-${theme.socialAnimation}`) : ''}" style="color: ${getSocialColor(s.platform, theme)}; font-family: ${theme.socialFont || 'Inter'}; font-weight: ${theme.socialTextWeight || 700};">
+                <a href="${s.url}" target="_blank" class="social-btn ${theme.socialHover === 'lift' ? 'hover-lift' : theme.socialHover === 'scale' ? 'hover-scale' : theme.socialHover === 'glow' ? 'hover-glow' : ''} ${theme.socialAnimation && theme.socialAnimation !== 'none' ? (theme.socialAnimation === 'sweep' ? 'animate-sweep' : `animate-${theme.socialAnimation}`) : ''}" style="color: ${getSocialColor(s.platform, theme)}; font-family: ${theme.socialFont || 'Inter'}; font-weight: ${theme.socialTextWeight || 700}; animation-delay: ${i * 0.3}s;">
                     ${getSocialSvg(s.platform, theme.socialSize)}
                     ${theme.socialStyle === 'icon-text' ? `<span${theme.socialAnimation === 'sweep' ? ' class="animate-sweep-text"' : ''}>${s.platform}</span>` : ''}
                 </a>
