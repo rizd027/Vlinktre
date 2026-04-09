@@ -285,14 +285,24 @@ body {
 
 
 /* Interaction Effects */
-.hover-lift { transition: transform 0.3s ease; }
-.hover-lift:hover { transform: translateY(-6px); }
-.hover-scale { transition: transform 0.3s ease; }
-.hover-scale:hover { transform: scale(1.03); }
-.hover-glow { transition: box-shadow 0.3s ease; }
-.hover-glow:hover { box-shadow: 0 0 20px rgba(255,255,255,0.3); }
+.hover-lift { transition: transform 0.3s cubic-bezier(0.19, 1, 0.22, 1); }
+.group:hover .hover-lift { transform: translateY(-6px); }
+
+.hover-scale { transition: transform 0.3s cubic-bezier(0.19, 1, 0.22, 1); }
+.group:hover .hover-scale { transform: scale(1.03); }
+
+.hover-glow { transition: box-shadow 0.3s ease, transform 0.3s ease; }
+.group:hover .hover-glow { 
+    box-shadow: 0 0 25px rgba(255,255,255,0.25);
+    transform: translateY(-2px);
+}
+
 .active-push:active { transform: scale(0.95); }
 .active-inset:active { transform: scale(0.97); filter: brightness(0.8); }
+
+/* Shadow Hover Synchronization */
+.group:hover .shadow-move-lift { transform: translateY(-6px) translate(var(--sx), var(--sy)) !important; }
+.group:hover .shadow-move-scale { transform: scale(1.03) translate(var(--sx), var(--sy)) !important; }
 
 /* UI Elements */
 .wallpaper-container {
@@ -310,10 +320,9 @@ body {
     position: relative;
     overflow: hidden;
     width: 100%;
-    z-index: 1;
+    z-index: 10;
 }
 
-.link-item:hover { transform: translateY(-3px); }
 .link-item:active { transform: scale(0.98); }
 
 .link-thumb {
@@ -480,6 +489,10 @@ document.addEventListener('DOMContentLoaded', () => {
 
             const spread = theme.btnShadowSpread || 0;
             const shadowAnimClass = theme.btnShadowAnimation && theme.btnShadowAnimation !== 'none' ? `animate-${theme.btnShadowAnimation}` : '';
+            
+            // Sync with button hover
+            const hoverSyncClass = theme.btnHoverEffect === 'lift' ? 'shadow-move-lift' : 
+                                 theme.btnHoverEffect === 'scale' ? 'shadow-move-scale' : '';
 
             let shadowBg = `background-color: ${theme.btnShadowColor || '#000000'};`;
 
@@ -497,10 +510,14 @@ document.addEventListener('DOMContentLoaded', () => {
                 }
             }
 
-            const outerStyle = `position: absolute; z-index: 5; inset: ${-spread}px; transform: translate(${theme.btnShadowX || 0}px, ${theme.btnShadowY || 4}px); pointer-events: none;`;
+            const sx = theme.btnShadowX || 0;
+            const sy = theme.btnShadowY || 4;
+            
+            // Use CSS variables to handle the translation so hover can modify it easily
+            const outerStyle = `position: absolute; z-index: 5; inset: ${-spread}px; --sx: ${sx}px; --sy: ${sy}px; transform: translate(var(--sx), var(--sy)); pointer-events: none; transition: transform 0.3s cubic-bezier(0.19, 1, 0.22, 1);`;
             const innerStyle = `position: absolute; inset: 0; border-radius: ${theme.btnRadius || 12}px; filter: blur(${theme.btnShadowBlur || 0}px); opacity: ${theme.btnShadowOpacity ?? (theme.btnShadowType === 'solid' ? 1 : 0.5)}; ${shadowBg}`;
 
-            return `<div style="${outerStyle}"><div class="${shadowAnimClass}" style="${innerStyle}"></div></div>`;
+            return `<div style="${outerStyle}" class="${hoverSyncClass}"><div class="${shadowAnimClass}" style="${innerStyle}"></div></div>`;
         };
 
         const wallpaperStyles = () => {
@@ -803,7 +820,7 @@ CSSPLACEHOLDER
             `}
             
             ${theme.socialPosition === 'top' ? `<div class="flex flex-wrap w-full ${theme.socialAlignment === 'left' ? 'justify-start' : theme.socialAlignment === 'right' ? 'justify-end' : 'justify-center'} animate-fade-in-up" style="gap: ${(theme.socialSpacing || 16) * 0.75}px; margin-top: 16px; animation-delay: 0.1s;">${socials.filter(s => s.url).map((s, i) => `
-            <div class="animate-fade-in-up shrink-0" style="animation-delay: ${0.2 + (i * 0.1)}s;">
+            <div class="animate-fade-in-up shrink-0 group" style="animation-delay: ${0.2 + (i * 0.1)}s;">
                 <a href="${s.url}" target="_blank" class="social-btn ${theme.socialHover === 'lift' ? 'hover-lift' : theme.socialHover === 'scale' ? 'hover-scale' : theme.socialHover === 'glow' ? 'hover-glow' : ''} ${theme.socialAnimation && theme.socialAnimation !== 'none' ? (theme.socialAnimation === 'sweep' ? 'animate-sweep' : `animate-${theme.socialAnimation}`) : ''}" style="color: ${getSocialColor(s.platform, theme)}; font-family: ${theme.socialFont || 'Inter'}; font-weight: ${theme.socialTextWeight || 700}; animation-delay: ${i * 0.3}s;">
                     ${getSocialSvg(s.platform, theme.socialSize)}
                     ${theme.socialStyle === 'icon-text' ? `<span${theme.socialAnimation === 'sweep' ? ' class="animate-sweep-text"' : ''}>${s.platform}</span>` : ''}
@@ -840,7 +857,7 @@ CSSPLACEHOLDER
                             const shadowHtml = getLinkShadowHtml(theme);
 
                             return `
-                <div class="relative w-full ${itemClass}" style="margin-bottom: ${theme.btnSpacing || 12}px;">
+                <div class="relative w-full ${itemClass} group" style="margin-bottom: ${theme.btnSpacing || 12}px;">
                     ${shadowHtml}
                     <a href="${l.url}" target="_blank" rel="noopener noreferrer" class="link-item ${animationClass} ${shineClass} ${hoverClass} ${activeClass}" style="${getLinkStyles(l, theme)} margin-bottom: 0;">
                         ${theme.btnHoverEffect === 'shine' ? '<div class="absolute inset-0 shine-overlay pointer-events-none" style="background: linear-gradient(90deg, transparent, rgba(255,255,255,0.2), transparent); transform: translateX(-100%) skewX(-15deg);"></div>' : ''}
@@ -865,7 +882,7 @@ CSSPLACEHOLDER
 
         <!-- Bottom Socials -->
         ${theme.socialPosition === 'bottom' ? `<div class="flex flex-wrap w-full border-t border-white/5 pt-5 mt-10 mb-6 ${theme.socialAlignment === 'left' ? 'justify-start' : theme.socialAlignment === 'right' ? 'justify-end' : 'justify-center'} animate-fade-in-up" style="gap: ${(theme.socialSpacing || 16) * 0.75}px; animation-delay: 0.3s;">${socials.filter(s => s.url).map((s, i) => `
-            <div class="animate-fade-in-up shrink-0" style="animation-delay: ${0.4 + (i * 0.1)}s;">
+            <div class="animate-fade-in-up shrink-0 group" style="animation-delay: ${0.4 + (i * 0.1)}s;">
                 <a href="${s.url}" target="_blank" class="social-btn ${theme.socialHover === 'lift' ? 'hover-lift' : theme.socialHover === 'scale' ? 'hover-scale' : theme.socialHover === 'glow' ? 'hover-glow' : ''} ${theme.socialAnimation && theme.socialAnimation !== 'none' ? (theme.socialAnimation === 'sweep' ? 'animate-sweep' : `animate-${theme.socialAnimation}`) : ''}" style="color: ${getSocialColor(s.platform, theme)}; font-family: ${theme.socialFont || 'Inter'}; font-weight: ${theme.socialTextWeight || 700}; animation-delay: ${i * 0.3}s;">
                     ${getSocialSvg(s.platform, theme.socialSize)}
                     ${theme.socialStyle === 'icon-text' ? `<span${theme.socialAnimation === 'sweep' ? ' class="animate-sweep-text"' : ''}>${s.platform}</span>` : ''}
