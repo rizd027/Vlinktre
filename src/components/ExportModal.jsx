@@ -70,7 +70,7 @@ const ExportModal = ({ isOpen, onClose, profile, links, socials, theme, layoutTy
                     styles += ` color: ${theme.titleColor || '#ffffff'};`;
                 }
 
-                return `<h2 class="${titleAnimationClass}" style="${styles}">${profile.username}</h2>`;
+                return `<h2 class="${titleAnimationClass}" style="text-align: center !important; ${styles}">${profile.username}</h2>`;
             } else {
                 const logoSize = (theme.titleLogoSize || 100) / 100;
                 return `
@@ -106,7 +106,7 @@ const ExportModal = ({ isOpen, onClose, profile, links, socials, theme, layoutTy
                 styles += ` color: ${theme.pageColor || theme.bioColor || 'rgba(255,255,255,0.7)'};`;
             }
 
-            return `<p class="${bioAnimationClass}" style="${styles}">${profile.bio}</p>`;
+            return `<p class="${bioAnimationClass}" style="text-align: center !important; width: 100%; ${styles}">${profile.bio}</p>`;
         };
 
         const getFooterBgStyle = () => {
@@ -744,7 +744,7 @@ CSSPLACEHOLDER
                             <div class="relative z-20 ${avatarAnimationClass}">
                                 ${getProfileAvatarHtml('rounded-b-none border-b-0')}
                             </div>
-                            <div class="hero-card-joined -mt-5 flex flex-col gap-2">
+                            <div class="hero-card-joined -mt-5 flex flex-col items-center text-center gap-2">
                                 ${getProfileTitleHtml()}
                                 ${getProfileBioHtml()}
                             </div>
@@ -755,7 +755,7 @@ CSSPLACEHOLDER
                                 <div class="avatar-glow animate-pulse"></div>
                                 ${getProfileAvatarHtml('shadow-[0_20px_40px_rgba(0,0,0,0.4)] border-white/20')}
                             </div>
-                            <div class="hero-card-float flex flex-col gap-2">
+                            <div class="hero-card-float flex flex-col items-center text-center gap-2">
                                 ${getProfileTitleHtml()}
                                 ${getProfileBioHtml()}
                             </div>
@@ -765,7 +765,7 @@ CSSPLACEHOLDER
                             <div class="relative z-20 ${avatarAnimationClass}">
                                 ${getProfileAvatarHtml('border-white/5 shadow-sm')}
                             </div>
-                            <div class="text-center flex flex-col gap-2 w-full px-4">
+                            <div class="flex flex-col items-center text-center gap-2 w-full px-4">
                                 ${getProfileTitleHtml()}
                                 ${getProfileBioHtml()}
                             </div>
@@ -776,16 +776,16 @@ CSSPLACEHOLDER
                             <div class="relative z-20 ${avatarAnimationClass}">
                                 ${getProfileAvatarHtml('border-white/30 ring-4 ring-white/5')}
                             </div>
-                            <div class="hero-card-glass flex flex-col gap-3">
+                            <div class="hero-card-glass flex flex-col items-center text-center gap-3">
                                 ${getProfileTitleHtml()}
                                 ${getProfileBioHtml()}
                             </div>
                         </div>
                     ` : ` <!-- Fallback generic hero -->
-                        <div class="hero-card-float" style="margin-top: ${profile.spacingAvatar ?? 16}px;">
+                        <div class="hero-card-float flex flex-col items-center text-center" style="margin-top: ${profile.spacingAvatar ?? 16}px;">
                             ${getProfileAvatarHtml('mx-auto mb-6')}
-                            <div style="margin-top: ${profile.spacingUsername ?? 12}px;">${getProfileTitleHtml()}</div>
-                            <div style="margin-top: ${profile.spacingBio ?? 6}px;">${getProfileBioHtml()}</div>
+                            <div style="margin-top: ${profile.spacingUsername ?? 12}px; width: 100%;">${getProfileTitleHtml()}</div>
+                            <div style="margin-top: ${profile.spacingBio ?? 6}px; width: 100%;">${getProfileBioHtml()}</div>
                         </div>
                     `}
                 </div>
@@ -794,10 +794,10 @@ CSSPLACEHOLDER
                 <div class="relative ${avatarAnimationClass}" style="margin-top: ${profile.spacingAvatar ?? 16}px;">
                     ${getProfileAvatarHtml()}
                 </div>
-                <div class="flex flex-col items-center gap-1 text-center px-3" style="margin-top: ${profile.spacingUsername ?? 12}px;">
-                    ${getProfileTitleHtml()}
+                <div class="flex flex-col items-center gap-1 text-center px-3 w-full" style="margin-top: ${profile.spacingUsername ?? 12}px;">
+                    <div class="w-full flex justify-center">${getProfileTitleHtml()}</div>
                 </div>
-                <div style="margin-top: ${profile.spacingBio ?? 6}px; width: 100%; display: flex; justify-center: center;">
+                <div style="margin-top: ${profile.spacingBio ?? 6}px; width: 100%; display: flex; justify-content: center;">
                     ${getProfileBioHtml()}
                 </div>
             `}
