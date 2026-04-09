@@ -6,6 +6,7 @@ import {
 import TikTok from './TikTok';
 import { PLATFORMS } from '../data/constants';
 import LinkItem from './LinkItem';
+import BackgroundEffects from './BackgroundEffects';
 
 const NOISE_TEXTURE = `url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noiseFilter'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.65' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noiseFilter)'/%3E%3C/svg%3E")`;
 
@@ -435,9 +436,11 @@ const PreviewSection = memo(({ theme, profile, links, socials, layoutType, previ
                             );
                         })()}
 
-                        <div className={`relative z-10 flex flex-col items-center px-6 py-10 gap-5 min-h-full mx-auto ${previewDevice === 'desktop' ? 'max-w-4xl' : previewDevice === 'tablet' ? 'max-w-2xl' : 'w-full'}`}>
+                        <BackgroundEffects theme={theme} />
+
+                        <div className={`relative z-10 flex flex-col items-center px-6 py-10 min-h-full mx-auto ${previewDevice === 'desktop' ? 'max-w-4xl' : previewDevice === 'tablet' ? 'max-w-2xl' : 'w-full'}`}>
                             {/* Profile Area */}
-                            <div className={`flex flex-col items-center w-full transition-all duration-300 ${profile.headerLayout === 'hero' ? 'mb-6' : 'gap-3.5'}`}>
+                            <div className={`flex flex-col items-center w-full transition-all duration-300 ${profile.headerLayout === 'hero' ? 'mb-6' : ''}`} style={profile.headerLayout === 'hero' ? { marginTop: `${profile.spacingAvatar ?? 16}px` } : {}}>
                                 {profile.headerLayout === 'hero' ? (
                                     <div className="w-full relative flex flex-col items-center">
                                         {/* Hero Variant Controller */}
@@ -498,13 +501,21 @@ const PreviewSection = memo(({ theme, profile, links, socials, layoutType, previ
                                 ) : (
                                     /* Classic Layout */
                                     <>
-                                        <div className={`relative ${theme.headerAnimation && theme.headerAnimation !== 'none' ? `animate-${theme.headerAnimation}` : ''} ${profile.showAvatar === false ? 'hidden' : ''}`}>
+                                        <div
+                                            className={`relative ${theme.headerAnimation && theme.headerAnimation !== 'none' ? `animate-${theme.headerAnimation}` : ''} ${profile.showAvatar === false ? 'hidden' : ''}`}
+                                            style={{ marginTop: `${profile.spacingAvatar ?? 16}px` }}
+                                        >
                                             <ProfileAvatar profile={profile} theme={theme} />
                                         </div>
-                                        <div className="flex flex-col items-center gap-1 text-center px-3">
+                                        <div
+                                            className="flex flex-col items-center gap-1 text-center px-3"
+                                            style={{ marginTop: `${profile.spacingUsername ?? 12}px` }}
+                                        >
                                             <ProfileTitle profile={profile} theme={theme} />
                                         </div>
-                                        <ProfileBio profile={profile} theme={theme} />
+                                        <div style={{ marginTop: `${profile.spacingBio ?? 6}px`, width: '100%', display: 'flex', justifyContent: 'center' }}>
+                                            <ProfileBio profile={profile} theme={theme} />
+                                        </div>
                                     </>
                                 )}
                             </div>
@@ -556,11 +567,11 @@ const PreviewSection = memo(({ theme, profile, links, socials, layoutType, previ
                             )}
 
                             {/* Links Area */}
-                            <div className={`w-full mt-2 ${layoutType === 'grid' ? 'grid grid-cols-2' :
+                            <div className={`w-full ${layoutType === 'grid' ? 'grid grid-cols-2' :
                                 layoutType === 'carousel' ? 'flex overflow-x-auto pb-4 snap-x snap-mandatory hide-scrollbar' :
                                     'flex flex-col'
                                 }`}
-                                style={{ gap: `${theme.btnSpacing || 12}px` }}
+                                style={{ gap: `${theme.btnSpacing || 12}px`, marginTop: `${profile.spacingLinks ?? 20}px` }}
                             >
                                 {links.filter(l => l.active).map((link, i) => (
                                     <LinkItem key={link.id} link={link} i={i} layoutType={link.layout || layoutType} theme={theme} />

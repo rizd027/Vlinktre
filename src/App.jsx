@@ -4,6 +4,7 @@ import PreviewSection from './components/PreviewSection';
 import ExportModal from './components/ExportModal';
 import TikTok from './components/TikTok';
 import { LAYOUT_OPTIONS, SIDEBAR_ITEMS, FONTS, THEMES, PLATFORMS, ANIMATION_OPTIONS } from './data/constants';
+import { BG_EFFECT_OPTIONS } from './data/bg-effects';
 import ColorPickerRow from './components/ColorPickerRow';
 import ModeSelector from './components/ModeSelector';
 import SelectField from './components/SelectField';
@@ -741,8 +742,8 @@ function App() {
                 ${isEditorHidden ? 'md:w-0 md:opacity-0 md:pointer-events-none' : 'md:flex-1 md:opacity-100'}
                 pb-[88px] md:pb-0`}
             >
-                {/* Editor Header */}
-                <header className="h-16 md:h-20 px-6 md:px-8 border-b border-white/5 flex items-center justify-between bg-transparent shrink-0">
+                {/* Editor Header — hidden on mobile (top mobile header handles this) */}
+                <header className="hidden md:flex h-16 md:h-20 px-6 md:px-8 border-b border-white/5 items-center justify-between bg-transparent shrink-0">
                     <div className="flex items-center gap-4">
                         {activeTab === 'appearance' && (
                             <button
@@ -800,6 +801,8 @@ function App() {
                 links={deferredLinks}
                 socials={deferredSocials}
                 theme={deferredTheme}
+                layoutType={deferredLayoutType}
+                previewDevice={previewDevice}
             />
         </div>
     );
@@ -1886,61 +1889,146 @@ const AppearanceEditor = memo(function AppearanceEditor({ theme, setTheme, profi
                                             <p className="text-[10px] text-white/30 font-black uppercase tracking-[0.2em]">Update your profile info</p>
                                         </div>
                                     </div>
-                                    <button
-                                        onClick={randomizeTheme}
-                                        className="flex items-center gap-2 px-4 py-2 bg-white/3 hover:bg-white/10 rounded-xl border border-white/5 text-[11px] font-bold text-white/60 transition-all hover:text-white"
-                                    >
-                                        <Wand2 size={14} />
-                                        Enhance Style
-                                    </button>
+
                                 </div>
 
                                 {/* Profile Image Section */}
-                                <div className="flex flex-col sm:flex-row items-center gap-6 sm:gap-8 p-6 rounded-3xl md:rounded-[2rem] bg-white/3 border border-white/5">
-                                    <div className="relative group">
-                                        <div className="w-20 h-20 rounded-[2rem] bg-white/5 border border-white/10 flex items-center justify-center overflow-hidden transition-transform group-hover:scale-105">
-                                            {profile.avatar ? (
-                                                <img
-                                                    src={profile.avatar}
-                                                    alt="Avatar"
-                                                    loading="lazy"
-                                                    decoding="async"
-                                                    width="80"
-                                                    height="80"
-                                                    className="w-full h-full object-cover"
-                                                    onError={(e) => {
-                                                        e.target.style.display = 'none';
-                                                        e.target.nextSibling.style.display = 'block';
-                                                    }}
-                                                />
-                                            ) : null}
-                                            {(!profile.avatar) || (profile.avatar === '') ? (
-                                                <User size={32} className="text-white/20" />
-                                            ) : (
-                                                <User size={32} className="text-white/20 hidden" />
-                                            )}
-                                            <div className="absolute inset-0 bg-white/10 rounded-[2rem] opacity-0 group-hover:opacity-100" />
+                                <div className="flex flex-col gap-6 p-6 rounded-3xl md:rounded-[2rem] bg-white/3 border border-white/5">
+                                    <div className="flex flex-col sm:flex-row items-center gap-6 sm:gap-8">
+                                        <div className="relative group">
+                                            <div className="w-20 h-20 rounded-[2rem] bg-white/5 border border-white/10 flex items-center justify-center overflow-hidden transition-transform group-hover:scale-105">
+                                                {profile.avatar ? (
+                                                    <img
+                                                        src={profile.avatar}
+                                                        alt="Avatar"
+                                                        loading="lazy"
+                                                        decoding="async"
+                                                        width="80"
+                                                        height="80"
+                                                        className="w-full h-full object-cover"
+                                                        onError={(e) => {
+                                                            e.target.style.display = 'none';
+                                                            e.target.nextSibling.style.display = 'block';
+                                                        }}
+                                                    />
+                                                ) : null}
+                                                {(!profile.avatar) || (profile.avatar === '') ? (
+                                                    <User size={32} className="text-white/20" />
+                                                ) : (
+                                                    <User size={32} className="text-white/20 hidden" />
+                                                )}
+                                                <div className="absolute inset-0 bg-white/10 rounded-[2rem] opacity-0 group-hover:opacity-100" />
+                                            </div>
+                                        </div>
+                                        <div className="flex flex-col gap-3">
+                                            <div className="flex items-center justify-between w-full px-1">
+                                                <span className="text-[9px] font-black text-white/20 uppercase tracking-[0.2em]">Profile Avatar</span>
+                                            </div>
+                                            <div className="flex flex-wrap items-center gap-2">
+                                                <button
+                                                    onClick={() => setProfileImageModalOpen(true)}
+                                                    className="px-6 py-2.5 rounded-full border border-white/10 hover:bg-white/5 text-[11px] font-bold flex items-center gap-2 text-white transition-all hover:scale-105 shadow-xl shadow-white/5"
+                                                >
+                                                    <Edit3 size={12} />
+                                                    Change Image
+                                                </button>
+                                                <button
+                                                    onClick={() => setProfile({ ...profile, showAvatar: !profile.showAvatar })}
+                                                    className={`px-4 py-2.5 rounded-full border border-white/10 hover:bg-white/5 text-[11px] font-bold flex items-center gap-2 transition-all hover:scale-105 shadow-xl shadow-white/5 ${profile.showAvatar ? 'text-white' : 'text-white/40'}`}
+                                                >
+                                                    {profile.showAvatar ? <EyeOff size={12} /> : <Eye size={12} />}
+                                                    {profile.showAvatar ? 'Hide' : 'Show'}
+                                                </button>
+                                            </div>
                                         </div>
                                     </div>
-                                    <div className="flex flex-col gap-3">
-                                        <div className="flex items-center justify-between w-full px-1">
-                                            <span className="text-[9px] font-black text-white/20 uppercase tracking-[0.2em]">Profile Avatar</span>
+
+                                    {/* Avatar Size Section */}
+                                    <div className="flex flex-col gap-4 pt-6 border-t border-white/5">
+                                        <div className="flex items-center justify-between px-1">
+                                            <div className="flex items-center gap-2">
+                                                <div className="w-6 h-6 rounded-lg bg-orange-500/10 flex items-center justify-center border border-orange-500/10">
+                                                    <LayoutGrid size={12} className="text-orange-400" />
+                                                </div>
+                                                <span className="text-[9px] font-bold uppercase tracking-widest text-white/30">Avatar Size</span>
+                                            </div>
+                                            <div className="text-[10px] font-bold text-white/40 bg-white/5 px-2 py-1 rounded-md border border-white/5">
+                                                {typeof profile.headerSize === 'number' ? profile.headerSize : (profile.headerSize === 'small' ? 80 : 100)}%
+                                            </div>
                                         </div>
-                                        <div className="flex flex-wrap items-center gap-2">
-                                            <button
-                                                onClick={() => setProfileImageModalOpen(true)}
-                                                className="px-6 py-2.5 rounded-full border border-white/10 hover:bg-white/5 text-[11px] font-bold flex items-center gap-2 text-white transition-all hover:scale-105 shadow-xl shadow-white/5"
+
+                                        <div className="flex items-center gap-4 px-1">
+                                            <label htmlFor="header-size-range" className="sr-only">Header Size Range</label>
+                                            <span className="text-[10px] font-bold text-white/30">20%</span>
+                                            <input
+                                                id="header-size-range"
+                                                name="header-size-range"
+                                                type="range"
+                                                min="20"
+                                                max="150"
+                                                step="5"
+                                                value={typeof profile.headerSize === 'number' ? profile.headerSize : (profile.headerSize === 'small' ? 80 : (profile.headerSize === 'large' ? 120 : 100))}
+                                                onChange={(e) => setProfile({ ...profile, headerSize: parseInt(e.target.value) })}
+                                                className="flex-1 h-2 bg-white/10 rounded-lg appearance-none cursor-pointer accent-orange-500 hover:accent-orange-400 transition-all"
+                                            />
+                                            <span className="text-[10px] font-bold text-white/30">150%</span>
+                                        </div>
+
+                                        <div className="flex gap-2">
+                                            {[80, 100, 120].map(size => (
+                                                <button
+                                                    key={size}
+                                                    onClick={() => setProfile({ ...profile, headerSize: size })}
+                                                    className={`px-3 py-1.5 rounded-lg text-[10px] font-bold border transition-all ${(typeof profile.headerSize === 'number' ? profile.headerSize : (profile.headerSize === 'small' ? 80 : (profile.headerSize === 'large' ? 120 : 100))) === size
+                                                        ? 'bg-orange-500/20 border-orange-500/40 text-orange-400'
+                                                        : 'bg-white/5 border-white/5 text-white/40 hover:bg-white/10'
+                                                        }`}
+                                                >
+                                                    {size === 80 ? 'Small' : size === 100 ? 'Normal' : 'Large'}
+                                                </button>
+                                            ))}
+                                            <div className="flex-1"></div>
+                                            <label htmlFor="header-size-number" className="sr-only">Header Size Number</label>
+                                            <div className="w-16 input-premium-container !h-9">
+                                                <input
+                                                    id="header-size-number"
+                                                    name="header-size-number"
+                                                    type="number"
+                                                    min="20"
+                                                    max="150"
+                                                    value={typeof profile.headerSize === 'number' ? profile.headerSize : (profile.headerSize === 'small' ? 80 : (profile.headerSize === 'large' ? 120 : 100))}
+                                                    onChange={(e) => {
+                                                        let val = parseInt(e.target.value);
+                                                        if (val > 150) val = 150;
+                                                        if (val < 20) val = 20;
+                                                        setProfile({ ...profile, headerSize: val });
+                                                    }}
+                                                    className="w-full bg-transparent text-center text-[11px] font-black text-white outline-none"
+                                                />
+                                            </div>
+                                        </div>
+                                    </div>
+
+                                    {/* Avatar Animation Section */}
+                                    <div className="flex flex-col gap-4 pt-6 border-t border-white/5">
+                                        <div className="flex items-center gap-3 px-1">
+                                            <div className="w-6 h-6 rounded-lg bg-pink-500/10 border border-pink-500/20 flex items-center justify-center">
+                                                <Wand2 size={12} className="text-pink-400" />
+                                            </div>
+                                            <span className="text-[9px] font-bold uppercase tracking-widest text-white/30">Avatar Animation</span>
+                                        </div>
+                                        <div className="p-1 bg-black/20 rounded-xl border border-white/5">
+                                            <SelectField
+                                                id="header-animation-select"
+                                                label=""
+                                                value={theme.headerAnimation || 'none'}
+                                                onChange={(e) => setTheme({ ...theme, headerAnimation: e.target.value })}
+                                                className="bg-transparent border-none text-[11px] font-bold"
                                             >
-                                                <Edit3 size={12} />
-                                                Change Image
-                                            </button>
-                                            <button
-                                                onClick={() => setProfile({ ...profile, showAvatar: !profile.showAvatar })}
-                                                className={`px-4 py-2.5 rounded-full border border-white/10 hover:bg-white/5 text-[11px] font-bold flex items-center gap-2 transition-all hover:scale-105 shadow-xl shadow-white/5 ${profile.showAvatar ? 'text-white' : 'text-white/40'}`}
-                                            >
-                                                {profile.showAvatar ? <EyeOff size={12} /> : <Eye size={12} />}
-                                                {profile.showAvatar ? 'Hide' : 'Show'}
-                                            </button>
+                                                {ANIMATION_OPTIONS.map(opt => (
+                                                    <option key={opt.id} value={opt.id} className="bg-[#121212]">{opt.label}</option>
+                                                ))}
+                                            </SelectField>
                                         </div>
                                     </div>
                                 </div>
@@ -1950,7 +2038,7 @@ const AppearanceEditor = memo(function AppearanceEditor({ theme, setTheme, profi
                                         <div className="w-6 h-6 rounded-lg bg-purple-500/10 flex items-center justify-center border border-purple-500/10">
                                             <User size={12} className="text-purple-400" />
                                         </div>
-                                        <span className="text-[9px] font-bold uppercase tracking-widest text-white/30">Profile image layout</span>
+                                        <span className="text-[9px] font-bold uppercase tracking-widest text-white/30">Profile Username layout</span>
                                     </div>
                                     <div className="flex p-1 bg-black/20 rounded-xl border border-white/5">
                                         {[
@@ -1970,29 +2058,48 @@ const AppearanceEditor = memo(function AppearanceEditor({ theme, setTheme, profi
                                             );
                                         })}
                                     </div>
-                                </div>
 
-                                {profile.headerLayout === 'hero' && (
-                                    <div className="flex-none flex flex-col gap-4 p-6 rounded-[2rem] bg-white/3 border border-white/5">
-                                        <div className="flex items-center gap-2 px-1">
-                                            <div className="w-6 h-6 rounded-lg bg-pink-500/10 flex items-center justify-center border border-pink-500/10">
-                                                <Zap size={12} className="text-pink-400" />
-                                            </div>
-                                            <span className="text-[9px] font-bold uppercase tracking-widest text-white/30">Hero Model Style</span>
+                                    {/* Display Username Section */}
+                                    <div className="flex flex-col gap-3 pt-6 border-t border-white/5">
+                                        <div className="flex items-center justify-between px-1">
+                                            <label htmlFor="editor-profile-title" className="text-[9px] font-black text-white/20 uppercase tracking-[0.2em]">Display Username</label>
+                                            <button
+                                                onClick={() => setProfile({ ...profile, showTitle: !profile.showTitle })}
+                                                className={`px-4 py-2 rounded-full border border-white/10 hover:bg-white/5 text-[10px] font-black uppercase tracking-widest flex items-center gap-2 transition-all hover:scale-105 shadow-xl shadow-white/5 ${profile.showTitle !== false ? 'text-white' : 'text-white/40'}`}
+                                            >
+                                                {profile.showTitle !== false ? <EyeOff size={12} /> : <Eye size={12} />}
+                                                {profile.showTitle !== false ? 'Hide' : 'Show'}
+                                            </button>
                                         </div>
-                                        <div className="grid grid-cols-2 gap-2">
+                                        <input
+                                            id="editor-profile-title"
+                                            name="editor-profile-title"
+                                            value={profile.username}
+                                            onChange={(e) => setProfile({ ...profile, username: e.target.value })}
+                                            className="w-full bg-black/20 border border-white/5 rounded-xl px-5 py-3 text-sm font-bold text-white outline-none focus:border-purple-500/20 focus:bg-white/5 transition-all placeholder:text-white/10"
+                                            placeholder="@username"
+                                        />
+                                    </div>
+
+                                    {/* Username Style Section */}
+                                    <div className="flex flex-col gap-4 pt-6 border-t border-white/5">
+                                        <div className="flex items-center gap-2 px-1">
+                                            <div className="w-6 h-6 rounded-lg bg-blue-500/10 flex items-center justify-center border border-blue-500/10">
+                                                <Layers size={12} className="text-blue-400" />
+                                            </div>
+                                            <span className="text-[9px] font-bold uppercase tracking-widest text-white/30">Username style</span>
+                                        </div>
+                                        <div className="flex p-1 bg-black/20 rounded-xl border border-white/5">
                                             {[
-                                                { id: 'joined', label: 'Joined', icon: Layers },
-                                                { id: 'float', label: 'Float', icon: MousePointer2 },
-                                                { id: 'minimal', label: 'Minimal', icon: Square },
-                                                { id: 'glass', label: 'Glass', icon: Box }
+                                                { id: 'text', label: 'Text', icon: Type },
+                                                { id: 'logo', label: 'Logo', icon: Image }
                                             ].map(option => {
                                                 const Icon = option.icon;
                                                 return (
                                                     <button
                                                         key={option.id}
-                                                        onClick={() => setProfile({ ...profile, heroModel: option.id })}
-                                                        className={`flex items-center justify-center gap-2 py-2.5 rounded-xl text-[10px] font-black uppercase tracking-widest transition-all border ${profile.heroModel === option.id ? 'bg-pink-500/20 border-pink-500/40 text-white shadow-xl shadow-pink-500/5' : 'bg-black/20 border-transparent text-white/40 hover:text-white/60'}`}
+                                                        onClick={() => setTheme({ ...theme, titleStyle: option.id })}
+                                                        className={`flex-1 flex items-center justify-center gap-2 py-2.5 rounded-xl text-[10px] font-black uppercase tracking-widest transition-all border ${theme.titleStyle === option.id ? 'bg-blue-500/20 border-blue-500/40 text-white shadow-xl shadow-purple-500/5' : 'bg-transparent border-transparent text-white/40 hover:text-white/60'}`}
                                                     >
                                                         <Icon size={14} />
                                                         {option.label}
@@ -2000,217 +2107,64 @@ const AppearanceEditor = memo(function AppearanceEditor({ theme, setTheme, profi
                                                 );
                                             })}
                                         </div>
-                                    </div>
-                                )}
 
-                                {/* Title Section */}
-                                <div className="flex flex-col gap-2 px-2">
-                                    <div className="flex items-center justify-between px-1">
-                                        <label htmlFor="editor-profile-title" className="text-[9px] font-black text-white/20 uppercase tracking-[0.2em]">Display Title</label>
-                                        <button
-                                            onClick={() => setProfile({ ...profile, showTitle: !profile.showTitle })}
-                                            className={`px-4 py-2.5 rounded-full border border-white/10 hover:bg-white/5 text-[11px] font-bold flex items-center gap-2 transition-all hover:scale-105 shadow-xl shadow-white/5 ${profile.showTitle !== false ? 'text-white' : 'text-white/40'}`}
-                                        >
-                                            {profile.showTitle !== false ? <EyeOff size={12} /> : <Eye size={12} />}
-                                            {profile.showTitle !== false ? 'Hide' : 'Show'}
-                                        </button>
-                                    </div>
-                                    <input
-                                        id="editor-profile-title"
-                                        name="editor-profile-title"
-                                        value={profile.username}
-                                        onChange={(e) => setProfile({ ...profile, username: e.target.value })}
-                                        className="w-full bg-white/3 border border-white/5 rounded-xl px-5 py-3 text-sm font-bold text-white outline-none focus:border-purple-500/20 focus:bg-white/5 transition-all placeholder:text-white/10"
-                                        placeholder="@username"
-                                    />
-                                </div>
-
-                                {/* Title Style Section */}
-                                <div className="flex flex-col gap-4 p-6 rounded-[2rem] bg-white/3 border border-white/5">
-                                    <div className="flex items-center gap-2 px-1">
-                                        <div className="w-6 h-6 rounded-lg bg-blue-500/10 flex items-center justify-center border border-blue-500/10">
-                                            <Layers size={12} className="text-blue-400" />
-                                        </div>
-                                        <span className="text-[9px] font-bold uppercase tracking-widest text-white/30">Title style</span>
-                                    </div>
-                                    <div className="flex p-1 bg-black/20 rounded-xl border border-white/5">
-                                        {[
-                                            { id: 'text', label: 'Text', icon: Type },
-                                            { id: 'logo', label: 'Logo', icon: Image }
-                                        ].map(option => {
-                                            const Icon = option.icon;
-                                            return (
-                                                <button
-                                                    key={option.id}
-                                                    onClick={() => setTheme({ ...theme, titleStyle: option.id })}
-                                                    className={`flex-1 flex items-center justify-center gap-2 py-2.5 rounded-xl text-[10px] font-black uppercase tracking-widest transition-all border ${theme.titleStyle === option.id ? 'bg-blue-500/20 border-blue-500/40 text-white shadow-xl shadow-blue-500/5' : 'bg-transparent border-transparent text-white/40 hover:text-white/60'}`}
-                                                >
-                                                    <Icon size={14} />
-                                                    {option.label}
-                                                </button>
-                                            );
-                                        })}
-                                    </div>
-
-                                    {theme.titleStyle === 'logo' && (
-                                        <div className="flex flex-col gap-6 pt-4 border-t border-white/5 animate-in slide-in-from-top-2 duration-300">
-                                            <div className="flex items-center gap-4">
-                                                <div className="relative group">
-                                                    <div className="w-16 h-16 rounded-2xl bg-white/5 border border-white/10 flex items-center justify-center overflow-hidden transition-transform group-hover:scale-105">
-                                                        {theme.titleLogo ? (
-                                                            <img
-                                                                src={theme.titleLogo}
-                                                                alt="Logo Preview"
-                                                                className="w-full h-full object-contain p-2"
-                                                            />
-                                                        ) : (
-                                                            <Image size={24} className="text-white/10" />
+                                        {theme.titleStyle === 'logo' && (
+                                            <div className="flex flex-col gap-6 pt-4 border-t border-white/5 animate-in slide-in-from-top-2 duration-300">
+                                                <div className="flex items-center gap-4">
+                                                    <div className="relative group">
+                                                        <div className="w-16 h-16 rounded-2xl bg-white/5 border border-white/10 flex items-center justify-center overflow-hidden transition-transform group-hover:scale-105">
+                                                            {theme.titleLogo ? (
+                                                                <img
+                                                                    src={theme.titleLogo}
+                                                                    alt="Logo Preview"
+                                                                    className="w-full h-full object-contain p-2"
+                                                                />
+                                                            ) : (
+                                                                <Image size={24} className="text-white/10" />
+                                                            )}
+                                                        </div>
+                                                    </div>
+                                                    <div className="flex flex-col gap-2 flex-1">
+                                                        <button
+                                                            onClick={() => setLogoImageModalOpen(true)}
+                                                            className="w-full px-4 py-2.5 rounded-xl bg-blue-500/10 border border-blue-500/20 hover:bg-blue-500/20 text-blue-400 text-[10px] font-bold uppercase tracking-widest transition-all flex items-center justify-center gap-2"
+                                                        >
+                                                            <Edit3 size={12} />
+                                                            {theme.titleLogo ? 'Change Logo' : 'Upload Logo'}
+                                                        </button>
+                                                        {theme.titleLogo && (
+                                                            <button
+                                                                onClick={() => setTheme({ ...theme, titleLogo: null })}
+                                                                className="w-full px-4 py-2 rounded-xl hover:bg-red-500/5 text-red-500/40 hover:text-red-500 text-[9px] font-bold uppercase tracking-widest transition-all"
+                                                            >
+                                                                Remove Logo
+                                                            </button>
                                                         )}
                                                     </div>
                                                 </div>
-                                                <div className="flex flex-col gap-2 flex-1">
-                                                    <button
-                                                        onClick={() => setLogoImageModalOpen(true)}
-                                                        className="w-full px-4 py-2.5 rounded-xl bg-blue-500/10 border border-blue-500/20 hover:bg-blue-500/20 text-blue-400 text-[10px] font-bold uppercase tracking-widest transition-all flex items-center justify-center gap-2"
-                                                    >
-                                                        <Edit3 size={12} />
-                                                        {theme.titleLogo ? 'Change Logo' : 'Upload Logo'}
-                                                    </button>
-                                                    {theme.titleLogo && (
-                                                        <button
-                                                            onClick={() => setTheme({ ...theme, titleLogo: null })}
-                                                            className="w-full px-4 py-2 rounded-xl hover:bg-red-500/5 text-red-500/40 hover:text-red-500 text-[9px] font-bold uppercase tracking-widest transition-all"
-                                                        >
-                                                            Remove Logo
-                                                        </button>
-                                                    )}
+
+                                                <div className="flex flex-col gap-3">
+                                                    <div className="flex items-center justify-between px-1">
+                                                        <span className="text-[9px] font-bold uppercase tracking-widest text-white/20">Logo Size</span>
+                                                        <span className="text-[10px] font-bold text-blue-400 bg-blue-500/10 px-2 py-0.5 rounded border border-blue-500/10">{theme.titleLogoSize || 100}%</span>
+                                                    </div>
+                                                    <input
+                                                        type="range"
+                                                        min="20"
+                                                        max="200"
+                                                        step="5"
+                                                        value={theme.titleLogoSize || 100}
+                                                        onChange={(e) => setTheme({ ...theme, titleLogoSize: parseInt(e.target.value) })}
+                                                        className="w-full h-1.5 bg-white/5 rounded-lg appearance-none cursor-pointer accent-blue-500 hover:accent-blue-400 transition-all"
+                                                    />
                                                 </div>
                                             </div>
-
-                                            <div className="flex flex-col gap-3">
-                                                <div className="flex items-center justify-between px-1">
-                                                    <span className="text-[9px] font-bold uppercase tracking-widest text-white/20">Logo Size</span>
-                                                    <span className="text-[10px] font-bold text-blue-400 bg-blue-500/10 px-2 py-0.5 rounded border border-blue-500/10">{theme.titleLogoSize || 100}%</span>
-                                                </div>
-                                                <input
-                                                    type="range"
-                                                    min="20"
-                                                    max="200"
-                                                    step="5"
-                                                    value={theme.titleLogoSize || 100}
-                                                    onChange={(e) => setTheme({ ...theme, titleLogoSize: parseInt(e.target.value) })}
-                                                    className="w-full h-1.5 bg-white/5 rounded-lg appearance-none cursor-pointer accent-blue-500 hover:accent-blue-400 transition-all"
-                                                />
-                                            </div>
-                                        </div>
-                                    )}
-                                </div>
-
-                                {/* Size Section */}
-                                <div className="flex flex-col gap-4 p-6 rounded-[2rem] bg-white/3 border border-white/5">
-                                    <div className="flex items-center justify-between px-1">
-                                        <div className="flex items-center gap-2">
-                                            <div className="w-6 h-6 rounded-lg bg-orange-500/10 flex items-center justify-center border border-orange-500/10">
-                                                <LayoutGrid size={12} className="text-orange-400" />
-                                            </div>
-                                            <span className="text-[9px] font-bold uppercase tracking-widest text-white/30">Header Size</span>
-                                        </div>
-                                        <div className="text-[10px] font-bold text-white/40 bg-white/5 px-2 py-1 rounded-md border border-white/5">
-                                            {typeof profile.headerSize === 'number' ? profile.headerSize : (profile.headerSize === 'small' ? 80 : 100)}%
-                                        </div>
+                                        )}
                                     </div>
 
-                                    <div className="flex items-center gap-4 px-1">
-                                        <label htmlFor="header-size-range" className="sr-only">Header Size Range</label>
-                                        <span className="text-[10px] font-bold text-white/30">20%</span>
-                                        <input
-                                            id="header-size-range"
-                                            name="header-size-range"
-                                            type="range"
-                                            min="20"
-                                            max="150"
-                                            step="5"
-                                            value={typeof profile.headerSize === 'number' ? profile.headerSize : (profile.headerSize === 'small' ? 80 : (profile.headerSize === 'large' ? 120 : 100))}
-                                            onChange={(e) => setProfile({ ...profile, headerSize: parseInt(e.target.value) })}
-                                            className="flex-1 h-2 bg-white/10 rounded-lg appearance-none cursor-pointer accent-orange-500 hover:accent-orange-400 transition-all"
-                                        />
-                                        <span className="text-[10px] font-bold text-white/30">150%</span>
-                                    </div>
-
-                                    <div className="flex gap-2">
-                                        {[80, 100, 120].map(size => (
-                                            <button
-                                                key={size}
-                                                onClick={() => setProfile({ ...profile, headerSize: size })}
-                                                className={`px-3 py-1.5 rounded-lg text-[10px] font-bold border transition-all ${(typeof profile.headerSize === 'number' ? profile.headerSize : (profile.headerSize === 'small' ? 80 : (profile.headerSize === 'large' ? 120 : 100))) === size
-                                                    ? 'bg-orange-500/20 border-orange-500/40 text-orange-400'
-                                                    : 'bg-white/5 border-white/5 text-white/40 hover:bg-white/10'
-                                                    }`}
-                                            >
-                                                {size === 80 ? 'Small' : size === 100 ? 'Normal' : 'Large'}
-                                            </button>
-                                        ))}
-                                        <div className="flex-1"></div>
-                                        <label htmlFor="header-size-number" className="sr-only">Header Size Number</label>
-                                        <input
-                                            id="header-size-number"
-                                            name="header-size-number"
-                                            type="number"
-                                            min="20"
-                                            max="150"
-                                            value={typeof profile.headerSize === 'number' ? profile.headerSize : (profile.headerSize === 'small' ? 80 : (profile.headerSize === 'large' ? 120 : 100))}
-                                            onChange={(e) => {
-                                                let val = parseInt(e.target.value);
-                                                if (val > 150) val = 150;
-                                                if (val < 20) val = 20;
-                                                setProfile({ ...profile, headerSize: val });
-                                            }}
-                                            className="w-16 bg-white/5 border border-white/10 rounded-lg px-2 py-1 text-center text-xs font-bold text-white outline-none focus:border-orange-500/50 transition-all"
-                                        />
-                                    </div>
-                                </div>
-
-                                {/* Animation Section */}
-                                <div className="flex flex-col gap-4 p-6 rounded-[2rem] bg-white/3 border border-white/5">
-                                    <div className="flex items-center gap-3 px-1">
-                                        <div className="w-8 h-8 rounded-lg bg-pink-500/10 border border-pink-500/20 flex items-center justify-center">
-                                            <Wand2 size={16} className="text-pink-400" />
-                                        </div>
-                                        <div className="flex flex-col">
-                                            <span className="text-sm font-bold text-white">Profile Animation</span>
-                                            <span className="text-[9px] text-white/20 font-black uppercase tracking-widest">Visual Effects</span>
-                                        </div>
-                                    </div>
-                                    <div className="p-1 bg-black/20 rounded-xl border border-white/5">
-                                        <SelectField
-                                            id="header-animation-select"
-                                            label=""
-                                            value={theme.headerAnimation || 'none'}
-                                            onChange={(e) => setTheme({ ...theme, headerAnimation: e.target.value })}
-                                            className="bg-transparent border-none text-[11px] font-bold"
-                                        >
-                                            {ANIMATION_OPTIONS.map(opt => (
-                                                <option key={opt.id} value={opt.id} className="bg-[#121212]">{opt.label}</option>
-                                            ))}
-                                        </SelectField>
-                                    </div>
-                                </div>
-
-                                {/* Typography Section */}
-                                <div className="flex flex-col gap-6 p-6 rounded-[2rem] bg-white/3 border border-white/5">
-                                    <div className="flex items-center gap-3 px-1">
-                                        <div className="w-8 h-8 rounded-lg bg-blue-500/10 border border-blue-500/20 flex items-center justify-center">
-                                            <Type size={16} className="text-blue-400" />
-                                        </div>
-                                        <div className="flex flex-col">
-                                            <span className="text-sm font-bold text-white">Typography</span>
-                                            <span className="text-[9px] text-white/20 font-black uppercase tracking-widest">Font & Style</span>
-                                        </div>
-                                    </div>
-
-                                    {/* Profile Title Settings */}
-                                    <div className="flex flex-col gap-6 pt-4 border-t border-white/5">
-                                        <span className="text-[9px] font-black text-white/20 uppercase tracking-[0.2em] px-1">Title Text Appearance</span>
+                                    {/* Username Text Appearance Section */}
+                                    <div className="flex flex-col gap-6 pt-6 border-t border-white/5">
+                                        <span className="text-[9px] font-black text-white/20 uppercase tracking-[0.2em] px-1">Username Text Appearance</span>
 
                                         <div className="grid grid-cols-1 gap-4">
                                             <SelectField
@@ -2273,12 +2227,11 @@ const AppearanceEditor = memo(function AppearanceEditor({ theme, setTheme, profi
                                             />
                                         </div>
 
-                                        {/* Title Animation */}
                                         <div className="flex flex-col gap-2">
                                             <SelectField
                                                 id="title-animation-select"
                                                 name="title-animation"
-                                                label="Title Animation"
+                                                label="Username Animation"
                                                 value={theme.titleAnimation || 'none'}
                                                 onChange={(e) => setTheme({ ...theme, titleAnimation: e.target.value })}
                                             >
@@ -2288,11 +2241,9 @@ const AppearanceEditor = memo(function AppearanceEditor({ theme, setTheme, profi
                                             </SelectField>
                                         </div>
 
-
-                                        {/* Title Color Mode Selector */}
                                         <div className="flex flex-col gap-4">
                                             <div className="flex items-center justify-between px-1">
-                                                <label className="text-[9px] font-black text-white/20 uppercase tracking-[0.2em]">Title Color Mode</label>
+                                                <label className="text-[9px] font-black text-white/20 uppercase tracking-[0.2em]">Username Color Mode</label>
                                             </div>
                                             <ModeSelector
                                                 mode={theme.titleColorType || 'solid'}
@@ -2301,10 +2252,9 @@ const AppearanceEditor = memo(function AppearanceEditor({ theme, setTheme, profi
                                             />
                                         </div>
 
-                                        {/* Title Color Controls */}
                                         {(!theme.titleColorType || theme.titleColorType === 'solid') && (
                                             <ColorPickerRow
-                                                label="Title Color"
+                                                label="Username Color"
                                                 value={theme.titleColor || '#ffffff'}
                                                 onChange={(val) => setTheme({ ...theme, titleColor: val })}
                                                 colorId="title-color"
@@ -2397,6 +2347,51 @@ const AppearanceEditor = memo(function AppearanceEditor({ theme, setTheme, profi
                                             </div>
                                         )}
                                     </div>
+                                </div>
+
+                                {profile.headerLayout === 'hero' && (
+                                    <div className="flex-none flex flex-col gap-4 p-6 rounded-[2rem] bg-white/3 border border-white/5">
+                                        <div className="flex items-center gap-2 px-1">
+                                            <div className="w-6 h-6 rounded-lg bg-pink-500/10 flex items-center justify-center border border-pink-500/10">
+                                                <Zap size={12} className="text-pink-400" />
+                                            </div>
+                                            <span className="text-[9px] font-bold uppercase tracking-widest text-white/30">Hero Model Style</span>
+                                        </div>
+                                        <div className="grid grid-cols-2 gap-2">
+                                            {[
+                                                { id: 'joined', label: 'Joined', icon: Layers },
+                                                { id: 'float', label: 'Float', icon: MousePointer2 },
+                                                { id: 'minimal', label: 'Minimal', icon: Square },
+                                                { id: 'glass', label: 'Glass', icon: Box }
+                                            ].map(option => {
+                                                const Icon = option.icon;
+                                                return (
+                                                    <button
+                                                        key={option.id}
+                                                        onClick={() => setProfile({ ...profile, heroModel: option.id })}
+                                                        className={`flex items-center justify-center gap-2 py-2.5 rounded-xl text-[10px] font-black uppercase tracking-widest transition-all border ${profile.heroModel === option.id ? 'bg-pink-500/20 border-pink-500/40 text-white shadow-xl shadow-pink-500/5' : 'bg-black/20 border-transparent text-white/40 hover:text-white/60'}`}
+                                                    >
+                                                        <Icon size={14} />
+                                                        {option.label}
+                                                    </button>
+                                                );
+                                            })}
+                                        </div>
+                                    </div>
+                                )}
+
+
+                                {/* Typography Section */}
+                                <div className="flex flex-col gap-6 p-6 rounded-[2rem] bg-white/3 border border-white/5">
+                                    <div className="flex items-center gap-3 px-1">
+                                        <div className="w-8 h-8 rounded-lg bg-blue-500/10 border border-blue-500/20 flex items-center justify-center">
+                                            <Type size={16} className="text-blue-400" />
+                                        </div>
+                                        <div className="flex flex-col">
+                                            <span className="text-sm font-bold text-white">Typography</span>
+                                            <span className="text-[9px] text-white/20 font-black uppercase tracking-widest">Font & Style</span>
+                                        </div>
+                                    </div>
 
                                     {/* Bio Settings */}
                                     {/* Bio Input Section */}
@@ -2404,7 +2399,7 @@ const AppearanceEditor = memo(function AppearanceEditor({ theme, setTheme, profi
                                         <div className="flex items-center justify-between px-1">
                                             <label htmlFor="editor-profile-bio" className="text-[9px] font-black text-white/20 uppercase tracking-[0.2em]">Bio Description</label>
                                             <button
-                                                onClick={() => setProfile({ ...profile, showBio: !profile.showBio })}
+                                                onClick={() => setProfile({ ...profile, showBio: profile.showBio === false ? true : false })}
                                                 className={`px-4 py-2.5 rounded-full border border-white/10 hover:bg-white/5 text-[11px] font-bold flex items-center gap-2 transition-all hover:scale-105 shadow-xl shadow-white/5 ${profile.showBio !== false ? 'text-white' : 'text-white/40'}`}
                                             >
                                                 {profile.showBio !== false ? <EyeOff size={12} /> : <Eye size={12} />}
@@ -2511,22 +2506,7 @@ const AppearanceEditor = memo(function AppearanceEditor({ theme, setTheme, profi
                                             />
                                         </div>
 
-                                        <div className="flex flex-col gap-3">
-                                            <div className="flex items-center justify-between px-1">
-                                                <label htmlFor="header-spacing-input" className="text-[10px] font-black text-white/20 uppercase tracking-widest">Header Spacing</label>
-                                                <span className="text-[10px] font-bold text-white">{profile.headerSpacing || 24}px</span>
-                                            </div>
-                                            <input
-                                                id="header-spacing-input"
-                                                name="header-spacing"
-                                                type="range"
-                                                min="0"
-                                                max="100"
-                                                value={profile.headerSpacing || 24}
-                                                onChange={(e) => setProfile({ ...profile, headerSpacing: parseInt(e.target.value) })}
-                                                className="w-full h-1 bg-white/10 rounded-lg appearance-none cursor-pointer accent-white"
-                                            />
-                                        </div>
+
 
                                         {/* Bio Animation */}
                                         <div className="flex flex-col gap-2">
@@ -2653,6 +2633,71 @@ const AppearanceEditor = memo(function AppearanceEditor({ theme, setTheme, profi
                                         )}
                                     </div>
                                 </div>
+
+                                {/* Header Spacing — standalone frame at the bottom */}
+                                <div className="flex flex-col gap-6 p-6 rounded-3xl md:rounded-[2rem] bg-white/3 border border-white/5">
+                                    <div className="flex items-center gap-3 px-1">
+                                        <div className="w-6 h-6 rounded-lg bg-blue-500/10 flex items-center justify-center border border-blue-500/10">
+                                            <Maximize size={12} className="text-blue-400" />
+                                        </div>
+                                        <span className="text-[9px] font-bold uppercase tracking-widest text-white/30">Header Spacing</span>
+                                    </div>
+                                    <div className="flex flex-col gap-5 px-1">
+                                        {/* 1. Spacing atas Avatar */}
+                                        <div className="flex flex-col gap-2">
+                                            <div className="flex items-center justify-between">
+                                                <label className="text-[10px] font-black text-white/40 uppercase tracking-widest">↑ Avatar Top</label>
+                                                <span className="text-[10px] font-bold text-white">{profile.spacingAvatar ?? 16}px</span>
+                                            </div>
+                                            <input
+                                                type="range" min="0" max="120"
+                                                value={profile.spacingAvatar ?? 16}
+                                                onChange={(e) => setProfile({ ...profile, spacingAvatar: parseInt(e.target.value) })}
+                                                className="w-full h-1 bg-white/10 rounded-lg appearance-none cursor-pointer accent-white"
+                                            />
+                                        </div>
+                                        {/* 2. Spacing atas Username */}
+                                        <div className="flex flex-col gap-2">
+                                            <div className="flex items-center justify-between">
+                                                <label className="text-[10px] font-black text-white/40 uppercase tracking-widest">↑ Username Top</label>
+                                                <span className="text-[10px] font-bold text-white">{profile.spacingUsername ?? 12}px</span>
+                                            </div>
+                                            <input
+                                                type="range" min="0" max="80"
+                                                value={profile.spacingUsername ?? 12}
+                                                onChange={(e) => setProfile({ ...profile, spacingUsername: parseInt(e.target.value) })}
+                                                className="w-full h-1 bg-white/10 rounded-lg appearance-none cursor-pointer accent-white"
+                                            />
+                                        </div>
+                                        {/* 3. Spacing atas Bio */}
+                                        <div className="flex flex-col gap-2">
+                                            <div className="flex items-center justify-between">
+                                                <label className="text-[10px] font-black text-white/40 uppercase tracking-widest">↑ Bio Top</label>
+                                                <span className="text-[10px] font-bold text-white">{profile.spacingBio ?? 6}px</span>
+                                            </div>
+                                            <input
+                                                type="range" min="0" max="80"
+                                                value={profile.spacingBio ?? 6}
+                                                onChange={(e) => setProfile({ ...profile, spacingBio: parseInt(e.target.value) })}
+                                                className="w-full h-1 bg-white/10 rounded-lg appearance-none cursor-pointer accent-white"
+                                            />
+                                        </div>
+                                        {/* 4. Spacing atas Konten Button/Links */}
+                                        <div className="flex flex-col gap-2">
+                                            <div className="flex items-center justify-between">
+                                                <label className="text-[10px] font-black text-white/40 uppercase tracking-widest">↑ Links Top</label>
+                                                <span className="text-[10px] font-bold text-white">{profile.spacingLinks ?? 20}px</span>
+                                            </div>
+                                            <input
+                                                type="range" min="0" max="120"
+                                                value={profile.spacingLinks ?? 20}
+                                                onChange={(e) => setProfile({ ...profile, spacingLinks: parseInt(e.target.value) })}
+                                                className="w-full h-1 bg-white/10 rounded-lg appearance-none cursor-pointer accent-white"
+                                            />
+                                        </div>
+                                    </div>
+                                </div>
+
                             </div>
                         )}
 
@@ -3145,8 +3190,11 @@ const AppearanceEditor = memo(function AppearanceEditor({ theme, setTheme, profi
                                                         onChange={(e) => {
                                                             const file = e.target.files[0];
                                                             if (file) {
-                                                                const url = URL.createObjectURL(file);
-                                                                setTheme({ ...theme, backgroundImage: url });
+                                                                const reader = new FileReader();
+                                                                reader.onloadend = () => {
+                                                                    setTheme({ ...theme, backgroundImage: reader.result });
+                                                                };
+                                                                reader.readAsDataURL(file);
                                                             }
                                                         }}
                                                     />
@@ -3251,10 +3299,55 @@ const AppearanceEditor = memo(function AppearanceEditor({ theme, setTheme, profi
                                         id="noise-toggle"
                                         aria-labelledby="noise-toggle-label"
                                         onClick={() => setTheme({ ...theme, noise: !theme.noise })}
-                                        className={`w-12 h-6 rounded-full relative ${theme.noise ? 'bg-white' : 'bg-white/10'}`}
+                                        className={`w-12 h-6 rounded-full relative transition-colors ${theme.noise ? 'bg-emerald-500' : 'bg-white/10'}`}
                                     >
-                                        <div className={`absolute top-1 w-4 h-4 rounded-full ${theme.noise ? 'left-7 bg-black' : 'left-1 bg-white/40'}`} />
+                                        <div className={`absolute top-1 w-4 h-4 rounded-full transition-all ${theme.noise ? 'left-7 bg-white' : 'left-1 bg-white/40'}`} />
                                     </button>
+                                </div>
+
+                                {/* Dynamic Animated Icons */}
+                                <div className="flex flex-col gap-6 p-6 rounded-[2rem] bg-white/3 border border-white/5 mt-2">
+                                    <div className="flex items-center gap-2 px-1">
+                                        <div className="w-6 h-6 rounded-lg bg-emerald-500/10 flex items-center justify-center border border-emerald-500/10">
+                                            <Sparkles size={12} className="text-emerald-400" />
+                                        </div>
+                                        <span className="text-[9px] font-bold uppercase tracking-widest text-white/30">Background Animation</span>
+                                    </div>
+
+                                    <div className="grid grid-cols-3 gap-3">
+                                        {BG_EFFECT_OPTIONS.map(effect => {
+                                            const Icon = effect.icon;
+                                            return (
+                                                <button
+                                                    key={effect.id}
+                                                    onClick={() => setTheme({ ...theme, bgEffect: effect.id })}
+                                                    className={`py-3 px-2 rounded-2xl border flex flex-col items-center gap-2 transition-all duration-300 ${theme.bgEffect === effect.id ? 'border-emerald-500/40 bg-emerald-500/10 shadow-lg shadow-emerald-500/5' : 'border-white/5 bg-white/2 hover:border-white/10 hover:bg-white/5'}`}
+                                                >
+                                                    {Icon ? <Icon size={18} className={theme.bgEffect === effect.id ? 'text-emerald-400' : 'text-white/40'} /> : <div className="w-4 h-4"></div>}
+                                                    <span className={`text-[9px] font-black uppercase tracking-widest transition-colors ${theme.bgEffect === effect.id ? 'text-emerald-400' : 'text-white/30'}`}>{effect.label}</span>
+                                                </button>
+                                            );
+                                        })}
+                                    </div>
+
+                                    {theme.bgEffect && theme.bgEffect !== 'none' && (
+                                        <div className="flex items-center justify-between p-3 rounded-xl bg-black/20 border border-white/5 group focus-within:border-emerald-500/20 transition-all mt-2">
+                                            <div className="flex flex-col gap-1">
+                                                <label htmlFor="bg-effect-color" className="text-[8px] font-black text-white/20 uppercase tracking-widest">Effect Base Color</label>
+                                                <span className="text-[10px] font-mono text-white/60 uppercase">{theme.bgEffectColor || '#ffffff'}</span>
+                                            </div>
+                                            <div className="relative w-10 h-10 rounded-xl overflow-hidden shrink-0 border border-white/10">
+                                                <input
+                                                    id="bg-effect-color"
+                                                    name="bg-effect-color"
+                                                    type="color"
+                                                    value={theme.bgEffectColor || '#ffffff'}
+                                                    onChange={(e) => setTheme({ ...theme, bgEffectColor: e.target.value })}
+                                                    className="absolute inset-0 w-[150%] h-[150%] -translate-x-1/4 -translate-y-1/4 cursor-pointer"
+                                                />
+                                            </div>
+                                        </div>
+                                    )}
                                 </div>
                             </div>
                         )}
@@ -3507,7 +3600,7 @@ const AppearanceEditor = memo(function AppearanceEditor({ theme, setTheme, profi
                                                                             className="w-full h-1 bg-white/10 rounded-lg appearance-none cursor-pointer accent-emerald-500"
                                                                         />
                                                                     </div>
-                                                                    <div className="w-16 h-10 rounded-xl bg-black/20 border border-white/5 flex items-center justify-center">
+                                                                    <div className="w-16 input-premium-container">
                                                                         <input
                                                                             id="btn-width-number"
                                                                             name="btn-width-number"
@@ -3516,7 +3609,7 @@ const AppearanceEditor = memo(function AppearanceEditor({ theme, setTheme, profi
                                                                             max="100"
                                                                             value={theme.btnWidth || 100}
                                                                             onChange={(e) => setTheme({ ...theme, btnWidth: parseInt(e.target.value) })}
-                                                                            className="w-full bg-transparent text-center text-xs font-bold text-white outline-none"
+                                                                            className="w-full bg-transparent text-center text-[11px] font-black text-white outline-none placeholder:text-white/20"
                                                                         />
                                                                     </div>
                                                                 </div>
@@ -3541,7 +3634,7 @@ const AppearanceEditor = memo(function AppearanceEditor({ theme, setTheme, profi
                                                                             className="w-full h-1 bg-white/10 rounded-lg appearance-none cursor-pointer accent-emerald-500"
                                                                         />
                                                                     </div>
-                                                                    <div className="w-16 h-10 rounded-xl bg-black/20 border border-white/5 flex items-center justify-center">
+                                                                    <div className="w-16 input-premium-container">
                                                                         <input
                                                                             id="btn-height-number"
                                                                             name="btn-height-number"
@@ -3550,29 +3643,45 @@ const AppearanceEditor = memo(function AppearanceEditor({ theme, setTheme, profi
                                                                             max="32"
                                                                             value={theme.btnHeight || 14}
                                                                             onChange={(e) => setTheme({ ...theme, btnHeight: parseInt(e.target.value) })}
-                                                                            className="w-full bg-transparent text-center text-xs font-bold text-white outline-none"
+                                                                            className="w-full bg-transparent text-center text-[11px] font-black text-white outline-none placeholder:text-white/20"
+                                                                        />
+                                                                    </div>
+                                                                </div>
+                                                            </div>
+                                                            {/* Spacing Control */}
+                                                            <div className="flex flex-col gap-4 pt-4 border-t border-white/5">
+                                                                <div className="flex items-center justify-between px-1">
+                                                                    <label htmlFor="btn-spacing-slider" className="text-[10px] font-black text-white/20 uppercase tracking-widest">Button Spacing (Gap)</label>
+                                                                    <span className="text-[10px] font-bold text-white">{theme.btnSpacing || 12}px</span>
+                                                                </div>
+                                                                <div className="flex items-center gap-4">
+                                                                    <div className="flex-1">
+                                                                        <input
+                                                                            id="btn-spacing-slider"
+                                                                            name="btn-spacing"
+                                                                            type="range"
+                                                                            min="8"
+                                                                            max="40"
+                                                                            value={theme.btnSpacing || 12}
+                                                                            onChange={(e) => setTheme({ ...theme, btnSpacing: parseInt(e.target.value) })}
+                                                                            className="w-full h-1 bg-white/10 rounded-lg appearance-none cursor-pointer accent-emerald-500"
+                                                                        />
+                                                                    </div>
+                                                                    <div className="w-16 input-premium-container">
+                                                                        <input
+                                                                            id="btn-spacing-number"
+                                                                            name="btn-spacing-number"
+                                                                            type="number"
+                                                                            min="8"
+                                                                            max="40"
+                                                                            value={theme.btnSpacing || 12}
+                                                                            onChange={(e) => setTheme({ ...theme, btnSpacing: parseInt(e.target.value) })}
+                                                                            className="w-full bg-transparent text-center text-[11px] font-black text-white outline-none placeholder:text-white/20"
                                                                         />
                                                                     </div>
                                                                 </div>
                                                             </div>
                                                         </div>
-                                                    </div>
-                                                    {/* Spacing Control */}
-                                                    <div className="flex flex-col gap-4 pt-4 border-t border-white/5">
-                                                        <div className="flex items-center justify-between px-1">
-                                                            <label htmlFor="btn-spacing-slider" className="text-[10px] font-black text-white/20 uppercase tracking-widest">Button Spacing (Gap)</label>
-                                                            <span className="text-[10px] font-bold text-white">{theme.btnSpacing || 12}px</span>
-                                                        </div>
-                                                        <input
-                                                            id="btn-spacing-slider"
-                                                            name="btn-spacing"
-                                                            type="range"
-                                                            min="8"
-                                                            max="40"
-                                                            value={theme.btnSpacing || 12}
-                                                            onChange={(e) => setTheme({ ...theme, btnSpacing: parseInt(e.target.value) })}
-                                                            className="w-full h-1 bg-white/10 rounded-lg appearance-none cursor-pointer accent-emerald-500"
-                                                        />
                                                     </div>
                                                 </div>
                                             )}
@@ -3740,6 +3849,24 @@ const AppearanceEditor = memo(function AppearanceEditor({ theme, setTheme, profi
                                                     )}
                                                 </div>
                                             )}
+                                            {/* Animation Effect */}
+                                            <div className="flex flex-col gap-3 pt-6 border-t border-white/5">
+                                                <span className="text-[10px] font-black text-white/20 uppercase tracking-widest px-1">Entrance Animation</span>
+                                                <div className="grid grid-cols-2 gap-2">
+                                                    {ANIMATION_OPTIONS.map(opt => (
+                                                        <button
+                                                            key={opt.id}
+                                                            onClick={() => setTheme({ ...theme, btnAnimation: opt.id })}
+                                                            className={`py-3 px-3 rounded-xl text-[9px] font-black uppercase tracking-widest transition-all border ${(theme.btnAnimation || 'none') === opt.id
+                                                                ? 'bg-amber-500/20 text-white border-amber-500/40 shadow-xl shadow-amber-500/10'
+                                                                : 'bg-black/20 text-white/30 border-white/5 hover:border-white/10 hover:text-white/60 hover:bg-white/5'
+                                                                }`}
+                                                        >
+                                                            {opt.label}
+                                                        </button>
+                                                    ))}
+                                                </div>
+                                            </div>
                                         </div>
                                     </div>
                                 </div>
@@ -4005,24 +4132,6 @@ const AppearanceEditor = memo(function AppearanceEditor({ theme, setTheme, profi
                                             </div>
                                         </div>
 
-                                        {/* Animation Effect */}
-                                        <div className="flex flex-col gap-3 pt-6 border-t border-white/5">
-                                            <span className="text-[10px] font-black text-white/20 uppercase tracking-widest px-1">Entrance Animation</span>
-                                            <div className="grid grid-cols-2 gap-2">
-                                                {ANIMATION_OPTIONS.map(opt => (
-                                                    <button
-                                                        key={opt.id}
-                                                        onClick={() => setTheme({ ...theme, btnAnimation: opt.id })}
-                                                        className={`py-3 px-3 rounded-xl text-[9px] font-black uppercase tracking-widest transition-all border ${(theme.btnAnimation || 'none') === opt.id
-                                                            ? 'bg-amber-500/20 text-white border-amber-500/40 shadow-xl shadow-amber-500/10'
-                                                            : 'bg-black/20 text-white/30 border-white/5 hover:border-white/10 hover:text-white/60 hover:bg-white/5'
-                                                            }`}
-                                                    >
-                                                        {opt.label}
-                                                    </button>
-                                                ))}
-                                            </div>
-                                        </div>
                                     </div>
                                 </div>
                             </div>

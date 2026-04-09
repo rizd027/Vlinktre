@@ -154,8 +154,6 @@ const LinkItem = memo(function LinkItem({ link, i, layoutType, theme }) {
     const getShadowStyle = () => {
         if (!theme.btnShadowType || theme.btnShadowType === 'none') return null;
 
-        if (theme.btnShadowType === 'solid') return null;
-
         let shadowBg = { backgroundColor: theme.btnShadowColor || 'rgba(0,0,0,0.5)' };
 
         if (theme.btnShadowType === 'gradient') {
@@ -165,21 +163,25 @@ const LinkItem = memo(function LinkItem({ link, i, layoutType, theme }) {
         } else if (theme.btnShadowType === 'pattern') {
             if (theme.btnShadowPattern === 'dots') {
                 shadowBg = {
-                    backgroundImage: `radial-gradient(${theme.btnShadowColor} 1.5px, transparent 1.5px)`,
+                    backgroundColor: theme.btnShadowColor || '#000',
+                    backgroundImage: `radial-gradient(rgba(255,255,255,0.1) 1.5px, transparent 1.5px)`,
                     backgroundSize: '12px 12px'
                 };
             } else if (theme.btnShadowPattern === 'stripes') {
                 shadowBg = {
-                    backgroundImage: `linear-gradient(45deg, ${theme.btnShadowColor} 25%, transparent 25%, transparent 50%, ${theme.btnShadowColor} 50%, ${theme.btnShadowColor} 75%, transparent 75%, transparent)`,
+                    backgroundColor: theme.btnShadowColor || '#000',
+                    backgroundImage: `linear-gradient(45deg, rgba(255,255,255,0.05) 25%, transparent 25%, transparent 50%, rgba(255,255,255,0.05) 50%, rgba(255,255,255,0.05) 75%, transparent 75%, transparent)`,
                     backgroundSize: '24px 24px'
                 };
             } else if (theme.btnShadowPattern === 'noise') {
                 shadowBg = {
+                    backgroundColor: theme.btnShadowColor || '#000',
                     backgroundImage: NOISE_TEXTURE,
                     backgroundBlendMode: 'overlay'
                 };
             } else if (theme.btnShadowPattern === 'custom' && theme.btnShadowCustomPattern) {
                 shadowBg = {
+                    backgroundColor: theme.btnShadowColor || '#000',
                     backgroundImage: `url(${theme.btnShadowCustomPattern})`,
                     backgroundSize: 'cover',
                     backgroundBlendMode: 'overlay'
@@ -188,7 +190,8 @@ const LinkItem = memo(function LinkItem({ link, i, layoutType, theme }) {
         }
 
         const spread = theme.btnShadowSpread || 0;
-        return {
+        
+        const outerStyle = {
             position: 'absolute',
             zIndex: 5,
             top: `${-spread}px`,
@@ -196,15 +199,22 @@ const LinkItem = memo(function LinkItem({ link, i, layoutType, theme }) {
             left: `${-spread}px`,
             right: `${-spread}px`,
             transform: `translate(${theme.btnShadowX || 0}px, ${theme.btnShadowY || 0}px)`,
+            pointerEvents: 'none'
+        };
+
+        const innerStyle = {
+            position: 'absolute',
+            inset: 0,
             filter: `blur(${theme.btnShadowBlur || 0}px)`,
-            opacity: theme.btnShadowOpacity ?? 0.5,
+            opacity: theme.btnShadowOpacity ?? (theme.btnShadowType === 'solid' ? 1 : 0.5),
             borderRadius: `${theme.btnRadius}px`,
-            pointerEvents: 'none',
             ...shadowBg
         };
+
+        return { outerStyle, innerStyle };
     };
 
-    const shadowStyle = getShadowStyle();
+    const shadowStyles = getShadowStyle();
 
     // Render Thumbnail or Icon
     const renderMedia = () => {
@@ -294,11 +304,13 @@ const LinkItem = memo(function LinkItem({ link, i, layoutType, theme }) {
                 marginRight: layoutType !== 'grid' && layoutType !== 'carousel' ? 'auto' : undefined,
             }}
         >
-            {shadowStyle && (
-                <div
-                    className={theme.btnShadowAnimation && theme.btnShadowAnimation !== 'none' ? `animate-${theme.btnShadowAnimation}` : ''}
-                    style={shadowStyle}
-                />
+            {shadowStyles && (
+                <div style={shadowStyles.outerStyle}>
+                    <div
+                        className={theme.btnShadowAnimation && theme.btnShadowAnimation !== 'none' ? `animate-${theme.btnShadowAnimation}` : ''}
+                        style={shadowStyles.innerStyle}
+                    />
+                </div>
             )}
             <a
                 href={link.url}
@@ -316,9 +328,7 @@ const LinkItem = memo(function LinkItem({ link, i, layoutType, theme }) {
                     padding: (layoutType === 'showcase' && i === 0) || layoutType === 'featured' || layoutType === 'grid' ? undefined : `${(theme.btnHeight || 14) * 0.85}px 12px`,
                     width: '100%',
                     borderRadius: `${theme.btnRadius}px`,
-                    boxShadow: theme.btnShadowType === 'solid' && theme.btnShadowColor
-                        ? `${theme.btnShadowX || 0}px ${theme.btnShadowY || 0}px 0px ${theme.btnShadowSpread || 0}px ${theme.btnShadowColor}`
-                        : 'none',
+                    boxShadow: 'none',
                     ...bgStyle
                 }}
             >
