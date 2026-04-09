@@ -268,13 +268,16 @@ const PreviewSection = memo(({ theme, profile, links, socials, layoutType, previ
                         {theme.wallpaperStyle === 'video' && theme.backgroundVideo && (
                             <video
                                 autoPlay
-                                muted
+                                muted={!theme.videoAudioEnabled}
                                 loop
                                 className="absolute inset-0 w-full h-full object-cover"
                                 src={theme.backgroundVideo}
                                 style={{
                                     opacity: theme.videoOpacity ?? 1,
                                     filter: theme.videoBlur ? `blur(${theme.videoBlur}px)` : 'none'
+                                }}
+                                ref={(el) => {
+                                    if (el) el.volume = (theme.videoVolume ?? 50) / 100;
                                 }}
                             />
                         )}

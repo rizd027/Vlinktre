@@ -368,18 +368,7 @@ const LinkItem = memo(function LinkItem({ link, i, layoutType, theme }) {
                         >
                             {link.title}
                         </span>
-                        {link.url && layoutType !== 'grid' && (
-                            <span
-                                className={`transition-all opacity-60 font-medium truncate ${(layoutType === 'showcase' && i === 0) || layoutType === 'featured' ? 'text-xs mt-1' : ''}`}
-                                style={{
-                                    ...textStyle,
-                                    fontFamily: theme.btnFont || 'Inter',
-                                    fontSize: (layoutType === 'showcase' && i === 0) || layoutType === 'featured' ? undefined : `${Math.max(10, (theme.btnFontSize || 14) * 0.85)}px`
-                                }}
-                            >
-                                {link.url.replace(/^https?:\/\/(www\.)?/, '')}
-                            </span>
-                        )}
+
                     </div>
                 </div>
 

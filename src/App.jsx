@@ -472,6 +472,8 @@ function App() {
             backgroundVideo: null,
             videoOpacity: 1,
             videoBlur: 0,
+            videoAudioEnabled: false,
+            videoVolume: 50,
             noise: false,
             btnStyle: 'glass',
             btnRadius: 12,
@@ -3260,6 +3262,41 @@ const AppearanceEditor = memo(function AppearanceEditor({ theme, setTheme, profi
                                                                 className="w-full h-1 bg-white/10 rounded-lg appearance-none cursor-pointer accent-emerald-500"
                                                             />
                                                         </div>
+                                                    </div>
+                                                    
+                                                    {/* Audio Controls */}
+                                                    <div className="flex flex-col gap-4 p-4 rounded-xl bg-black/20 border border-white/5">
+                                                        <div className="flex items-center justify-between">
+                                                            <div className="flex flex-col gap-0.5">
+                                                                <span className="text-[10px] font-bold text-white uppercase tracking-widest">Enable Audio</span>
+                                                                <span className="text-[8px] text-white/40">Include video sound (may require interaction)</span>
+                                                            </div>
+                                                            <button
+                                                                onClick={() => setTheme({ ...theme, videoAudioEnabled: !theme.videoAudioEnabled })}
+                                                                className={`w-10 h-5 rounded-full relative transition-colors ${theme.videoAudioEnabled ? 'bg-emerald-500' : 'bg-white/10'}`}
+                                                            >
+                                                                <div className={`absolute top-1 w-3 h-3 rounded-full transition-all ${theme.videoAudioEnabled ? 'left-6 bg-white' : 'left-1 bg-white/40'}`} />
+                                                            </button>
+                                                        </div>
+                                                        
+                                                        {theme.videoAudioEnabled && (
+                                                            <div className="flex flex-col gap-4 pt-3 border-t border-white/5">
+                                                                <div className="flex items-center justify-between px-1">
+                                                                    <label htmlFor="wallpaper-video-volume" className="text-[9px] font-bold text-white/30 uppercase tracking-widest">Volume</label>
+                                                                    <span className="text-[10px] font-bold text-white">{theme.videoVolume ?? 50}%</span>
+                                                                </div>
+                                                                <input
+                                                                    id="wallpaper-video-volume"
+                                                                    name="wallpaper-video-volume"
+                                                                    type="range"
+                                                                    min="0"
+                                                                    max="100"
+                                                                    value={theme.videoVolume ?? 50}
+                                                                    onChange={(e) => setTheme({ ...theme, videoVolume: parseInt(e.target.value) })}
+                                                                    className="w-full h-1 bg-white/10 rounded-lg appearance-none cursor-pointer accent-emerald-500"
+                                                                />
+                                                            </div>
+                                                        )}
                                                     </div>
                                                 </div>
                                             ) : (

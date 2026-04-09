@@ -223,10 +223,9 @@ body {
     height: ${theme.socialSize || 18}px !important;
 }
 
-/* Custom Scrollbar */
-::-webkit-scrollbar { width: 6px; }
-::-webkit-scrollbar-track { background: transparent; }
-::-webkit-scrollbar-thumb { background: rgba(255, 255, 255, 0.2); border-radius: 10px; }
+/* Hide Scrollbar */
+::-webkit-scrollbar { width: 0px; display: none; }
+* { -ms-overflow-style: none; scrollbar-width: none; }
 
 ${getBgEffectRawCss()}
 `;
@@ -247,6 +246,27 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     };
     initIcons();
+    
+    ${theme.wallpaperStyle === 'video' && theme.videoAudioEnabled ? `
+    // Autoplay audio handling
+    const bgVideo = document.getElementById('vlink-bg-video');
+    if (bgVideo) {
+        bgVideo.volume = ${(theme.videoVolume ?? 50) / 100};
+        bgVideo.muted = false;
+        var playPromise = bgVideo.play();
+        if (playPromise !== undefined) {
+            playPromise.catch(function() {
+                // Autoplay blocked. Mute it to allow visual playback, wait for interaction to unmute.
+                bgVideo.muted = true;
+                bgVideo.play();
+                document.body.addEventListener('click', function playOnInteract() {
+                    bgVideo.muted = false;
+                    document.body.removeEventListener('click', playOnInteract);
+                }, { once: true });
+            });
+        }
+    }
+    ` : ''}
     
     console.log('VLink Page Ready');
 });
@@ -351,6 +371,9 @@ document.addEventListener('DOMContentLoaded', () => {
             if (style === 'pattern') {
                 return `background: ${theme.patternBackgroundColor || theme.bg || '#000000'};`;
             }
+            if (style === 'video') {
+                return `background: #000000;`;
+            }
             return `background: ${theme.bg || '#000000'};`;
         };
 
@@ -411,7 +434,7 @@ document.addEventListener('DOMContentLoaded', () => {
         // --- Static SVG Icons ---
         const getSocialSvg = (platform, size) => {
             const s = size || 18;
-            switch(platform?.toLowerCase()) {
+            switch (platform?.toLowerCase()) {
                 case 'instagram': return `<svg width="${s}" height="${s}" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="2" width="20" height="20" rx="5" ry="5"></rect><path d="M16 11.37A4 4 0 1 1 12.63 8 4 4 0 0 1 16 11.37z"></path><line x1="17.5" y1="6.5" x2="17.51" y2="6.5"></line></svg>`;
                 case 'twitter': return `<svg width="${s}" height="${s}" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 4.01c-1 .49-1.98.689-3 .99-1.121-1.265-2.783-1.335-4.38-.737S11.977 6.323 12 8v1c-3.245.083-6.135-1.395-8-4 0 0-4.182 7.433 4 11-1.872 1.247-3.739 2.088-6 2 3.308 1.803 6.913 2.423 10.034 1.517 3.58-1.04 6.522-3.723 7.651-7.742a13.84 13.84 0 0 0 .497-3.753C20.18 7.773 21.692 5.25 22 4.009z"></path></svg>`;
                 case 'youtube': return `<svg width="${s}" height="${s}" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22.54 6.42a2.78 2.78 0 0 0-1.94-2C18.88 4 12 4 12 4s-6.88 0-8.6.46a2.78 2.78 0 0 0-1.94 2A29 29 0 0 0 1 11.75a29 29 0 0 0 .46 5.33A2.78 2.78 0 0 0 3.4 19c1.72.46 8.6.46 8.6.46s6.88 0 8.6-.46a2.78 2.78 0 0 0 1.94-2 29 29 0 0 0 .46-5.25 29 29 0 0 0-.46-5.33z"></path><polygon points="9.75 15.02 15.5 11.75 9.75 8.48 9.75 15.02"></polygon></svg>`;
@@ -424,7 +447,7 @@ document.addEventListener('DOMContentLoaded', () => {
         };
 
         const getBrandColor = (platform) => {
-            switch(platform?.toLowerCase()) {
+            switch (platform?.toLowerCase()) {
                 case 'instagram': return '#f472b6';
                 case 'twitter': return '#60a5fa';
                 case 'youtube': return '#ef4444';
@@ -480,7 +503,7 @@ CSSPLACEHOLDER
         .hero-card {
             width: 100%;
             border-radius: 2.5rem;
-            padding: 3rem 2rem;
+            padding: 1rem;
             text-align: center;
             margin-bottom: 2.5rem;
             position: relative;
@@ -510,7 +533,7 @@ CSSPLACEHOLDER
             align-items: flex-start;
             justify-content: center;
             min-height: 100vh;
-            padding: 48px 24px;
+            padding: 24px;
         }
         .desktop-frame-box {
             position: relative;
@@ -549,7 +572,7 @@ CSSPLACEHOLDER
         ` : ''}
         
         ${theme.wallpaperStyle === 'video' && theme.backgroundVideo ? `
-            <video src="${resolveUrl(theme.backgroundVideo, 'bg_video')}" autoplay muted loop style="position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; opacity: ${theme.videoOpacity ?? 1}; filter: blur(${theme.videoBlur ?? 0}px); z-index: 0;"></video>
+            <video id="vlink-bg-video" src="${resolveUrl(theme.backgroundVideo, 'bg_video')}" autoplay muted playsinline loop style="position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; opacity: ${theme.videoOpacity ?? 1}; filter: blur(${theme.videoBlur ?? 0}px); z-index: 0;"></video>
         ` : ''}
         
         ${theme.wallpaperStyle === 'blur' ? `
@@ -563,7 +586,7 @@ CSSPLACEHOLDER
 
     <div class="desktop-frame-outer">
         <div class="desktop-frame-box">
-            <div class="flex flex-col items-center pt-10 pb-16 px-6 relative z-10 text-center">
+            <div class="flex flex-col items-center pt-6 pb-16 px-6 relative z-10 text-center">
         
         <!-- Header -->
         <header class="w-full flex flex-col items-center animate-fade-in-up">
@@ -608,31 +631,31 @@ CSSPLACEHOLDER
         <!-- Links -->
         <main class="w-full ${containerClass} animate-fade-in-up" style="animation-delay: 0.15s; margin-top: ${profile.spacingLinks ?? 20}px;">
             ${links.filter(l => l.active).map((l, i) => {
-                                    const layout = l.layout || layoutType || 'classic';
-                                    const animationClass = theme.btnAnimation && theme.btnAnimation !== 'none' ? `animate-${theme.btnAnimation}` : '';
-                                    const shineClass = theme.btnHoverEffect === 'shine' ? 'animate-shine' : '';
-                                    const itemClass = layoutType === 'carousel' ? 'min-w-[85%] snap-center' : '';
+                            const layout = l.layout || layoutType || 'classic';
+                            const animationClass = theme.btnAnimation && theme.btnAnimation !== 'none' ? `animate-${theme.btnAnimation}` : '';
+                            const shineClass = theme.btnHoverEffect === 'shine' ? 'animate-shine' : '';
+                            const itemClass = layoutType === 'carousel' ? 'min-w-[85%] snap-center' : '';
 
-                                    // Media rendering logic matching LinkItem.jsx
-                                    let mediaHtml = '';
-                                    if (l.thumbnail) {
-                                        const mediaClass = layout === 'grid' ? 'w-12 h-12 rounded-2xl mb-2' :
-                                            (layout === 'showcase' && i === 0) || layout === 'featured' ? 'w-20 h-20 rounded-2xl mr-4' :
-                                                'w-10 h-10 rounded-xl mr-3';
-                                        mediaHtml = `<div class="shrink-0 overflow-hidden ${mediaClass}"><img src="${resolveUrl(l.thumbnail, 'thumb')}" class="w-full h-full object-cover"></div>`;
-                                    } else if (l.icon) {
-                                        const iconSize = layout === 'grid' ? 20 : ((layout === 'showcase' && i === 0) || layout === 'featured' ? 28 : 20);
-                                        const mediaClass = layout === 'grid' ? 'w-10 h-10 rounded-xl mb-2' :
-                                            (layout === 'showcase' && i === 0) || layout === 'featured' ? 'w-14 h-14 rounded-2xl mr-4' :
-                                                'w-9 h-9 rounded-lg mr-3';
-                                        mediaHtml = `<div class="shrink-0 flex items-center justify-center bg-white/10 ${mediaClass} text-current">${getSocialSvg(l.icon, iconSize)}</div>`;
-                                    }
+                            // Media rendering logic matching LinkItem.jsx
+                            let mediaHtml = '';
+                            if (l.thumbnail) {
+                                const mediaClass = layout === 'grid' ? 'w-12 h-12 rounded-2xl mb-2' :
+                                    (layout === 'showcase' && i === 0) || layout === 'featured' ? 'w-20 h-20 rounded-2xl mr-4' :
+                                        'w-10 h-10 rounded-xl mr-3';
+                                mediaHtml = `<div class="shrink-0 overflow-hidden ${mediaClass}"><img src="${resolveUrl(l.thumbnail, 'thumb')}" class="w-full h-full object-cover"></div>`;
+                            } else if (l.icon) {
+                                const iconSize = layout === 'grid' ? 20 : ((layout === 'showcase' && i === 0) || layout === 'featured' ? 28 : 20);
+                                const mediaClass = layout === 'grid' ? 'w-10 h-10 rounded-xl mb-2' :
+                                    (layout === 'showcase' && i === 0) || layout === 'featured' ? 'w-14 h-14 rounded-2xl mr-4' :
+                                        'w-9 h-9 rounded-lg mr-3';
+                                mediaHtml = `<div class="shrink-0 flex items-center justify-center bg-white/10 ${mediaClass} text-current">${getSocialSvg(l.icon, iconSize)}</div>`;
+                            }
 
-                                    const hoverClass = theme.btnHoverEffect === 'lift' ? 'hover-lift' : theme.btnHoverEffect === 'scale' ? 'hover-scale' : theme.btnHoverEffect === 'glow' ? 'hover-glow' : '';
-                                    const activeClass = theme.btnPressEffect === 'push' ? 'active-push' : theme.btnPressEffect === 'inset' ? 'active-inset' : '';
-                                    const shadowHtml = getLinkShadowHtml(theme);
+                            const hoverClass = theme.btnHoverEffect === 'lift' ? 'hover-lift' : theme.btnHoverEffect === 'scale' ? 'hover-scale' : theme.btnHoverEffect === 'glow' ? 'hover-glow' : '';
+                            const activeClass = theme.btnPressEffect === 'push' ? 'active-push' : theme.btnPressEffect === 'inset' ? 'active-inset' : '';
+                            const shadowHtml = getLinkShadowHtml(theme);
 
-                                    return `
+                            return `
                 <div class="relative w-full ${itemClass}" style="margin-bottom: ${theme.btnSpacing || 12}px;">
                     ${shadowHtml}
                     <a href="${l.url}" target="_blank" rel="noopener noreferrer" class="link-item ${animationClass} ${shineClass} ${hoverClass} ${activeClass}" style="${getLinkStyles(l, theme)} margin-bottom: 0;">
@@ -642,7 +665,7 @@ CSSPLACEHOLDER
                         
                         <div class="flex-1 min-w-0 flex flex-col ${layout === 'grid' ? 'items-center' : ''}">
                             <span class="truncate" style="font-family: ${theme.btnFont || 'Inter'}; font-weight: ${theme.btnTextWeight || 600}; font-size: ${layout === 'featured' ? '18px' : (layout === 'grid' ? '11px' : (theme.btnFontSize || 14) + 'px')};">${l.title}</span>
-                            ${theme.showLinkUrl !== false && layout !== 'grid' ? `<span class="truncate opacity-60 text-[11px]" style="font-size: ${Math.max(10, (theme.btnFontSize || 14) * 0.85)}px;">${l.url ? l.url.replace(/^https?:\/\/(www\.)?/, '') : ''}</span>` : ''}
+
                         </div>
                         
                         ${layout !== 'grid' ? `
@@ -652,7 +675,7 @@ CSSPLACEHOLDER
                         ` : ''}
                     </a>
                 </div>`;
-                                }).join('\n')}
+                        }).join('\n')}
         </main>
 
 
