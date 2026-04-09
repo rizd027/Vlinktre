@@ -30,6 +30,144 @@ const ExportModal = ({ isOpen, onClose, profile, links, socials, theme, layoutTy
             return url;
         };
 
+        const getHeaderSizeScale = () => {
+            return (typeof profile.headerSize === 'number' ? profile.headerSize : (profile.headerSize === 'large' ? 120 : (profile.headerSize === 'small' ? 80 : 100))) / 100;
+        };
+
+        const getProfileAvatarHtml = (className = '') => {
+            if (!profile.showAvatar) return '';
+            const size = 96 * getHeaderSizeScale();
+            
+            if (profile.avatar) {
+                return `<img src="${resolveUrl(profile.avatar, 'avatar')}" alt="Avatar" class="rounded-full border-2 border-white/10 shadow-md relative z-10 object-cover ${className} ${avatarAnimationClass}" style="width: ${size}px; height: ${size}px;">`;
+            }
+            return `
+            <div style="width: ${size}px; height: ${size}px;" class="rounded-full border-2 border-white/10 shadow-md relative z-10 flex items-center justify-center bg-white/5 ${className} ${avatarAnimationClass}">
+                <svg width="${40 * getHeaderSizeScale()}" height="${40 * getHeaderSizeScale()}" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="text-white/20"><path d="M19 21v-2a4 4 0 0 0-4-4H9a4 4 0 0 0-4 4v2"></path><circle cx="12" cy="7" r="4"></circle></svg>
+            </div>`;
+        };
+
+        const getProfileTitleHtml = () => {
+            if (!profile.showTitle) return '';
+            const sizeScale = getHeaderSizeScale();
+
+            if (theme.titleStyle === 'text') {
+                let styles = `font-family: ${theme.titleFont || 'Inter'}; font-weight: ${theme.titleWeight || 700}; text-transform: ${theme.titleTransform || 'none'}; font-size: ${theme.titleSize ? `${theme.titleSize}px` : `${1.25 * sizeScale}rem`};`;
+                
+                if (theme.titleColorType === 'gradient') {
+                    styles += ` background-image: linear-gradient(135deg, ${theme.titleColorGradient1 || '#8228d9'}, ${theme.titleColorGradient2 || '#6366f1'}); -webkit-background-clip: text; background-clip: text; -webkit-text-fill-color: transparent; color: transparent;`;
+                } else if (theme.titleColorType === 'pattern') {
+                    const pattern = theme.titleColorPattern === 'dots' 
+                        ? `radial-gradient(circle, ${theme.titleColor || '#ffffff'} 1px, transparent 1px)`
+                        : theme.titleColorPattern === 'stripes'
+                            ? `linear-gradient(45deg, ${theme.titleColor || '#ffffff'} 25%, transparent 25%, transparent 50%, ${theme.titleColor || '#ffffff'} 50%, ${theme.titleColor || '#ffffff'} 75%, transparent 75%, transparent)`
+                            : theme.titleColorPattern === 'custom' && theme.titleColorCustomPattern
+                                ? `url(${resolveUrl(theme.titleColorCustomPattern, 'title_pattern')})`
+                                : 'none';
+                    const patternSize = theme.titleColorPattern === 'dots' ? '6px 6px' : theme.titleColorPattern === 'stripes' ? '10px 10px' : 'cover';
+                    styles += ` background-image: ${pattern}; background-size: ${patternSize}; -webkit-background-clip: text; background-clip: text; -webkit-text-fill-color: transparent; color: transparent;`;
+                } else {
+                    styles += ` color: ${theme.titleColor || '#ffffff'};`;
+                }
+
+                return `<h2 class="${titleAnimationClass}" style="${styles}">${profile.username}</h2>`;
+            } else {
+                const logoSize = (theme.titleLogoSize || 100) / 100;
+                return `
+                <div class="flex items-center justify-center w-full" style="transform: scale(${logoSize}); transform-origin: center;">
+                    ${theme.titleLogo ? 
+                        `<img src="${resolveUrl(theme.titleLogo, 'logo')}" alt="Logo" style="width: ${110 * sizeScale}px; max-height: ${60 * sizeScale}px; object-fit: contain;" class="${theme.titleAnimation && theme.titleAnimation !== 'none' ? `animate-${theme.titleAnimation}` : ''}">` : 
+                        `<div style="width: ${110 * sizeScale}px; height: ${36 * sizeScale}px;" class="bg-white/20 rounded-lg p-2 flex items-center justify-center"><span style="font-size: 10px;" class="font-black uppercase tracking-widest opacity-40 italic">Your Logo</span></div>`
+                    }
+                </div>`;
+            }
+        };
+
+        const getProfileBioHtml = () => {
+            if (!profile.showBio) return '';
+            const sizeScale = getHeaderSizeScale();
+
+            let styles = `font-family: ${theme.pageFont || 'Inter'}; font-weight: ${theme.pageWeight || 400}; text-transform: ${theme.pageTransform || 'none'}; font-size: ${theme.pageSize ? `${theme.pageSize}px` : `${0.875 * sizeScale}rem`}; line-height: 1.625; opacity: 0.8;`;
+
+            if (theme.pageColorType === 'gradient') {
+                styles += ` background-image: linear-gradient(135deg, ${theme.pageColorGradient1 || '#8228d9'}, ${theme.pageColorGradient2 || '#6366f1'}); -webkit-background-clip: text; background-clip: text; -webkit-text-fill-color: transparent; color: transparent;`;
+            } else if (theme.pageColorType === 'pattern') {
+                const color = theme.pageColor || theme.bioColor || 'rgba(255,255,255,0.7)';
+                const pattern = theme.pageColorPattern === 'dots'
+                    ? `radial-gradient(circle, ${color} 1px, transparent 1px)`
+                    : theme.pageColorPattern === 'stripes'
+                        ? `linear-gradient(45deg, ${color} 25%, transparent 25%, transparent 50%, ${color} 50%, ${color} 75%, transparent 75%, transparent)`
+                        : theme.pageColorPattern === 'custom' && theme.pageColorCustomPattern
+                            ? `url(${resolveUrl(theme.pageColorCustomPattern, 'page_pattern')})`
+                            : 'none';
+                const patternSize = theme.pageColorPattern === 'dots' ? '6px 6px' : theme.pageColorPattern === 'stripes' ? '10px 10px' : 'cover';
+                styles += ` background-image: ${pattern}; background-size: ${patternSize}; -webkit-background-clip: text; background-clip: text; -webkit-text-fill-color: transparent; color: transparent;`;
+            } else {
+                styles += ` color: ${theme.pageColor || theme.bioColor || 'rgba(255,255,255,0.7)'};`;
+            }
+
+            return `<p class="${bioAnimationClass}" style="${styles}">${profile.bio}</p>`;
+        };
+
+        const getFooterBgStyle = () => {
+            if (theme.footerBtnStyle === 'glass') {
+                return `background: rgba(255,255,255,0.06); backdrop-filter: blur(20px); -webkit-backdrop-filter: blur(20px);`;
+            }
+            if (theme.footerBtnColorType === 'gradient') {
+                return `background: linear-gradient(135deg, ${theme.footerBtnColorGradient1 || '#8228d9'}, ${theme.footerBtnColorGradient2 || '#6366f1'});`;
+            }
+            if (theme.footerBtnColorType === 'pattern') {
+                if (theme.footerBtnColorPattern === 'dots') {
+                    return `background-color: ${theme.footerBtnColor || '#ffffff'}; background-image: radial-gradient(rgba(255,255,255,0.3) 1.5px, transparent 1.5px); background-size: 12px 12px;`;
+                }
+                if (theme.footerBtnColorPattern === 'stripes') {
+                    return `background-color: ${theme.footerBtnColor || '#ffffff'}; background-image: linear-gradient(45deg, rgba(255,255,255,0.1) 25%, transparent 25%, transparent 50%, rgba(255,255,255,0.1) 50%, rgba(255,255,255,0.1) 75%, transparent 75%, transparent); background-size: 24px 24px;`;
+                }
+            }
+            return `background: ${theme.footerBtnColor || '#ffffff'};`;
+        };
+
+        const getFooterTextStyle = (isDesc = false) => {
+            const baseStyle = `font-family: ${theme.footerFont || 'Inter'}; font-weight: ${theme.footerWeight || 400}; text-transform: ${theme.footerTransform || 'none'}; font-size: ${isDesc ? Math.max(10, (theme.footerFontSize || 12) * 0.9) : (theme.footerFontSize || 12)}px;`;
+
+            if (theme.footerBtnTextColorType === 'solid') {
+                const color = theme.footerBtnTextColor || (theme.footerBtnStyle === 'solid' ? '#000000' : '#ffffff');
+                return `${baseStyle} color: ${isDesc ? color + '99' : color};`;
+            }
+
+            const textGradient = theme.footerBtnTextColorType === 'gradient'
+                ? `linear-gradient(135deg, ${theme.footerBtnTextColorGradient1 || '#ffffff'}, ${theme.footerBtnTextColorGradient2 || '#cbd5e1'})`
+                : theme.footerBtnTextColorType === 'pattern'
+                    ? `radial-gradient(circle, ${theme.footerBtnTextColor || '#ffffff'} 2px, transparent 2px)`
+                    : 'none';
+            const patternSize = theme.footerBtnTextColorType === 'pattern' ? '8px 8px' : 'auto';
+            
+            return `${baseStyle} background-image: ${textGradient}; background-size: ${patternSize}; -webkit-background-clip: text; background-clip: text; -webkit-text-fill-color: transparent; color: transparent; opacity: ${isDesc ? 0.8 : 1};`;
+        };
+
+        const getFooterShadowHtml = () => {
+            if (!theme.footerShadowType || theme.footerShadowType === 'none' || theme.footerShadowType === 'solid') return '';
+
+            let shadowBg = `background-color: ${theme.footerShadowColor || 'rgba(0,0,0,0.5)'};`;
+            if (theme.footerShadowType === 'gradient') {
+                shadowBg = `background-image: linear-gradient(135deg, ${theme.footerShadowColorGradient1 || '#000'}, ${theme.footerShadowColorGradient2 || '#000'});`;
+            } else if (theme.footerShadowType === 'pattern') {
+                if (theme.footerShadowPattern === 'dots') {
+                    shadowBg = `background-image: radial-gradient(${theme.footerShadowColor} 1.5px, transparent 1.5px); background-size: 12px 12px;`;
+                } else if (theme.footerShadowPattern === 'stripes') {
+                    shadowBg = `background-image: linear-gradient(45deg, ${theme.footerShadowColor} 25%, transparent 25%, transparent 50%, ${theme.footerShadowColor} 50%, ${theme.footerShadowColor} 75%, transparent 75%, transparent); background-size: 24px 24px;`;
+                } else if (theme.footerShadowPattern === 'noise') {
+                    shadowBg = `background-image: url('https://grain-y.com/assets/images/noise.png'); background-blend-mode: overlay;`;
+                }
+            }
+
+            const spread = theme.footerShadowSpread || 0;
+            const outerStyle = `position: absolute; z-index: 5; inset: ${-spread}px; transform: translate(${theme.footerShadowX || 0}px, ${theme.footerShadowY || 0}px); pointer-events: none;`;
+            const innerStyle = `position: absolute; inset: 0; border-radius: ${theme.footerBtnRadius}px; filter: blur(${theme.footerShadowBlur || 0}px); opacity: ${theme.footerShadowOpacity ?? 0.5}; ${shadowBg}`;
+
+            return `<div style="${outerStyle}"><div style="${innerStyle}"></div></div>`;
+        };
+
         // --- CSS Generation ---
         const cssContent = `/* 
 * VLink Builder Exported Styles
@@ -228,6 +366,13 @@ body {
 /* Hide Scrollbar */
 ::-webkit-scrollbar { width: 0px; display: none; }
 * { -ms-overflow-style: none; scrollbar-width: none; }
+
+.hero-card-joined { background: rgba(0,0,0,0.3); backdrop-filter: blur(20px); -webkit-backdrop-filter: blur(20px); padding: 32px 24px; border-radius: 24px; margin-top: -20px; border: 1px solid rgba(255,255,255,0.1); box-shadow: 0 25px 50px -12px rgba(0,0,0,0.5); position: relative; z-index: 10; width: 100%; }
+.hero-card-float { background: rgba(255,255,255,0.05); backdrop-filter: blur(12px); -webkit-backdrop-filter: blur(12px); padding: 32px 24px; border-radius: 24px; border: 1px solid rgba(255,255,255,0.1); box-shadow: 0 20px 25px -5px rgba(0,0,0,0.1), 0 10px 10px -5px rgba(0,0,0,0.04); margin-bottom: 24px; width: 100%; }
+.hero-card-glass { background: rgba(255,255,255,0.1); backdrop-filter: blur(40px); -webkit-backdrop-filter: blur(40px); padding: 40px 32px; border-radius: 48px; border: 1px solid rgba(255,255,255,0.2); shadow: 0 30px 60px -15px rgba(0,0,0,0.5); position: relative; overflow: hidden; width: 100%; }
+.hero-card-glass::before { content: ''; position: absolute; top: 0; left: 0; right: 0; h-px; background: linear-gradient(90deg, transparent, rgba(255,255,255,0.3), transparent); }
+.glass-glow { position: absolute; top: 0; left: 50%; transform: translateX(-50%); width: 192px; height: 192px; background: rgba(168,85,247,0.3); filter: blur(100px); border-radius: 50%; z-index: -1; }
+.avatar-glow { position: absolute; inset: 0; background: rgba(168,85,247,0.2); filter: blur(24px); border-radius: 50%; z-index: -1; }
 
 ${getBgEffectRawCss()}
 `;
@@ -593,31 +738,68 @@ CSSPLACEHOLDER
         <!-- Header -->
         <header class="w-full flex flex-col items-center animate-fade-in-up">
             ${profile.headerLayout === 'hero' ? `
-                <div class="hero-card" style="margin-top: ${profile.spacingAvatar ?? 16}px;">
-                    ${profile.showAvatar ? `<img src="${resolveUrl(profile.avatar, 'avatar') || ''}" class="w-24 h-24 rounded-full mx-auto border-4 border-white/10 object-cover shadow-2xl ${avatarAnimationClass}" style="margin-bottom: 24px;" />` : ''}
-                    
-                    ${theme.titleStyle === 'text' ? `
-                        <h1 class="text-3xl font-bold font-heading ${titleAnimationClass}" style="color: ${theme.titleColor || '#ffffff'}; margin-top: ${profile.spacingUsername ?? 12}px;">${profile.username}</h1>
-                    ` : `
-                        <div class="flex justify-center ${titleAnimationClass}" style="transform: scale(${(theme.titleLogoSize || 100) / 100}); margin-top: ${profile.spacingUsername ?? 12}px;">
-                            ${theme.titleLogo ? `<img src="${resolveUrl(theme.titleLogo, 'logo')}" style="max-height: 80px; width: auto; object-fit: contain;">` : `<div class="w-32 h-10 bg-white/10 rounded-lg flex items-center justify-center text-[10px] opacity-30 font-bold uppercase tracking-widest">Logo</div>`}
+                <div class="w-full relative flex flex-col items-center" style="margin-top: ${profile.spacingAvatar ?? 16}px;">
+                    ${profile.heroModel === 'joined' ? `
+                        <div class="w-full flex flex-col items-center">
+                            <div class="relative z-20 ${avatarAnimationClass}">
+                                ${getProfileAvatarHtml('rounded-b-none border-b-0')}
+                            </div>
+                            <div class="hero-card-joined -mt-5 flex flex-col gap-2">
+                                ${getProfileTitleHtml()}
+                                ${getProfileBioHtml()}
+                            </div>
+                        </div>
+                    ` : profile.heroModel === 'float' ? `
+                        <div class="w-full flex flex-col items-center gap-6">
+                            <div class="relative z-20 ${avatarAnimationClass}">
+                                <div class="avatar-glow animate-pulse"></div>
+                                ${getProfileAvatarHtml('shadow-[0_20px_40px_rgba(0,0,0,0.4)] border-white/20')}
+                            </div>
+                            <div class="hero-card-float flex flex-col gap-2">
+                                ${getProfileTitleHtml()}
+                                ${getProfileBioHtml()}
+                            </div>
+                        </div>
+                    ` : profile.heroModel === 'minimal' ? `
+                        <div class="w-full flex flex-col items-center gap-6 py-4">
+                            <div class="relative z-20 ${avatarAnimationClass}">
+                                ${getProfileAvatarHtml('border-white/5 shadow-sm')}
+                            </div>
+                            <div class="text-center flex flex-col gap-2 w-full px-4">
+                                ${getProfileTitleHtml()}
+                                ${getProfileBioHtml()}
+                            </div>
+                        </div>
+                    ` : profile.heroModel === 'glass' ? `
+                        <div class="w-full relative py-12 px-6 flex flex-col items-center gap-6">
+                            <div class="glass-glow"></div>
+                            <div class="relative z-20 ${avatarAnimationClass}">
+                                ${getProfileAvatarHtml('border-white/30 ring-4 ring-white/5')}
+                            </div>
+                            <div class="hero-card-glass flex flex-col gap-3">
+                                ${getProfileTitleHtml()}
+                                ${getProfileBioHtml()}
+                            </div>
+                        </div>
+                    ` : ` <!-- Fallback generic hero -->
+                        <div class="hero-card-float" style="margin-top: ${profile.spacingAvatar ?? 16}px;">
+                            ${getProfileAvatarHtml('mx-auto mb-6')}
+                            <div style="margin-top: ${profile.spacingUsername ?? 12}px;">${getProfileTitleHtml()}</div>
+                            <div style="margin-top: ${profile.spacingBio ?? 6}px;">${getProfileBioHtml()}</div>
                         </div>
                     `}
-                    
-                    ${profile.showBio ? `<p class="text-base opacity-90 leading-relaxed ${bioAnimationClass}" style="color: ${theme.pageColor || 'rgba(255,255,255,0.8)'}; margin-top: ${profile.spacingBio ?? 6}px;">${profile.bio}</p>` : ''}
                 </div>
             ` : `
-                ${profile.showAvatar ? `<img src="${resolveUrl(profile.avatar, 'avatar') || ''}" class="w-28 h-28 rounded-full border-4 border-white/10 object-cover shadow-xl ${avatarAnimationClass}" style="margin-top: ${profile.spacingAvatar ?? 16}px;" />` : ''}
-                
-                ${theme.titleStyle === 'text' ? `
-                    <h1 class="text-2xl font-bold font-heading ${titleAnimationClass}" style="color: ${theme.titleColor || '#ffffff'}; margin-top: ${profile.spacingUsername ?? 12}px;">${profile.username}</h1>
-                ` : `
-                    <div class="flex justify-center ${titleAnimationClass}" style="transform: scale(${(theme.titleLogoSize || 100) / 100}); margin-top: ${profile.spacingUsername ?? 12}px;">
-                        ${theme.titleLogo ? `<img src="${resolveUrl(theme.titleLogo, 'logo')}" style="max-height: 60px; width: auto; object-fit: contain;">` : `<div class="w-32 h-8 bg-white/10 rounded-lg flex items-center justify-center text-[8px] opacity-30 font-bold uppercase tracking-widest">Logo</div>`}
-                    </div>
-                `}
-                
-                ${profile.showBio ? `<p class="text-sm opacity-80 leading-relaxed max-w-[280px] ${bioAnimationClass}" style="color: ${theme.pageColor || 'rgba(255,255,255,0.7)'}; margin-top: ${profile.spacingBio ?? 6}px;">${profile.bio}</p>` : ''}
+                <!-- Classic Layout -->
+                <div class="relative ${avatarAnimationClass}" style="margin-top: ${profile.spacingAvatar ?? 16}px;">
+                    ${getProfileAvatarHtml()}
+                </div>
+                <div class="flex flex-col items-center gap-1 text-center px-3" style="margin-top: ${profile.spacingUsername ?? 12}px;">
+                    ${getProfileTitleHtml()}
+                </div>
+                <div style="margin-top: ${profile.spacingBio ?? 6}px; width: 100%; display: flex; justify-center: center;">
+                    ${getProfileBioHtml()}
+                </div>
             `}
             
             ${theme.socialPosition === 'top' ? `<div class="flex flex-wrap w-full ${theme.socialAlignment === 'left' ? 'justify-start' : theme.socialAlignment === 'right' ? 'justify-end' : 'justify-center'} animate-fade-in-up" style="gap: ${(theme.socialSpacing || 16) * 0.75}px; margin-top: 16px; animation-delay: 0.1s;">${socials.filter(s => s.url).map((s, i) => `
@@ -693,12 +875,16 @@ CSSPLACEHOLDER
 
         <!-- Greeting Card -->
         ${theme.showFooter ? `
-        <div class="mt-4 p-6 rounded-3xl text-left w-full border relative overflow-hidden ${theme.footerAnimation && theme.footerAnimation !== 'none' ? `animate-${theme.footerAnimation}` : 'animate-fade-in-up'}" style="animation-delay: 0.3s; background: ${theme.footerBtnStyle === 'glass' ? 'rgba(255,255,255,0.06)' : theme.footerBtnColor}; border-color: rgba(255,255,255,0.1); border-radius: ${theme.footerBtnRadius}px; backdrop-filter: ${theme.footerBtnStyle === 'glass' ? 'blur(20px)' : 'none'}; -webkit-backdrop-filter: ${theme.footerBtnStyle === 'glass' ? 'blur(20px)' : 'none'};">
-            <div class="flex items-center gap-2 mb-2 relative z-10">
-                <i data-lucide="heart" style="width: 14px; color: #a855f7; fill: rgba(168,85,247,0.1);"></i>
-                <h3 class="font-bold text-xs tracking-tight" style="color: ${theme.footerBtnTextColor || '#ffffff'}">${theme.footerGreetingTitle}</h3>
+        <div class="relative w-full mt-4">
+            ${getFooterShadowHtml()}
+            <div class="p-6 rounded-3xl text-left w-full border border-white/10 relative overflow-hidden group z-10 ${theme.footerAnimation && theme.footerAnimation !== 'none' ? (theme.footerAnimation === 'sweep' ? 'animate-sweep' : `animate-${theme.footerAnimation}`) : 'animate-fade-in-up'}" 
+                style="animation-delay: 0.3s; border-radius: ${theme.footerBtnRadius}px; ${getFooterBgStyle()} ${theme.footerShadowType === 'solid' && theme.footerShadowColor ? `box-shadow: ${theme.footerShadowX || 0}px ${theme.footerShadowY || 0}px ${theme.footerShadowBlur || 0}px ${theme.footerShadowSpread || 0}px ${theme.footerShadowColor}${Math.round((theme.footerShadowOpacity ?? 0.5) * 255).toString(16).padStart(2, '0')};` : ''}">
+                <div class="flex items-center gap-2 mb-2 relative z-10">
+                    <svg width="14" height="14" viewBox="0 0 24 24" fill="rgba(168,85,247,0.1)" stroke="#a855f7" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="shrink-0"><path d="M19 14c1.49-1.46 3-3.21 3-5.5A5.5 5.5 0 0 0 16.5 3c-1.76 0-3 .5-4.5 2-1.5-1.5-2.74-2-4.5-2A5.5 5.5 0 0 0 2 8.5c0 2.3 1.5 4.05 3 5.5l7 7Z"></path></svg>
+                    <h3 class="font-bold tracking-tight ${theme.footerAnimation === 'sweep' ? 'animate-sweep-text' : ''}" style="${getFooterTextStyle()}">${theme.footerGreetingTitle}</h3>
+                </div>
+                <p class="leading-relaxed relative z-10 font-medium ${theme.footerAnimation === 'sweep' ? 'animate-sweep-text' : ''}" style="${getFooterTextStyle(true)}">${theme.footerGreetingDesc}</p>
             </div>
-            <p class="text-[10px] opacity-70 leading-relaxed relative z-10 font-medium" style="color: ${theme.footerBtnTextColor || '#ffffff'}">${theme.footerGreetingDesc}</p>
         </div>` : ''}
 
         <footer class="mt-12 w-full animate-fade-in-up pb-12" style="animation-delay: 0.5s;">
