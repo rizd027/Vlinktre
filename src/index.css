@@ -256,8 +256,11 @@
 }
 
 @keyframes lightSweep {
-  0% { transform: translateX(-150%) skewX(-25deg); }
-  100% { transform: translateX(150%) skewX(-25deg); }
+  0% { transform: translateX(-150%) skewX(-25deg); opacity: 0; }
+  15% { opacity: 1; }
+  45% { opacity: 1; }
+  60% { transform: translateX(150%) skewX(-25deg); opacity: 0; }
+  100% { transform: translateX(150%) skewX(-25deg); opacity: 0; }
 }
 
 @keyframes textSweep {
@@ -306,19 +309,20 @@
   position: absolute;
   top: 0;
   left: 0;
-  width: 60%;
+  width: 100%; /* Wider for smoother falloff */
   height: 100%;
   background: linear-gradient(
     90deg,
     transparent,
-    rgba(255, 255, 255, 0) 10%,
-    rgba(255, 255, 255, 0.5) 50%,
-    rgba(255, 255, 255, 0) 90%,
+    rgba(255, 255, 255, 0) 20%,
+    rgba(255, 255, 255, 0.25) 50%,
+    rgba(255, 255, 255, 0) 80%,
     transparent
   );
-  animation: lightSweep 2s ease-in-out infinite;
+  animation: lightSweep 4s cubic-bezier(0.4, 0, 0.2, 1) infinite;
   pointer-events: none;
   z-index: 10;
+  will-change: transform, opacity;
 }
 
 .animate-sweep-text {
@@ -383,3 +387,17 @@ input[type='number'] {
   }
 }
 
+/* Fix sticky hover effects on touch devices for the preview environment */
+@media (hover: none) and (pointer: coarse) {
+  .hover\:-translate-y-1\.5:hover,
+  .hover\:scale-\[1\.03\]:hover,
+  .hover\:drop-shadow-\[0_0_15px_rgba\(255\,255\,255\,0\.4\)\]:hover,
+  .hover\:-translate-y-1:hover,
+  .hover\:scale-110:hover,
+  .hover\:drop-shadow-\[0_0_8px_rgba\(168\,85\,247\,0\.5\)\]:hover {
+    transform: none !important;
+    filter: none !important;
+    drop-shadow: none !important;
+    box-shadow: none !important;
+  }
+}

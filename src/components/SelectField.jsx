@@ -70,7 +70,7 @@ const SelectField = ({
             {label && (
                 <label
                     htmlFor={triggerId}
-                    className="text-[9px] font-bold text-white/40 uppercase tracking-widest"
+                    className="text-[9px] font-bold text-white/60 uppercase tracking-widest"
                 >
                     {label}
                 </label>
@@ -100,10 +100,10 @@ const SelectField = ({
                             : 'border-white/5 hover:border-white/20 hover:bg-[#202020]'}
                     `}
                 >
-                    <span className={!selectedItem ? 'text-white/30' : ''}>
+                    <span className={!selectedItem ? 'text-white/50' : ''}>
                         {selectedItem ? selectedItem.label : (placeholder || 'Select...')}
                     </span>
-                    <div className={`text-white/30 transition-transform duration-300 ${isOpen ? 'rotate-180 text-purple-400' : 'group-hover:text-white/60'}`}>
+                    <div className={`text-white/50 transition-transform duration-300 ${isOpen ? 'rotate-180 text-purple-400' : 'group-hover:text-white/60'}`}>
                         <ChevronDown size={14} />
                     </div>
                 </div>
@@ -130,7 +130,7 @@ const SelectField = ({
                                     disabled={item.disabled}
                                     className={`
                                         w-full text-left px-3 py-2.5 rounded-lg text-xs font-medium transition-colors duration-200 flex items-center justify-between group/item
-                                        ${item.disabled ? 'text-white/20 cursor-not-allowed' : ''}
+                                        ${item.disabled ? 'text-white/40 cursor-not-allowed' : ''}
                                         ${isSelected
                                             ? 'bg-purple-500/10 text-purple-400'
                                             : 'text-white/70 hover:bg-white/5 hover:text-white'}
@@ -142,7 +142,7 @@ const SelectField = ({
                             );
                         })}
                         {items.length === 0 && (
-                            <div className="px-3 py-3 text-white/30 text-xs text-center" role="status">
+                            <div className="px-3 py-3 text-white/50 text-xs text-center" role="status">
                                 No options available
                             </div>
                         )}

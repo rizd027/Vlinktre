@@ -232,7 +232,7 @@ const LinkItem = memo(function LinkItem({ link, i, layoutType, theme }) {
             const Icon = ICON_MAP[link.icon] || ExternalLink;
             return (
                 <div
-                    className={`shrink-0 flex items-center justify-center bg-white/10 ${layoutType === 'grid' ? 'w-10 h-10 rounded-xl mb-2' :
+                    className={`shrink-0 flex items-center justify-center ${layoutType === 'grid' ? 'w-10 h-10 rounded-xl mb-2' :
                         (layoutType === 'showcase' && i === 0) || layoutType === 'featured' ? 'w-14 h-14 rounded-2xl mr-4' :
                             'w-9 h-9 rounded-lg mr-3'
                         }`}

@@ -1,0 +1,49 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <script src="https://unpkg.com/@tailwindcss/browser@4"></script>
+    <style>
+        .my-custom-hover:hover {
+            transform: translateY(-6px) !important;
+        }
+        .link-item {
+            display: flex;
+        }
+    </style>
+</head>
+<body class="p-10 bg-gray-900">
+    <p class="text-white mb-4">Test 1: Custom CSS Class with !important and inline transition</p>
+    <a href="#" class="link-item my-custom-hover text-white bg-blue-500 p-4 rounded w-48" style="transition: all 0.3s cubic-bezier(0.19, 1, 0.22, 1);">
+        Hobbit 1
+    </a>
+
+    <p class="text-white mb-4 mt-8">Test 2: Tailwind Utility Class with inline transition</p>
+    <a href="#" class="link-item hover:-translate-y-1.5 hover:shadow-lg active:scale-95 text-white bg-purple-500 p-4 rounded w-48" style="transition: all 0.3s cubic-bezier(0.19, 1, 0.22, 1);">
+        Hobbit 2
+    </a>
+
+    <p class="text-white mb-4 mt-8">Test 3: The exact generated structure of VLinktree export</p>
+    <div class="relative w-full group" style="margin-bottom: 12px; width: 300px;">
+        <div style="position: absolute; z-index: 5; inset: 0px; --sx: 0px; --sy: 4px; transform: translate(var(--sx), var(--sy)); pointer-events: none; transition: transform 0.3s cubic-bezier(0.19, 1, 0.22, 1);"><div class="" style="position: absolute; inset: 0; border-radius: 12px; filter: blur(0px); opacity: 0.5; background-color: #000000;"></div></div>
+        <a href="#" class="link-item undefined  my-custom-hover text-white bg-green-500" style="
+display: flex;
+align-items: center;
+gap: 12px;
+text-decoration: none;
+transition: all 0.3s cubic-bezier(0.19, 1, 0.22, 1);
+position: relative;
+overflow: hidden;
+width: 100%;
+z-index: 10;
+padding: 12px;
+min-height: 64px;
+border-radius: 12px;
+ margin-bottom: 0;">
+            Exact Structure
+        </a>
+    </div>
+
+</body>
+</html>

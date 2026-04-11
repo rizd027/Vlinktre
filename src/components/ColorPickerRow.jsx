@@ -1,6 +1,36 @@
-import React from 'react';
+import React, { useState, useEffect, useRef, memo } from 'react';
 
-const ColorPickerRow = ({ label, value, onChange, colorId, activeColor = 'emerald' }) => {
+const ColorPickerRow = memo(({ label, value, onChange, colorId, activeColor = 'emerald' }) => {
+    // Local state for immediate UI feedback (smooth palette movement)
+    const [localValue, setLocalValue] = useState(value || '#ffffff');
+    const lastUpdate = useRef(0);
+    const timeoutRef = useRef(null);
+
+    // Sync local state if external value changes (e.g. undo/redo or preset change)
+    useEffect(() => {
+        if (value !== localValue) {
+            setLocalValue(value || '#ffffff');
+        }
+    }, [value]);
+
+    // Throttle the parent update to 30fps (32ms) to prevent UI choking
+    const handleColorChange = (val) => {
+        setLocalValue(val);
+        const now = Date.now();
+        const throttleInterval = 50; 
+
+        if (now - lastUpdate.current > throttleInterval) {
+            onChange(val);
+            lastUpdate.current = now;
+        } else {
+            if (timeoutRef.current) clearTimeout(timeoutRef.current);
+            timeoutRef.current = setTimeout(() => {
+                onChange(val);
+                lastUpdate.current = Date.now();
+            }, throttleInterval);
+        }
+    };
+
     const accentColor = activeColor === 'emerald' ? 'emerald-500' :
         activeColor === 'purple' ? 'purple-500' :
             activeColor === 'orange' ? 'orange-500' : 'white';
@@ -10,14 +40,14 @@ const ColorPickerRow = ({ label, value, onChange, colorId, activeColor = 'emeral
     return (
         <div className={`flex items-center justify-between p-3.5 rounded-2xl bg-black/20 border border-white/5 group focus-within:border-${accentColor}/20 transition-all duration-300`}>
             <div className="flex flex-col gap-1 flex-1">
-                <label htmlFor={safeColorId} className="text-[9px] font-black text-white/20 uppercase tracking-[0.2em]">{label || 'Color Hex'}</label>
+                <label htmlFor={safeColorId} className="text-[9px] font-black text-white/40 uppercase tracking-[0.2em]">{label || 'Color Hex'}</label>
                 <input
                     id={safeColorId}
                     name={safeColorId}
                     type="text"
-                    value={value || '#ffffff'}
-                    onChange={(e) => onChange(e.target.value)}
-                    className="bg-transparent border-none outline-none font-mono text-sm uppercase w-full text-white placeholder:text-white/10"
+                    value={localValue}
+                    onChange={(e) => handleColorChange(e.target.value)}
+                    className="bg-transparent border-none outline-none font-mono text-sm uppercase w-full text-white placeholder:text-white/30"
                     placeholder="#FFFFFF"
                 />
             </div>
@@ -26,14 +56,14 @@ const ColorPickerRow = ({ label, value, onChange, colorId, activeColor = 'emeral
                     id={`${safeColorId}-picker`}
                     name={`${safeColorId}-picker`}
                     type="color"
-                    value={value || '#ffffff'}
-                    onChange={(e) => onChange(e.target.value)}
+                    value={localValue}
+                    onChange={(e) => handleColorChange(e.target.value)}
                     aria-label={`${label || 'Color'} picker`}
                     className="absolute inset-0 w-[150%] h-[150%] -translate-x-1/4 -translate-y-1/4 cursor-pointer"
                 />
             </div>
         </div>
     );
-};
+});
 
 export default ColorPickerRow;

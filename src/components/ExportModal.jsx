@@ -35,15 +35,15 @@ const ExportModal = ({ isOpen, onClose, profile, links, socials, theme, layoutTy
         };
 
         const getProfileAvatarHtml = (className = '') => {
-            if (!profile.showAvatar) return '';
+            if (profile.showAvatar === false) return '';
             const size = 96 * getHeaderSizeScale();
-            
+
             if (profile.avatar) {
                 return `<img src="${resolveUrl(profile.avatar, 'avatar')}" alt="Avatar" class="rounded-full border-2 border-white/10 shadow-md relative z-10 object-cover ${className} ${avatarAnimationClass}" style="width: ${size}px; height: ${size}px;">`;
             }
             return `
             <div style="width: ${size}px; height: ${size}px;" class="rounded-full border-2 border-white/10 shadow-md relative z-10 flex items-center justify-center bg-white/5 ${className} ${avatarAnimationClass}">
-                <svg width="${40 * getHeaderSizeScale()}" height="${40 * getHeaderSizeScale()}" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="text-white/20"><path d="M19 21v-2a4 4 0 0 0-4-4H9a4 4 0 0 0-4 4v2"></path><circle cx="12" cy="7" r="4"></circle></svg>
+                <svg width="${40 * getHeaderSizeScale()}" height="${40 * getHeaderSizeScale()}" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="text-white/40"><path d="M19 21v-2a4 4 0 0 0-4-4H9a4 4 0 0 0-4 4v2"></path><circle cx="12" cy="7" r="4"></circle></svg>
             </div>`;
         };
 
@@ -53,11 +53,11 @@ const ExportModal = ({ isOpen, onClose, profile, links, socials, theme, layoutTy
 
             if (theme.titleStyle === 'text') {
                 let styles = `font-family: ${theme.titleFont || 'Inter'}; font-weight: ${theme.titleWeight || 700}; text-transform: ${theme.titleTransform || 'none'}; font-size: ${theme.titleSize ? `${theme.titleSize}px` : `${1.25 * sizeScale}rem`};`;
-                
+
                 if (theme.titleColorType === 'gradient') {
                     styles += ` background-image: linear-gradient(135deg, ${theme.titleColorGradient1 || '#8228d9'}, ${theme.titleColorGradient2 || '#6366f1'}); -webkit-background-clip: text; background-clip: text; -webkit-text-fill-color: transparent; color: transparent;`;
                 } else if (theme.titleColorType === 'pattern') {
-                    const pattern = theme.titleColorPattern === 'dots' 
+                    const pattern = theme.titleColorPattern === 'dots'
                         ? `radial-gradient(circle, ${theme.titleColor || '#ffffff'} 1px, transparent 1px)`
                         : theme.titleColorPattern === 'stripes'
                             ? `linear-gradient(45deg, ${theme.titleColor || '#ffffff'} 25%, transparent 25%, transparent 50%, ${theme.titleColor || '#ffffff'} 50%, ${theme.titleColor || '#ffffff'} 75%, transparent 75%, transparent)`
@@ -70,13 +70,17 @@ const ExportModal = ({ isOpen, onClose, profile, links, socials, theme, layoutTy
                     styles += ` color: ${theme.titleColor || '#ffffff'};`;
                 }
 
+                if (theme.titleAnimation === 'color-pulse') {
+                    styles += ` color: inherit; -webkit-text-fill-color: initial !important; background: none !important;`;
+                }
+
                 return `<h2 class="${titleAnimationClass}" style="text-align: center !important; ${styles}">${profile.username}</h2>`;
             } else {
                 const logoSize = (theme.titleLogoSize || 100) / 100;
                 return `
                 <div class="flex items-center justify-center w-full" style="transform: scale(${logoSize}); transform-origin: center;">
-                    ${theme.titleLogo ? 
-                        `<img src="${resolveUrl(theme.titleLogo, 'logo')}" alt="Logo" style="width: ${110 * sizeScale}px; max-height: ${60 * sizeScale}px; object-fit: contain;" class="${theme.titleAnimation && theme.titleAnimation !== 'none' ? `animate-${theme.titleAnimation}` : ''}">` : 
+                    ${theme.titleLogo ?
+                        `<img src="${resolveUrl(theme.titleLogo, 'logo')}" alt="Logo" style="width: ${110 * sizeScale}px; max-height: ${60 * sizeScale}px; object-fit: contain;" class="${theme.titleAnimation && theme.titleAnimation !== 'none' ? `animate-${toKabab(theme.titleAnimation)}` : ''}">` :
                         `<div style="width: ${110 * sizeScale}px; height: ${36 * sizeScale}px;" class="bg-white/20 rounded-lg p-2 flex items-center justify-center"><span style="font-size: 10px;" class="font-black uppercase tracking-widest opacity-40 italic">Your Logo</span></div>`
                     }
                 </div>`;
@@ -104,6 +108,10 @@ const ExportModal = ({ isOpen, onClose, profile, links, socials, theme, layoutTy
                 styles += ` background-image: ${pattern}; background-size: ${patternSize}; -webkit-background-clip: text; background-clip: text; -webkit-text-fill-color: transparent; color: transparent;`;
             } else {
                 styles += ` color: ${theme.pageColor || theme.bioColor || 'rgba(255,255,255,0.7)'};`;
+            }
+
+            if (theme.pageAnimation === 'color-pulse') {
+                styles += ` color: inherit; -webkit-text-fill-color: initial !important; background: none !important;`;
             }
 
             return `<p class="${bioAnimationClass}" style="text-align: center !important; width: 100%; ${styles}">${profile.bio}</p>`;
@@ -141,7 +149,7 @@ const ExportModal = ({ isOpen, onClose, profile, links, socials, theme, layoutTy
                     ? `radial-gradient(circle, ${theme.footerBtnTextColor || '#ffffff'} 2px, transparent 2px)`
                     : 'none';
             const patternSize = theme.footerBtnTextColorType === 'pattern' ? '8px 8px' : 'auto';
-            
+
             return `${baseStyle} background-image: ${textGradient}; background-size: ${patternSize}; -webkit-background-clip: text; background-clip: text; -webkit-text-fill-color: transparent; color: transparent; opacity: ${isDesc ? 0.8 : 1};`;
         };
 
@@ -168,6 +176,13 @@ const ExportModal = ({ isOpen, onClose, profile, links, socials, theme, layoutTy
             return `<div style="${outerStyle}"><div style="${innerStyle}"></div></div>`;
         };
 
+        // --- Dynamic Google Fonts: only load fonts actually used by the user ---
+        const googleFontsUrl = (() => {
+            const fonts = new Set(['Inter']);
+            [theme.pageFont, theme.titleFont, theme.socialFont].filter(Boolean).forEach(f => fonts.add(f));
+            return `https://fonts.googleapis.com/css2?${[...fonts].map(f => `family=${f.replace(/ /g, '+')}:wght@400;500;600;700;800`).join('&')}&display=swap`;
+        })();
+
         // --- CSS Generation ---
         const cssContent = `/* 
 * VLink Builder Exported Styles
@@ -175,17 +190,30 @@ const ExportModal = ({ isOpen, onClose, profile, links, socials, theme, layoutTy
 */
 
 :root {
-    --bg-color: ${theme.bg || '#000000'};
+    --bg-color: ${(() => {
+                const style = theme.wallpaperStyle || 'fill';
+                if (style === 'fill') return theme.bg || '#000000';
+                if (style === 'gradient') {
+                    if (theme.gradientDirection === 'radial') {
+                        return `radial-gradient(circle at center, ${theme.gradientColor1 || '#FF512F'}, ${theme.gradientColor2 || '#DD2476'})`;
+                    }
+                    const deg = theme.gradientDirection === 'linear-up' ? '0deg' : '180deg';
+                    return `linear-gradient(${deg}, ${theme.gradientColor1 || '#FF512F'} 0%, ${theme.gradientColor2 || '#DD2476'} 100%)`;
+                }
+                if (style === 'blur') return theme.blurColor || '#000000';
+                if (style === 'pattern') return theme.patternBackgroundColor || '#000000';
+                return '#000000';
+            })()};
     --primary-color: ${theme.btnColor || '#8228d9'};
     --text-color: ${theme.pageColor || '#ffffff'};
     --font-heading: '${theme.titleFont || 'Inter'}', sans-serif;
     --font-body: '${theme.pageFont || 'Inter'}', sans-serif;
 }
 
-* {
-    box-sizing: border-box;
-    -webkit-tap-highlight-color: transparent;
-}
+* { box-sizing: border-box; -webkit-font-smoothing: antialiased; -moz-osx-font-smoothing: grayscale; }
+body, h1, h2, h3, h4, h5, h6, p, ul, ol, li, figure, blockquote, dl, dd { margin: 0; padding: 0; }
+
+html { font-size: 16px; }
 
 body {
     margin: 0;
@@ -194,7 +222,21 @@ body {
     background: var(--bg-color);
     color: var(--text-color);
     min-height: 100vh;
+    min-height: 100dvh;
     overflow-x: hidden;
+    overscroll-behavior: none;
+    line-height: 1.5;
+}
+
+@media (max-width: 767px) {
+    #vlink-bg-video {
+        filter: none !important; /* Disable expensive blur on mobile GPUs */
+        -webkit-filter: none !important;
+    }
+    .wallpaper-container {
+        backface-visibility: hidden;
+        -webkit-backface-visibility: hidden;
+    }
 }
 
 /* Animations */
@@ -214,8 +256,11 @@ body {
 }
 
 @keyframes lightSweep {
-    0% { transform: translateX(-150%) skewX(-25deg); }
-    100% { transform: translateX(150%) skewX(-25deg); }
+    0% { transform: translateX(-150%) skewX(-25deg); opacity: 0; }
+    15% { opacity: 1; }
+    45% { opacity: 1; }
+    60% { transform: translateX(150%) skewX(-25deg); opacity: 0; }
+    100% { transform: translateX(150%) skewX(-25deg); opacity: 0; }
 }
 
 @keyframes textSweep {
@@ -264,10 +309,11 @@ body {
 .animate-sweep::before {
     content: '';
     position: absolute;
-    top: 0; left: 0; width: 60%; height: 100%;
-    background: linear-gradient(90deg, transparent, rgba(255,255,255,0) 10%, rgba(255,255,255,0.5) 50%, rgba(255,255,255,0) 90%, transparent);
-    animation: lightSweep 2s ease-in-out infinite;
+    top: 0; left: 0; width: 100%; height: 100%;
+    background: linear-gradient(90deg, transparent, rgba(255,255,255,0) 20%, rgba(255,255,255,0.25) 50%, rgba(255,255,255,0) 80%, transparent);
+    animation: lightSweep 4s cubic-bezier(0.4, 0, 0.2, 1) infinite;
     pointer-events: none; z-index: 10;
+    will-change: transform, opacity;
 }
 
 .animate-sweep-text {
@@ -285,24 +331,33 @@ body {
 
 
 /* Interaction Effects */
-.hover-lift { transition: transform 0.3s cubic-bezier(0.19, 1, 0.22, 1); }
-.group:hover .hover-lift { transform: translateY(-6px); }
+.branding-footer {
+    transition: all 0.3s ease;
+}
+@media (hover: hover) and (pointer: fine) {
+    .link-item.link-hover-lift:hover { transform: translateY(-6px) !important; }
+    .link-item.link-hover-scale:hover { transform: scale(1.03) !important; }
+    .link-item.link-hover-glow:hover { 
+        box-shadow: 0 0 25px rgba(255,255,255,0.25) !important;
+        transform: translateY(-2px) !important;
+    }
 
-.hover-scale { transition: transform 0.3s cubic-bezier(0.19, 1, 0.22, 1); }
-.group:hover .hover-scale { transform: scale(1.03); }
+    /* Social Interaction Effects */
+    .social-btn.link-hover-lift:hover { transform: translateY(-3px) !important; opacity: 1 !important; }
+    .social-btn.link-hover-scale:hover { transform: scale(1.1) !important; opacity: 1 !important; }
+    .social-btn.link-hover-glow:hover { filter: drop-shadow(0 0 8px rgba(168,85,247,0.5)) !important; opacity: 1 !important; }
 
-.hover-glow { transition: box-shadow 0.3s ease, transform 0.3s ease; }
-.group:hover .hover-glow { 
-    box-shadow: 0 0 25px rgba(255,255,255,0.25);
-    transform: translateY(-2px);
+    .branding-footer:hover {
+        opacity: 1 !important;
+        text-shadow: 0 0 12px rgba(255, 255, 255, 0.4), 0 0 20px rgba(168, 85, 247, 0.2);
+        transform: translateY(-1px);
+    }
 }
 
-.active-push:active { transform: scale(0.95); }
-.active-inset:active { transform: scale(0.97); filter: brightness(0.8); }
+.link-item.link-active-push:active { transform: scale(0.95) !important; }
+.link-item.link-active-inset:active { transform: scale(0.98) !important; filter: brightness(0.8) !important; }
 
-/* Shadow Hover Synchronization */
-.group:hover .shadow-move-lift { transform: translateY(-6px) translate(var(--sx), var(--sy)) !important; }
-.group:hover .shadow-move-scale { transform: scale(1.03) translate(var(--sx), var(--sy)) !important; }
+/* Shadow definitions */
 
 /* UI Elements */
 .wallpaper-container {
@@ -376,12 +431,60 @@ body {
 ::-webkit-scrollbar { width: 0px; display: none; }
 * { -ms-overflow-style: none; scrollbar-width: none; }
 
-.hero-card-joined { background: rgba(0,0,0,0.3); backdrop-filter: blur(20px); -webkit-backdrop-filter: blur(20px); padding: 32px 24px; border-radius: 24px; margin-top: -20px; border: 1px solid rgba(255,255,255,0.1); box-shadow: 0 25px 50px -12px rgba(0,0,0,0.5); position: relative; z-index: 10; width: 100%; }
+.hero-card-joined { background: rgba(0,0,0,0.3); backdrop-filter: blur(24px); -webkit-backdrop-filter: blur(24px); padding: 32px 24px; border-radius: 24px; margin-top: -20px; border: 1px solid rgba(255,255,255,0.1); box-shadow: 0 25px 50px -12px rgba(0,0,0,0.5); position: relative; z-index: 10; width: 100%; }
 .hero-card-float { background: rgba(255,255,255,0.05); backdrop-filter: blur(12px); -webkit-backdrop-filter: blur(12px); padding: 32px 24px; border-radius: 24px; border: 1px solid rgba(255,255,255,0.1); box-shadow: 0 20px 25px -5px rgba(0,0,0,0.1), 0 10px 10px -5px rgba(0,0,0,0.04); margin-bottom: 24px; width: 100%; }
-.hero-card-glass { background: rgba(255,255,255,0.1); backdrop-filter: blur(40px); -webkit-backdrop-filter: blur(40px); padding: 40px 32px; border-radius: 48px; border: 1px solid rgba(255,255,255,0.2); shadow: 0 30px 60px -15px rgba(0,0,0,0.5); position: relative; overflow: hidden; width: 100%; }
+.hero-card-glass { background: rgba(255,255,255,0.1); backdrop-filter: blur(40px); -webkit-backdrop-filter: blur(40px); padding: 40px 32px; border-radius: 48px; border: 1px solid rgba(255,255,255,0.2); box-shadow: 0 30px 60px -15px rgba(0,0,0,0.5); position: relative; overflow: hidden; width: 100%; }
 .hero-card-glass::before { content: ''; position: absolute; top: 0; left: 0; right: 0; h-px; background: linear-gradient(90deg, transparent, rgba(255,255,255,0.3), transparent); }
 .glass-glow { position: absolute; top: 0; left: 50%; transform: translateX(-50%); width: 192px; height: 192px; background: rgba(168,85,247,0.3); filter: blur(100px); border-radius: 50%; z-index: -1; }
 .avatar-glow { position: absolute; inset: 0; background: rgba(168,85,247,0.2); filter: blur(24px); border-radius: 50%; z-index: -1; }
+
+/* === Utility CSS (replaces Tailwind CDN — saves ~80KB JS execution) === */
+.flex{display:flex}.inline-flex{display:inline-flex}.grid{display:grid}.block{display:block}.hidden{display:none}
+.flex-col{flex-direction:column}.flex-row{flex-direction:row}.flex-wrap{flex-wrap:wrap}.flex-1{flex:1 1 0%}.shrink-0{flex-shrink:0}
+.items-center{align-items:center}.items-start{align-items:flex-start}.items-end{align-items:flex-end}
+.justify-center{justify-content:center}.justify-start{justify-content:flex-start}.justify-end{justify-content:flex-end}.justify-between{justify-content:space-between}
+.grid-cols-2{grid-template-columns:repeat(2,minmax(0,1fr))}
+.gap-0\\.5{gap:.125rem}.gap-1{gap:.25rem}.gap-1\\.5{gap:.375rem}.gap-2{gap:.5rem}.gap-3{gap:.75rem}.gap-4{gap:1rem}.gap-5{gap:1.25rem}.gap-6{gap:1.5rem}.gap-8{gap:2rem}.gap-10{gap:2.5rem}.gap-12{gap:3rem}
+.w-full{width:100%}.w-6{width:1.5rem}.w-8{width:2rem}.w-10{width:2.5rem}.w-12{width:3rem}.w-14{width:3.5rem}.w-16{width:4rem}
+.h-full{height:100%}.h-px{height:1px}.h-6{height:1.5rem}.h-8{height:2rem}.h-10{height:2.5rem}.h-12{height:3rem}.h-14{height:3.5rem}.h-16{height:4rem}
+.min-h-full{min-height:100%}.min-h-screen{min-height:100vh}.max-w-xl{max-width:36rem}.max-w-2xl{max-width:42rem}.mx-auto{margin-left:auto;margin-right:auto}
+.relative{position:relative}.absolute{position:absolute}.fixed{position:fixed}.sticky{position:sticky}
+.inset-0{top:0;right:0;bottom:0;left:0}.top-0{top:0}.right-0{right:0}.bottom-0{bottom:0}.left-0{left:0}
+.z-0{z-index:0}.z-10{z-index:10}.z-20{z-index:20}.z-50{z-index:50}
+.overflow-hidden{overflow:hidden}.overflow-x-auto{overflow-x:auto}.overflow-y-auto{overflow-y:auto}
+.p-0{padding:0}.p-1{padding:.25rem}.p-2{padding:.5rem}.p-3{padding:.75rem}.p-4{padding:1rem}.p-5{padding:1.25rem}.p-6{padding:1.5rem}.p-8{padding:2rem}
+.px-2{padding-left:.5rem;padding-right:.5rem}.px-3{padding-left:.75rem;padding-right:.75rem}.px-4{padding-left:1rem;padding-right:1rem}.px-5{padding-left:1.25rem;padding-right:1.25rem}.px-6{padding-left:1.5rem;padding-right:1.5rem}
+.py-2{padding-top:.5rem;padding-bottom:.5rem}.py-4{padding-top:1rem;padding-bottom:1rem}.py-6{padding-top:1.5rem;padding-bottom:1.5rem}.py-8{padding-top:2rem;padding-bottom:2rem}.py-10{padding-top:2.5rem;padding-bottom:2.5rem}.py-12{padding-top:3rem;padding-bottom:3rem}
+.pt-4{padding-top:1rem}.pt-6{padding-top:1.5rem}.pt-8{padding-top:2rem}.pt-10{padding-top:2.5rem}.pt-12{padding-top:3rem}
+.pb-2{padding-bottom:.5rem}.pb-4{padding-bottom:1rem}.pb-8{padding-bottom:2rem}.pb-12{padding-bottom:3rem}
+.m-0{margin:0}.mb-2{margin-bottom:.5rem}.mb-3{margin-bottom:.75rem}.mb-4{margin-bottom:1rem}.mb-6{margin-bottom:1.5rem}.mb-8{margin-bottom:2rem}
+.mt-4{margin-top:1rem}.mt-6{margin-top:1.5rem}.mt-8{margin-top:2rem}.mt-12{margin-top:3rem}.-mt-5{margin-top:-1.25rem}
+.rounded{border-radius:.25rem}.rounded-lg{border-radius:.5rem}.rounded-xl{border-radius:.75rem}.rounded-2xl{border-radius:1rem}.rounded-3xl{border-radius:1.5rem}.rounded-full{border-radius:9999px}
+.border{border-width:1px;border-style:solid}.border-2{border-width:2px;border-style:solid}
+.border-white\\/5{border-color:rgba(255,255,255,.05)}.border-white\\/10{border-color:rgba(255,255,255,.1)}.border-white\\/20{border-color:rgba(255,255,255,.2)}.border-white\\/30{border-color:rgba(255,255,255,.3)}.border-transparent{border-color:transparent}
+.bg-transparent{background-color:transparent}.bg-white\\/5{background-color:rgba(255,255,255,.05)}.bg-white\\/10{background-color:rgba(255,255,255,.1)}.bg-white\\/20{background-color:rgba(255,255,255,.2)}.bg-black\\/20{background-color:rgba(0,0,0,.2)}.bg-black\\/30{background-color:rgba(0,0,0,.3)}.bg-black\\/60{background-color:rgba(0,0,0,.6)}.bg-purple-500\\/20{background-color:rgba(168,85,247,.2)}.bg-purple-500\\/30{background-color:rgba(168,85,247,.3)}
+.blur-3xl{filter:blur(64px)}.blur-2xl{filter:blur(40px)}.blur-xl{filter:blur(24px)}
+.shadow-md{box-shadow:0 4px 6px -1px rgba(0,0,0,0.1),0 2px 4px -1px rgba(0,0,0,0.06)}
+.shadow-\[0_20px_40px_rgba\(0\\2c 0\\2c 0\\2c 0\.4\)\]{box-shadow:0 20px 40px rgba(0,0,0,0.4)}
+.shadow-\[0_30px_60px_-15px_rgba\(0\\2c 0\\2c 0\\2c 0\.5\)\]{box-shadow:0 30px 60px -15px rgba(0,0,0,0.5)}
+.text-white{color:#fff}.text-white\\/20{color:rgba(255,255,255,.2)}.text-white\\/30{color:rgba(255,255,255,.3)}.text-white\\/40{color:rgba(255,255,255,.4)}.text-white\\/60{color:rgba(255,255,255,.6)}.text-white\\/80{color:rgba(255,255,255,.8)}
+.text-center{text-align:center}.text-left{text-align:left}.text-right{text-align:right}
+.font-medium{font-weight:500}.font-semibold{font-weight:600}.font-bold{font-weight:700}.font-black{font-weight:900}
+.text-xs{font-size:.75rem;line-height:1rem}.text-sm{font-size:.875rem;line-height:1.25rem}.text-base{font-size:1rem;line-height:1.5rem}.text-lg{font-size:1.125rem;line-height:1.75rem}.text-xl{font-size:1.25rem;line-height:1.75rem}.text-2xl{font-size:1.5rem;line-height:2rem}.text-3xl{font-size:1.875rem;line-height:2.25rem}.text-\[10px\]{font-size:10px}
+.uppercase{text-transform:uppercase}.lowercase{text-transform:lowercase}.capitalize{text-transform:capitalize}
+.tracking-tight{letter-spacing:-.025em}.tracking-tighter{letter-spacing:-.05em}.tracking-wider{letter-spacing:.05em}.tracking-widest{letter-spacing:.1em}
+.leading-tight{line-height:1.25}.leading-snug{line-height:1.375}.leading-normal{line-height:1.5}.leading-relaxed{line-height:1.625}
+.antialiased{-webkit-font-smoothing:antialiased;-moz-osx-font-smoothing:grayscale}
+.font-sans{font-family:var(--font-body,'Inter',sans-serif)}
+.truncate{overflow:hidden;text-overflow:ellipsis;white-space:nowrap}.whitespace-nowrap{white-space:nowrap}
+.opacity-0{opacity:0}.opacity-30{opacity:.3}.opacity-50{opacity:.5}.opacity-75{opacity:.75}.opacity-100{opacity:1}.hover\\:opacity-100:hover{opacity:1 !important}
+.transition-opacity{transition-property:opacity;transition-timing-function:cubic-bezier(0.4, 0, 0.2, 1);transition-duration:300ms}
+.duration-300{transition-duration:300ms}
+.shadow-sm{box-shadow:0 1px 2px rgba(0,0,0,.05)}.shadow-lg{box-shadow:0 10px 15px -3px rgba(0,0,0,.1)}.shadow-xl{box-shadow:0 20px 25px -5px rgba(0,0,0,.1)}.shadow-2xl{box-shadow:0 25px 50px -12px rgba(0,0,0,.25)}
+.backdrop-blur-sm{backdrop-filter:blur(4px);-webkit-backdrop-filter:blur(4px)}.backdrop-blur-md{backdrop-filter:blur(12px);-webkit-backdrop-filter:blur(12px)}.backdrop-blur-xl{backdrop-filter:blur(24px);-webkit-backdrop-filter:blur(24px)}
+.snap-x{scroll-snap-type:x mandatory}.snap-mandatory{scroll-snap-type:x mandatory}.snap-center{scroll-snap-align:center}.snap-start{scroll-snap-align:start}
+.object-cover{object-fit:cover}.object-contain{object-fit:contain}.aspect-video{aspect-ratio:16/9}
+.pointer-events-none{pointer-events:none}.select-none{user-select:none}.isolate{isolation:isolate}.group{}
 
 ${getBgEffectRawCss()}
 `;
@@ -428,15 +531,13 @@ document.addEventListener('DOMContentLoaded', () => {
 });
 `;
 
-        const toKabab = (str) => str ? str.replace(/([a-z])([A-Z])/g, '$1-$2').toLowerCase() : '';
 
         // --- HTML Parts ---
-        const getLinkStyles = (l, theme) => {
+        const getLinkStyles = (l, theme, i) => {
             const layout = l.layout || layoutType || 'classic';
             let styles = `
                 border-radius: ${theme.btnRadius || 12}px;
-                margin-bottom: ${theme.btnSpacing || 12}px;
-                padding: ${layout === 'featured' ? '20px' : (layout === 'grid' ? '16px' : '12px 16px')};
+                padding: ${(layout === 'showcase' && i === 0) || layout === 'featured' || layout === 'grid' ? 'var(--dynamic-padding, 16px)' : `${(theme.btnHeight || 14) * 0.85}px 12px`};
                 display: flex;
                 align-items: center;
                 gap: 12px;
@@ -488,11 +589,10 @@ document.addEventListener('DOMContentLoaded', () => {
             if (!theme.btnShadowType || theme.btnShadowType === 'none') return '';
 
             const spread = theme.btnShadowSpread || 0;
-            const shadowAnimClass = theme.btnShadowAnimation && theme.btnShadowAnimation !== 'none' ? `animate-${theme.btnShadowAnimation}` : '';
-            
-            // Sync with button hover
-            const hoverSyncClass = theme.btnHoverEffect === 'lift' ? 'shadow-move-lift' : 
-                                 theme.btnHoverEffect === 'scale' ? 'shadow-move-scale' : '';
+            const shadowAnimClass = theme.btnShadowAnimation && theme.btnShadowAnimation !== 'none' ? `animate-${toKabab(theme.btnShadowAnimation)}` : '';
+
+            // No shadow hover synchronization. We want the shadow to stay on the floor to create depth!
+            const hoverSyncClass = '';
 
             let shadowBg = `background-color: ${theme.btnShadowColor || '#000000'};`;
 
@@ -512,16 +612,19 @@ document.addEventListener('DOMContentLoaded', () => {
 
             const sx = theme.btnShadowX || 0;
             const sy = theme.btnShadowY || 4;
-            
-            // Use CSS variables to handle the translation so hover can modify it easily
+
             const outerStyle = `position: absolute; z-index: 5; inset: ${-spread}px; --sx: ${sx}px; --sy: ${sy}px; transform: translate(var(--sx), var(--sy)); pointer-events: none; transition: transform 0.3s cubic-bezier(0.19, 1, 0.22, 1);`;
             const innerStyle = `position: absolute; inset: 0; border-radius: ${theme.btnRadius || 12}px; filter: blur(${theme.btnShadowBlur || 0}px); opacity: ${theme.btnShadowOpacity ?? (theme.btnShadowType === 'solid' ? 1 : 0.5)}; ${shadowBg}`;
 
-            return `<div style="${outerStyle}" class="${hoverSyncClass}"><div class="${shadowAnimClass}" style="${innerStyle}"></div></div>`;
+            return `<div style="${outerStyle}"><div class="${shadowAnimClass}" style="${innerStyle}"></div></div>`;
         };
 
         const wallpaperStyles = () => {
             const style = theme.wallpaperStyle || 'fill';
+
+            if (style === 'fill') {
+                return `background: ${theme.bg || '#000000'};`;
+            }
             if (style === 'gradient') {
                 if (theme.gradientDirection === 'radial') {
                     return `background: radial-gradient(circle at center, ${theme.gradientColor1 || '#FF512F'}, ${theme.gradientColor2 || '#DD2476'});`;
@@ -530,15 +633,18 @@ document.addEventListener('DOMContentLoaded', () => {
                 return `background: linear-gradient(${deg}, ${theme.gradientColor1 || '#FF512F'} 0%, ${theme.gradientColor2 || '#DD2476'} 100%);`;
             }
             if (style === 'blur') {
-                return `background: ${theme.blurColor || theme.bg || '#000000'};`;
+                return `background: ${theme.blurColor || '#000000'};`;
             }
             if (style === 'pattern') {
-                return `background: ${theme.patternBackgroundColor || theme.bg || '#000000'};`;
+                return `background: ${theme.patternBackgroundColor || '#000000'};`;
             }
             if (style === 'video') {
                 return `background: #000000;`;
             }
-            return `background: ${theme.bg || '#000000'};`;
+            if (style === 'image') {
+                return `background: #000000;`;
+            }
+            return `background: #000000;`;
         };
 
         const getPatternStyle = (theme) => {
@@ -591,9 +697,9 @@ document.addEventListener('DOMContentLoaded', () => {
             return Object.entries(backgroundStyle).map(([k, v]) => `${k.replace(/[A-Z]/g, m => "-" + m.toLowerCase())}: ${v};`).join(' ');
         };
 
-        const containerClass = layoutType === 'grid' ? 'grid grid-cols-2 gap-3 pb-4' :
+        const containerClass = layoutType === 'grid' ? 'grid grid-cols-2 pb-4' :
             layoutType === 'carousel' ? 'flex overflow-x-auto pb-4 snap-x snap-mandatory hide-scrollbar' :
-                'flex flex-col gap-3';
+                'flex flex-col';
 
         // --- Static SVG Icons ---
         const getSocialSvg = (platform, size) => {
@@ -630,9 +736,11 @@ document.addEventListener('DOMContentLoaded', () => {
             return theme.socialColorType === 'custom' ? theme.socialCustomColor : (theme.pageColor || '#ffffff');
         };
 
-        const avatarAnimationClass = theme.headerAnimation && theme.headerAnimation !== 'none' ? `animate-${theme.headerAnimation}` : '';
-        const titleAnimationClass = theme.titleAnimation && theme.titleAnimation !== 'none' ? (theme.titleAnimation === 'sweep' ? 'animate-sweep-text' : `animate-${theme.titleAnimation}`) : '';
-        const bioAnimationClass = theme.pageAnimation && theme.pageAnimation !== 'none' ? (theme.pageAnimation === 'sweep' ? 'animate-sweep-text' : `animate-${theme.pageAnimation}`) : '';
+        const toKabab = (str) => str ? str.replace(/([a-z])([A-Z])/g, '$1-$2').toLowerCase() : '';
+
+        const avatarAnimationClass = theme.headerAnimation && theme.headerAnimation !== 'none' ? `animate-${toKabab(theme.headerAnimation)}` : '';
+        const titleAnimationClass = theme.titleAnimation && theme.titleAnimation !== 'none' ? (theme.titleAnimation === 'sweep' ? 'animate-sweep-text' : `animate-${toKabab(theme.titleAnimation)}`) : '';
+        const bioAnimationClass = theme.pageAnimation && theme.pageAnimation !== 'none' ? (theme.pageAnimation === 'sweep' ? 'animate-sweep-text' : `animate-${toKabab(theme.pageAnimation)}`) : '';
 
         const htmlContent = `<!DOCTYPE html>
 <html lang="en">
@@ -642,23 +750,10 @@ document.addEventListener('DOMContentLoaded', () => {
     <title>${profile.username} | VLink Builder</title>
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=DM+Sans:wght@400;500;700&family=Outfit:wght@400;500;700;800&family=Poppins:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link href="${googleFontsUrl}" rel="stylesheet">
     <style>
 CSSPLACEHOLDER
     </style>
-    <script src="https://cdn.tailwindcss.com"></script>
-    <script>
-        tailwind.config = {
-            theme: {
-                extend: {
-                    fontFamily: {
-                        sans: ['${theme.pageFont || 'Inter'}', 'sans-serif'],
-                        heading: ['${theme.titleFont || 'Inter'}', 'sans-serif'],
-                    }
-                }
-            }
-        }
-    </script>
     <style>
         .social-btn { padding: 8px; transition: all 0.3s ease; opacity: 0.75; display: flex; align-items: center; gap: 8px; font-size: 11px; text-transform: uppercase; letter-spacing: 0.1em; font-weight: 700; }
         .social-btn:hover { transform: translateY(-3px); opacity: 1; }
@@ -736,7 +831,9 @@ CSSPLACEHOLDER
         ` : ''}
         
         ${theme.wallpaperStyle === 'video' && theme.backgroundVideo ? `
-            <video id="vlink-bg-video" src="${resolveUrl(theme.backgroundVideo, 'bg_video')}" autoplay muted playsinline loop style="position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; opacity: ${theme.videoOpacity ?? 1}; filter: blur(${theme.videoBlur ?? 0}px); z-index: 0;"></video>
+            <div style="position: absolute; inset: 0; overflow: hidden; z-index: 0; will-change: transform; transform: translateZ(0);${theme.videoBlur ? ' filter: blur(' + theme.videoBlur + 'px);' : ''}">
+                <video id="vlink-bg-video" src="${resolveUrl(theme.backgroundVideo, 'bg_video')}" autoplay muted playsinline loop preload="metadata" poster="${theme.backgroundImage ? resolveUrl(theme.backgroundImage, 'wallpaper') : ''}" style="position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; opacity: ${theme.videoOpacity ?? 1}; transform: translateZ(0);"></video>
+            </div>
         ` : ''}
         
         ${theme.wallpaperStyle === 'blur' ? `
@@ -750,7 +847,7 @@ CSSPLACEHOLDER
 
     <div class="desktop-frame-outer">
         <div class="desktop-frame-box">
-            <div class="flex flex-col items-center pt-6 pb-16 px-6 relative z-10 text-center">
+            <div class="flex flex-col items-center py-10 px-6 relative z-10 text-center">
         
         <!-- Header -->
         <header class="w-full flex flex-col items-center animate-fade-in-up">
@@ -819,21 +916,34 @@ CSSPLACEHOLDER
                 </div>
             `}
             
-            ${theme.socialPosition === 'top' ? `<div class="flex flex-wrap w-full ${theme.socialAlignment === 'left' ? 'justify-start' : theme.socialAlignment === 'right' ? 'justify-end' : 'justify-center'} animate-fade-in-up" style="gap: ${(theme.socialSpacing || 16) * 0.75}px; margin-top: 16px; animation-delay: 0.1s;">${socials.filter(s => s.url).map((s, i) => `
+             ${theme.socialPosition === 'top' ? `<div class="flex flex-wrap w-full ${theme.socialAlignment === 'left' ? 'justify-start' : theme.socialAlignment === 'right' ? 'justify-end' : 'justify-center'} animate-fade-in-up" style="gap: ${(theme.socialSpacing || 16) * 0.75}px; margin-top: ${theme.socialMarginTop ?? 20}px; margin-bottom: ${theme.socialMarginBottom ?? 20}px; animation-delay: 0.1s;">${socials.filter(s => s.url).map((s, i) => {
+                            const isTransformAnim = ['teeter', 'float', 'bounce-custom', 'pulse-custom', 'bounce', 'sweep'].includes(toKabab(theme.socialAnimation));
+                            const animationName = toKabab(theme.socialAnimation);
+                            const loopClass = animationName && animationName !== 'none' && isTransformAnim ? (animationName === 'sweep' ? 'animate-sweep' : `animate-${animationName}`) : '';
+                            const innerAnimClass = animationName && animationName !== 'none' && !isTransformAnim ? `animate-${animationName}` : '';
+                            const socColor = animationName === 'color-pulse' ? 'inherit' : getSocialColor(s.platform, theme);
+
+                            return `
             <div class="animate-fade-in-up shrink-0 group" style="animation-delay: ${0.2 + (i * 0.1)}s;">
-                <a href="${s.url}" target="_blank" class="social-btn ${theme.socialHover === 'lift' ? 'hover-lift' : theme.socialHover === 'scale' ? 'hover-scale' : theme.socialHover === 'glow' ? 'hover-glow' : ''} ${theme.socialAnimation && theme.socialAnimation !== 'none' ? (theme.socialAnimation === 'sweep' ? 'animate-sweep' : `animate-${theme.socialAnimation}`) : ''}" style="color: ${getSocialColor(s.platform, theme)}; font-family: ${theme.socialFont || 'Inter'}; font-weight: ${theme.socialTextWeight || 700}; animation-delay: ${i * 0.3}s;">
-                    ${getSocialSvg(s.platform, theme.socialSize)}
-                    ${theme.socialStyle === 'icon-text' ? `<span${theme.socialAnimation === 'sweep' ? ' class="animate-sweep-text"' : ''}>${s.platform}</span>` : ''}
-                </a>
-            </div>
-        `).join('')}</div>` : ''}
+                <div class="${loopClass}">
+                    <a href="${s.url}" target="_blank" class="social-btn ${innerAnimClass} ${theme.socialHover === 'lift' ? 'link-hover-lift' : theme.socialHover === 'scale' ? 'link-hover-scale' : theme.socialHover === 'glow' ? 'link-hover-glow' : ''}" style="color: ${socColor}; font-family: ${theme.socialFont || 'Inter'}; font-weight: ${theme.socialTextWeight || 700}; animation-delay: ${i * 0.3}s;">
+                        ${getSocialSvg(s.platform, theme.socialSize)}
+                        ${theme.socialStyle === 'icon-text' ? `<span${theme.socialAnimation === 'sweep' ? ' class="animate-sweep-text"' : ''}>${s.platform}</span>` : ''}
+                    </a>
+                </div>
+            </div>`;
+                        }).join('')}</div>` : ''}
         </header>
 
         <!-- Links -->
-        <main class="w-full ${containerClass} animate-fade-in-up" style="animation-delay: 0.15s; margin-top: ${profile.spacingLinks ?? 20}px;">
+        <main class="w-full ${containerClass} animate-fade-in-up" style="animation-delay: 0.15s; margin-top: ${profile.spacingLinks ?? 20}px; gap: ${theme.btnSpacing || 12}px;">
             ${links.filter(l => l.active).map((l, i) => {
                             const layout = l.layout || layoutType || 'classic';
-                            const animationClass = theme.btnAnimation && theme.btnAnimation !== 'none' ? `animate-${theme.btnAnimation}` : '';
+                            const animationName = toKabab(theme.btnAnimation);
+                            const isTransformAnim = ['teeter', 'float', 'bounce-custom', 'pulse-custom', 'bounce', 'sweep'].includes(animationName);
+                            const animationClass = animationName && animationName !== 'none' && isTransformAnim ? (animationName === 'sweep' ? 'animate-sweep' : `animate-${animationName}`) : '';
+                            const innerAnimClass = animationName && animationName !== 'none' && !isTransformAnim ? `animate-${animationName}` : '';
+
                             const shineClass = theme.btnHoverEffect === 'shine' ? 'animate-shine' : '';
                             const itemClass = layoutType === 'carousel' ? 'min-w-[85%] snap-center' : '';
 
@@ -849,17 +959,27 @@ CSSPLACEHOLDER
                                 const mediaClass = layout === 'grid' ? 'w-10 h-10 rounded-xl mb-2' :
                                     (layout === 'showcase' && i === 0) || layout === 'featured' ? 'w-14 h-14 rounded-2xl mr-4' :
                                         'w-9 h-9 rounded-lg mr-3';
-                                mediaHtml = `<div class="shrink-0 flex items-center justify-center bg-white/10 ${mediaClass} text-current">${getSocialSvg(l.icon, iconSize)}</div>`;
+                                mediaHtml = `<div class="shrink-0 flex items-center justify-center ${mediaClass} text-current">${getSocialSvg(l.icon, iconSize)}</div>`;
                             }
 
-                            const hoverClass = theme.btnHoverEffect === 'lift' ? 'hover-lift' : theme.btnHoverEffect === 'scale' ? 'hover-scale' : theme.btnHoverEffect === 'glow' ? 'hover-glow' : '';
-                            const activeClass = theme.btnPressEffect === 'push' ? 'active-push' : theme.btnPressEffect === 'inset' ? 'active-inset' : '';
+                            const hoverEffect = theme.btnHoverEffect || 'lift';
+                            const pressEffect = theme.btnPressEffect || 'push';
+                            const hoverClass = hoverEffect === 'lift' ? 'link-hover-lift' :
+                                hoverEffect === 'scale' ? 'link-hover-scale' :
+                                    hoverEffect === 'glow' ? 'link-hover-glow' : '';
+                            const activeClass = pressEffect === 'push' ? 'link-active-push' :
+                                pressEffect === 'inset' ? 'link-active-inset' : '';
                             const shadowHtml = getLinkShadowHtml(theme);
 
+                            const wrapperStyle = layoutType !== 'grid' && layoutType !== 'carousel' 
+                                ? `width: ${theme.btnWidth || 100}%; margin-left: auto; margin-right: auto;` 
+                                : 'width: 100%;';
+
                             return `
-                <div class="relative w-full ${itemClass} group" style="margin-bottom: ${theme.btnSpacing || 12}px;">
-                    ${shadowHtml}
-                    <a href="${l.url}" target="_blank" rel="noopener noreferrer" class="link-item ${animationClass} ${shineClass} ${hoverClass} ${activeClass}" style="${getLinkStyles(l, theme)} margin-bottom: 0;">
+                <div class="relative ${itemClass} group animate-fade-in-up" style="animation-delay: ${0.2 + (i * 0.05)}s; ${wrapperStyle}">
+                    <div class="w-full ${animationClass}">
+                        ${shadowHtml}
+                        <a href="${l.url}" target="_blank" rel="noopener noreferrer" class="link-item ${innerAnimClass} ${shineClass} ${hoverClass} ${activeClass}" style="${getLinkStyles(l, theme, i)} margin-bottom: 0; ${theme.btnAnimation === 'color-pulse' ? 'color: inherit; -webkit-text-fill-color: initial !important; background: none !important;' : ''}">
                         ${theme.btnHoverEffect === 'shine' ? '<div class="absolute inset-0 shine-overlay pointer-events-none" style="background: linear-gradient(90deg, transparent, rgba(255,255,255,0.2), transparent); transform: translateX(-100%) skewX(-15deg);"></div>' : ''}
                         
                         ${mediaHtml}
@@ -875,26 +995,35 @@ CSSPLACEHOLDER
                             </div>
                         ` : ''}
                     </a>
-                </div>`;
+                </div>
+            </div>`;
                         }).join('\n')}
         </main>
 
 
-        <!-- Bottom Socials -->
-        ${theme.socialPosition === 'bottom' ? `<div class="flex flex-wrap w-full border-t border-white/5 pt-5 mt-10 mb-6 ${theme.socialAlignment === 'left' ? 'justify-start' : theme.socialAlignment === 'right' ? 'justify-end' : 'justify-center'} animate-fade-in-up" style="gap: ${(theme.socialSpacing || 16) * 0.75}px; animation-delay: 0.3s;">${socials.filter(s => s.url).map((s, i) => `
+         <!-- Bottom Socials -->
+        ${theme.socialPosition === 'bottom' ? `<div class="flex flex-wrap w-full border-t border-white/5 pt-5 ${theme.socialAlignment === 'left' ? 'justify-start' : theme.socialAlignment === 'right' ? 'justify-end' : 'justify-center'} animate-fade-in-up" style="gap: ${(theme.socialSpacing || 16) * 0.75}px; margin-top: ${theme.socialMarginTop ?? 20}px; margin-bottom: ${theme.socialMarginBottom ?? 20}px; animation-delay: 0.3s;">${socials.filter(s => s.url).map((s, i) => {
+                            const isTransformAnim = ['teeter', 'float', 'bounce-custom', 'pulse-custom', 'bounce', 'sweep'].includes(theme.socialAnimation);
+                            const loopClass = theme.socialAnimation && theme.socialAnimation !== 'none' && isTransformAnim ? (theme.socialAnimation === 'sweep' ? 'animate-sweep' : `animate-${toKabab(theme.socialAnimation)}`) : '';
+                            const innerAnimClass = theme.socialAnimation && theme.socialAnimation !== 'none' && !isTransformAnim ? `animate-${toKabab(theme.socialAnimation)}` : '';
+                            const socColor = theme.socialAnimation === 'color-pulse' ? 'inherit' : getSocialColor(s.platform, theme);
+
+                            return `
             <div class="animate-fade-in-up shrink-0 group" style="animation-delay: ${0.4 + (i * 0.1)}s;">
-                <a href="${s.url}" target="_blank" class="social-btn ${theme.socialHover === 'lift' ? 'hover-lift' : theme.socialHover === 'scale' ? 'hover-scale' : theme.socialHover === 'glow' ? 'hover-glow' : ''} ${theme.socialAnimation && theme.socialAnimation !== 'none' ? (theme.socialAnimation === 'sweep' ? 'animate-sweep' : `animate-${theme.socialAnimation}`) : ''}" style="color: ${getSocialColor(s.platform, theme)}; font-family: ${theme.socialFont || 'Inter'}; font-weight: ${theme.socialTextWeight || 700}; animation-delay: ${i * 0.3}s;">
-                    ${getSocialSvg(s.platform, theme.socialSize)}
-                    ${theme.socialStyle === 'icon-text' ? `<span${theme.socialAnimation === 'sweep' ? ' class="animate-sweep-text"' : ''}>${s.platform}</span>` : ''}
-                </a>
-            </div>
-        `).join('')}</div>` : ''}
+                <div class="${loopClass}">
+                    <a href="${s.url}" target="_blank" class="social-btn ${innerAnimClass} ${theme.socialHover === 'lift' ? 'link-hover-lift' : theme.socialHover === 'scale' ? 'link-hover-scale' : theme.socialHover === 'glow' ? 'link-hover-glow' : ''}" style="color: ${socColor}; font-family: ${theme.socialFont || 'Inter'}; font-weight: ${theme.socialTextWeight || 700}; animation-delay: ${i * 0.3}s;">
+                        ${getSocialSvg(s.platform, theme.socialSize)}
+                        ${theme.socialStyle === 'icon-text' ? `<span${theme.socialAnimation === 'sweep' ? ' class="animate-sweep-text"' : ''}>${s.platform}</span>` : ''}
+                    </a>
+                </div>
+            </div>`;
+                        }).join('')}</div>` : ''}
 
         <!-- Greeting Card -->
         ${theme.showFooter ? `
         <div class="relative w-full mt-4">
             ${getFooterShadowHtml()}
-            <div class="p-6 rounded-3xl text-left w-full border border-white/10 relative overflow-hidden group z-10 ${theme.footerAnimation && theme.footerAnimation !== 'none' ? (theme.footerAnimation === 'sweep' ? 'animate-sweep' : `animate-${theme.footerAnimation}`) : 'animate-fade-in-up'}" 
+            <div class="p-6 rounded-3xl text-left w-full border border-white/10 relative overflow-hidden group z-10 ${theme.footerAnimation && theme.footerAnimation !== 'none' ? (theme.footerAnimation === 'sweep' ? 'animate-sweep' : `animate-${toKabab(theme.footerAnimation)}`) : 'animate-fade-in-up'}" 
                 style="animation-delay: 0.3s; border-radius: ${theme.footerBtnRadius}px; ${getFooterBgStyle()} ${theme.footerShadowType === 'solid' && theme.footerShadowColor ? `box-shadow: ${theme.footerShadowX || 0}px ${theme.footerShadowY || 0}px ${theme.footerShadowBlur || 0}px ${theme.footerShadowSpread || 0}px ${theme.footerShadowColor}${Math.round((theme.footerShadowOpacity ?? 0.5) * 255).toString(16).padStart(2, '0')};` : ''}">
                 <div class="flex items-center gap-2 mb-2 relative z-10">
                     <svg width="14" height="14" viewBox="0 0 24 24" fill="rgba(168,85,247,0.1)" stroke="#a855f7" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="shrink-0"><path d="M19 14c1.49-1.46 3-3.21 3-5.5A5.5 5.5 0 0 0 16.5 3c-1.76 0-3 .5-4.5 2-1.5-1.5-2.74-2-4.5-2A5.5 5.5 0 0 0 2 8.5c0 2.3 1.5 4.05 3 5.5l7 7Z"></path></svg>
@@ -908,9 +1037,9 @@ CSSPLACEHOLDER
             ${theme.showVlink ? `
             <div class="flex flex-col items-center gap-2">
                 <div class="h-px w-8 bg-white/5 mb-2"></div>
-                <div class="opacity-30 flex items-center justify-center gap-1.5 transition-opacity hover:opacity-100 duration-300">
+                <div class="branding-footer opacity-30 flex items-center justify-center gap-1.5 transition-all duration-300 cursor-default">
                     <span class="text-[10px] font-medium tracking-tight text-white/60">Made with</span>
-                    <span class="text-[10px] font-bold text-white uppercase tracking-tighter">Vlink.id x rizddf</span>
+                    <span class="text-[10px] font-bold text-white">Vlink.id x rizddf</span>
                 </div>
             </div>` : ''}
         </footer>
@@ -998,12 +1127,12 @@ JSPLACEHOLDER
                         </div>
                         <div>
                             <h2 className="text-lg font-semibold text-white">Export Code</h2>
-                            <p className="text-xs text-white/40">Download your VLink Builder as a single HTML file</p>
+                            <p className="text-xs text-white/60">Download your VLink Builder as a single HTML file</p>
                         </div>
                     </div>
                     <button
                         onClick={onClose}
-                        className="p-2 hover:bg-white/5 rounded-lg transition-colors text-white/40 hover:text-white"
+                        className="p-2 hover:bg-white/5 rounded-lg transition-colors text-white/60 hover:text-white"
                     >
                         <X size={20} />
                     </button>
@@ -1016,7 +1145,7 @@ JSPLACEHOLDER
                         <div className="flex items-center gap-2 px-4 py-2.5 bg-[#0f0f0f] border-b border-white/5 shrink-0">
                             <FileCode size={14} className="text-orange-400" />
                             <span className="text-xs font-medium text-orange-400">index.html</span>
-                            <span className="ml-auto text-[10px] text-white/20 font-mono">CSS + JS inlined</span>
+                            <span className="ml-auto text-[10px] text-white/40 font-mono">CSS + JS inlined</span>
                         </div>
 
                         {/* Code Editor Preview */}

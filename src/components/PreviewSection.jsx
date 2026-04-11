@@ -34,7 +34,7 @@ const DEVICE_CONFIG = {
     }
 };
 
-const ProfileAvatar = ({ profile, theme, className = '' }) => {
+const ProfileAvatar = memo(({ profile, theme, className = '' }) => {
     const size = typeof profile.headerSize === 'number' ? profile.headerSize : (profile.headerSize === 'large' ? 120 : (profile.headerSize === 'small' ? 80 : 100));
     const finalSize = 96 * (size / 100);
 
@@ -59,13 +59,13 @@ const ProfileAvatar = ({ profile, theme, className = '' }) => {
             <div
                 style={{ width: `${finalSize}px`, height: `${finalSize}px` }}
                 className={`rounded-full border-2 border-white/10 shadow-md relative z-10 flex items-center justify-center bg-white/5 ${profile.avatar ? 'hidden' : 'flex'} ${className}`}>
-                <User size={40 * (size / 100)} className="text-white/20" />
+                <User size={40 * (size / 100)} className="text-white/40" />
             </div>
         </>
     );
-};
+});
 
-const ProfileTitle = ({ profile, theme }) => {
+const ProfileTitle = memo(({ profile, theme }) => {
     if (!profile.showTitle) return null;
     const size = typeof profile.headerSize === 'number' ? profile.headerSize : (profile.headerSize === 'large' ? 120 : (profile.headerSize === 'small' ? 80 : 100));
 
@@ -140,9 +140,9 @@ const ProfileTitle = ({ profile, theme }) => {
             )}
         </div>
     );
-};
+});
 
-const ProfileBio = ({ profile, theme }) => {
+const ProfileBio = memo(({ profile, theme }) => {
     if (!profile.showBio) return null;
     const size = typeof profile.headerSize === 'number' ? profile.headerSize : (profile.headerSize === 'large' ? 120 : (profile.headerSize === 'small' ? 80 : 100));
 
@@ -175,19 +175,36 @@ const ProfileBio = ({ profile, theme }) => {
                     color: 'transparent'
                 } : {
                     color: theme.pageColor || theme.bioColor || 'rgba(255,255,255,0.7)'
-                })
+                }),
+                ...(theme.pageAnimation === 'color-pulse' ? {
+                    color: 'inherit',
+                    WebkitTextFillColor: 'initial',
+                    background: 'none'
+                } : {})
             }}
         >
             {profile.bio}
         </p>
     );
-};
+});
 
 const PreviewSection = memo(({ theme, profile, links, socials, layoutType, previewDevice = 'mobile', setPreviewDevice, isEditorHidden, isMobileView }) => {
     const config = DEVICE_CONFIG[previewDevice] || DEVICE_CONFIG.mobile;
 
     return (
         <div className={`flex ${isMobileView || isEditorHidden ? 'flex-1 justify-center' : 'hidden xl:flex'} ${isMobileView ? 'overflow-hidden' : ''} ${!isMobileView && !isEditorHidden ? (previewDevice === 'mobile' ? 'w-[380px]' : (previewDevice === 'tablet' ? 'w-[520px]' : 'w-[750px]')) : ''} border-l border-white/5 flex-col items-center justify-center py-8 px-4 md:px-6 bg-transparent relative z-10 transition-all duration-500 ease-in-out`}>
+            <style>{`
+                @media (max-width: 767px) {
+                    #vlink-bg-video {
+                        filter: none !important;
+                        -webkit-filter: none !important;
+                    }
+                    .wallpaper-container {
+                        backface-visibility: hidden;
+                        -webkit-backface-visibility: hidden;
+                    }
+                }
+            `}</style>
             {/* Device Switcher */}
             <div className="flex items-center gap-1 p-1 bg-white/5 border border-white/10 rounded-2xl mb-8 backdrop-blur-md shadow-xl z-70">
                 {[
@@ -200,7 +217,7 @@ const PreviewSection = memo(({ theme, profile, links, socials, layoutType, previ
                         <button
                             key={device.id}
                             onClick={() => setPreviewDevice?.(device.id)}
-                            className={`p-2 rounded-xl transition-all duration-300 ${previewDevice === device.id ? 'bg-white/10 text-white shadow-lg' : 'text-white/40 hover:text-white/70 hover:bg-white/5'}`}
+                            className={`p-2 rounded-xl transition-all duration-300 ${previewDevice === device.id ? 'bg-white/10 text-white shadow-lg' : 'text-white/60 hover:text-white/70 hover:bg-white/5'}`}
                         >
                             <Icon size={18} />
                         </button>
@@ -217,7 +234,14 @@ const PreviewSection = memo(({ theme, profile, links, socials, layoutType, previ
                         height: config.height,
                         transform: `scale(${config.scale})`,
                         transformOrigin: 'top center',
-                        marginBottom: `-${config.height * (1 - config.scale)}px`
+                        marginBottom: `-${config.height * (1 - config.scale)}px`,
+                        background: theme.wallpaperStyle === 'fill' ? (theme.bg || '#000000') :
+                            theme.wallpaperStyle === 'gradient' ? (
+                                theme.gradientDirection === 'radial' ? `radial-gradient(circle at center, ${theme.gradientColor1 || '#FF512F'}, ${theme.gradientColor2 || '#DD2476'})` :
+                                    theme.gradientDirection === 'linear-up' ? `linear-gradient(0deg, ${theme.gradientColor1 || '#FF512F'} 0%, ${theme.gradientColor2 || '#DD2476'} 100%)` :
+                                        `linear-gradient(180deg, ${theme.gradientColor1 || '#FF512F'} 0%, ${theme.gradientColor2 || '#DD2476'} 100%)`
+                            ) : theme.wallpaperStyle === 'blur' ? (theme.blurColor || '#000000') :
+                                theme.wallpaperStyle === 'pattern' ? (theme.patternBackgroundColor || '#000000') : 'transparent'
                     }}
                 >
                     {/* Bezel Finishing */}
@@ -240,7 +264,7 @@ const PreviewSection = memo(({ theme, profile, links, socials, layoutType, previ
                                 <div className="w-2.5 h-2.5 rounded-full bg-green-500/50"></div>
                             </div>
                             <div className="flex-1 max-w-md mx-auto h-6 bg-black/40 rounded-lg flex items-center px-3">
-                                <div className="text-[10px] text-white/20 font-mono">vlink.tree/username</div>
+                                <div className="text-[10px] text-white/40 font-mono">vlink.tree/username</div>
                             </div>
                         </div>
                     )}
@@ -250,198 +274,197 @@ const PreviewSection = memo(({ theme, profile, links, socials, layoutType, previ
                         <div className={`absolute bottom-3 left-1/2 -translate-x-1/2 ${previewDevice === 'mobile' ? 'w-24 h-1' : 'w-12 h-1'} bg-white/20 rounded-full z-60`}></div>
                     )}
 
+                    {/* Background Video - No Blur */}
+                    {theme.wallpaperStyle === 'video' && theme.backgroundVideo && (
+                        <video
+                            autoPlay
+                            muted={!theme.videoAudioEnabled}
+                            loop
+                            playsInline
+                            preload="auto"
+                            poster={theme.backgroundImage}
+                            className="absolute inset-0 w-full h-full object-cover"
+                            src={theme.backgroundVideo}
+                            style={{
+                                opacity: theme.videoOpacity ?? 1,
+                                filter: theme.videoBlur ? `blur(${theme.videoBlur}px)` : 'none',
+                                willChange: 'opacity, filter',
+                                transform: 'translateZ(0)'
+                            }}
+                            ref={(el) => {
+                                if (el) el.volume = (theme.videoVolume ?? 50) / 100;
+                            }}
+                        />
+                    )}
+
+                    {/* Background Image - No Blur */}
+                    {theme.wallpaperStyle === 'image' && theme.backgroundImage && (
+                        <img
+                            src={theme.backgroundImage}
+                            alt="Wallpaper"
+                            loading="lazy"
+                            decoding="async"
+                            width="320"
+                            height="640"
+                            className="absolute inset-0 w-full h-full object-cover"
+                            style={{
+                                opacity: theme.imageOpacity ?? 1,
+                                filter: theme.imageBlur ? `blur(${theme.imageBlur}px)` : 'none'
+                            }}
+                        />
+                    )}
+
+                    {/* Blur Style Overlay */}
+                    {theme.wallpaperStyle === 'blur' && (
+                        <div className="absolute inset-0 overflow-hidden">
+                            <div
+                                className="absolute inset-[-20%] bg-white/20"
+                                style={{
+                                    filter: `blur(${theme.blurIntensity || 20}px)`,
+                                    backgroundColor: theme.blurColor ? `${theme.blurColor}33` : 'rgba(255,255,255,0.2)'
+                                }}
+                            />
+                        </div>
+                    )}
+
+                    {/* Pattern Overlay */}
+                    {theme.wallpaperStyle === 'pattern' && (() => {
+                        const patternType = theme.patternType || 'dots';
+                        const color = theme.patternColor || '#ffffff';
+
+                        let backgroundStyle = {};
+
+                        switch (patternType) {
+                            case 'dots':
+                                backgroundStyle = {
+                                    backgroundImage: `radial-gradient(circle, ${color} 1.5px, transparent 1.5px)`,
+                                    backgroundSize: '20px 20px'
+                                };
+                                break;
+                            case 'stripes':
+                                backgroundStyle = {
+                                    backgroundImage: `repeating-linear-gradient(45deg, ${color} 0px, ${color} 2px, transparent 2px, transparent 8px)`,
+                                };
+                                break;
+                            case 'grid':
+                                backgroundStyle = {
+                                    backgroundImage: `
+                                    linear-gradient(to right, ${color} 1px, transparent 1px),
+                                    linear-gradient(to bottom, ${color} 1px, transparent 1px)
+                                `,
+                                    backgroundSize: '20px 20px'
+                                };
+                                break;
+                            case 'diagonal':
+                                backgroundStyle = {
+                                    backgroundImage: `repeating-linear-gradient(45deg, ${color} 0px, ${color} 1px, transparent 1px, transparent 8px)`,
+                                };
+                                break;
+                            case 'waves':
+                                backgroundStyle = {
+                                    backgroundImage: `
+                                    radial-gradient(circle at 100% 50%, transparent 8px, ${color} 8px, ${color} 10px, transparent 10px),
+                                    radial-gradient(circle at 0% 50%, transparent 8px, ${color} 8px, ${color} 10px, transparent 10px)
+                                `,
+                                    backgroundSize: '30px 30px',
+                                    backgroundPosition: '0 0, 15px 15px'
+                                };
+                                break;
+                            case 'circles':
+                                backgroundStyle = {
+                                    backgroundImage: `radial-gradient(circle, ${color} 3px, transparent 3px)`,
+                                    backgroundSize: '30px 30px'
+                                };
+                                break;
+                            case 'hexagon':
+                                backgroundStyle = {
+                                    backgroundImage: `
+                                    radial-gradient(circle at 50% 0, ${color} 18%, transparent 18%),
+                                    radial-gradient(circle at 6.7% 75%, ${color} 18%, transparent 18%),
+                                    radial-gradient(circle at 93.3% 75%, ${color} 18%, transparent 18%)
+                                `,
+                                    backgroundSize: '30px 52px',
+                                    backgroundPosition: '0 0, 0 0, 0 0'
+                                };
+                                break;
+                            case 'triangles':
+                                backgroundStyle = {
+                                    backgroundImage: `
+                                    linear-gradient(30deg, ${color} 12%, transparent 12.5%, transparent 87%, ${color} 87.5%, ${color}),
+                                    linear-gradient(150deg, ${color} 12%, transparent 12.5%, transparent 87%, ${color} 87.5%, ${color}),
+                                    linear-gradient(30deg, ${color} 12%, transparent 12.5%, transparent 87%, ${color} 87.5%, ${color}),
+                                    linear-gradient(150deg, ${color} 12%, transparent 12.5%, transparent 87%, ${color} 87.5%, ${color})
+                                `,
+                                    backgroundSize: '40px 70px',
+                                    backgroundPosition: '0 0, 0 0, 20px 35px, 20px 35px'
+                                };
+                                break;
+                            case 'zigzag':
+                                backgroundStyle = {
+                                    backgroundImage: `
+                                    linear-gradient(135deg, ${color} 25%, transparent 25%),
+                                    linear-gradient(225deg, ${color} 25%, transparent 25%),
+                                    linear-gradient(45deg, ${color} 25%, transparent 25%),
+                                    linear-gradient(315deg, ${color} 25%, transparent 25%)
+                                `,
+                                    backgroundSize: '20px 20px',
+                                    backgroundPosition: '10px 0, 10px 0, 0 0, 0 0'
+                                };
+                                break;
+                            case 'checkerboard':
+                                backgroundStyle = {
+                                    backgroundImage: `
+                                    linear-gradient(45deg, ${color} 25%, transparent 25%),
+                                    linear-gradient(-45deg, ${color} 25%, transparent 25%),
+                                    linear-gradient(45deg, transparent 75%, ${color} 75%),
+                                    linear-gradient(-45deg, transparent 75%, ${color} 75%)
+                                `,
+                                    backgroundSize: '20px 20px',
+                                    backgroundPosition: '0 0, 0 10px, 10px -10px, -10px 0px'
+                                };
+                                break;
+                            case 'custom':
+                                if (theme.customPatternImage) {
+                                    backgroundStyle = {
+                                        backgroundImage: `url(${theme.customPatternImage})`,
+                                        backgroundSize: '100px 100px',
+                                        backgroundRepeat: 'repeat'
+                                    };
+                                } else {
+                                    // Fallback to dots if no custom image
+                                    backgroundStyle = {
+                                        backgroundImage: `radial-gradient(circle, ${color} 1.5px, transparent 1.5px)`,
+                                        backgroundSize: '20px 20px'
+                                    };
+                                }
+                                break;
+                            default:
+                                backgroundStyle = {
+                                    backgroundImage: `radial-gradient(circle, ${color} 1.5px, transparent 1.5px)`,
+                                    backgroundSize: '20px 20px'
+                                };
+                        }
+
+                        return (
+                            <div className="absolute inset-0" style={{
+                                ...backgroundStyle,
+                                opacity: theme.patternOpacity ?? 0.1,
+                                filter: theme.patternBlur ? `blur(${theme.patternBlur}px)` : 'none'
+                            }} />
+                        );
+                    })()}
+
+                    <BackgroundEffects theme={theme} />
+
                     {/* Scrollable Content inside Device */}
                     <div
-                        className="flex-1 overflow-y-auto custom-scrollbar relative"
+                        className="flex-1 overflow-y-auto custom-scrollbar relative bg-transparent"
                         style={{
-                            fontFamily: theme.pageFont || theme.fontFamily || 'Inter',
-                            background: theme.wallpaperStyle === 'fill' ? theme.bg :
-                                theme.wallpaperStyle === 'gradient' ? (
-                                    theme.gradientDirection === 'radial' ? `radial-gradient(circle at center, ${theme.gradientColor1 || '#FF512F'}, ${theme.gradientColor2 || '#DD2476'})` :
-                                        theme.gradientDirection === 'linear-up' ? `linear-gradient(0deg, ${theme.gradientColor1 || '#FF512F'} 0%, ${theme.gradientColor2 || '#DD2476'} 100%)` :
-                                            `linear-gradient(180deg, ${theme.gradientColor1 || '#FF512F'} 0%, ${theme.gradientColor2 || '#DD2476'} 100%)`
-                                ) : theme.wallpaperStyle === 'blur' ? theme.blurColor || theme.bg :
-                                    theme.wallpaperStyle === 'pattern' ? (theme.patternBackgroundColor || theme.bg || '#000000') : 'transparent'
+                            fontFamily: theme.pageFont || theme.fontFamily || 'Inter'
                         }}
                     >
-                        {/* Background Video - No Blur */}
-                        {theme.wallpaperStyle === 'video' && theme.backgroundVideo && (
-                            <video
-                                autoPlay
-                                muted={!theme.videoAudioEnabled}
-                                loop
-                                className="absolute inset-0 w-full h-full object-cover"
-                                src={theme.backgroundVideo}
-                                style={{
-                                    opacity: theme.videoOpacity ?? 1,
-                                    filter: theme.videoBlur ? `blur(${theme.videoBlur}px)` : 'none'
-                                }}
-                                ref={(el) => {
-                                    if (el) el.volume = (theme.videoVolume ?? 50) / 100;
-                                }}
-                            />
-                        )}
 
-                        {/* Background Image - No Blur */}
-                        {theme.wallpaperStyle === 'image' && theme.backgroundImage && (
-                            <img
-                                src={theme.backgroundImage}
-                                alt="Wallpaper"
-                                loading="lazy"
-                                decoding="async"
-                                width="320"
-                                height="640"
-                                className="absolute inset-0 w-full h-full object-cover"
-                                style={{
-                                    opacity: theme.imageOpacity ?? 1,
-                                    filter: theme.imageBlur ? `blur(${theme.imageBlur}px)` : 'none'
-                                }}
-                            />
-                        )}
-
-                        {/* Blur Style Overlay */}
-                        {theme.wallpaperStyle === 'blur' && (
-                            <div className="absolute inset-0 overflow-hidden">
-                                <div
-                                    className="absolute inset-[-20%] bg-white/20"
-                                    style={{
-                                        filter: `blur(${theme.blurIntensity || 20}px)`,
-                                        backgroundColor: theme.blurColor ? `${theme.blurColor}33` : 'rgba(255,255,255,0.2)'
-                                    }}
-                                />
-                            </div>
-                        )}
-
-                        {/* Pattern Overlay */}
-                        {theme.wallpaperStyle === 'pattern' && (() => {
-                            const patternType = theme.patternType || 'dots';
-                            const color = theme.patternColor || '#ffffff';
-
-                            let backgroundStyle = {};
-
-                            switch (patternType) {
-                                case 'dots':
-                                    backgroundStyle = {
-                                        backgroundImage: `radial-gradient(circle, ${color} 1.5px, transparent 1.5px)`,
-                                        backgroundSize: '20px 20px'
-                                    };
-                                    break;
-                                case 'stripes':
-                                    backgroundStyle = {
-                                        backgroundImage: `repeating-linear-gradient(45deg, ${color} 0px, ${color} 2px, transparent 2px, transparent 8px)`,
-                                    };
-                                    break;
-                                case 'grid':
-                                    backgroundStyle = {
-                                        backgroundImage: `
-                                        linear-gradient(to right, ${color} 1px, transparent 1px),
-                                        linear-gradient(to bottom, ${color} 1px, transparent 1px)
-                                    `,
-                                        backgroundSize: '20px 20px'
-                                    };
-                                    break;
-                                case 'diagonal':
-                                    backgroundStyle = {
-                                        backgroundImage: `repeating-linear-gradient(45deg, ${color} 0px, ${color} 1px, transparent 1px, transparent 8px)`,
-                                    };
-                                    break;
-                                case 'waves':
-                                    backgroundStyle = {
-                                        backgroundImage: `
-                                        radial-gradient(circle at 100% 50%, transparent 8px, ${color} 8px, ${color} 10px, transparent 10px),
-                                        radial-gradient(circle at 0% 50%, transparent 8px, ${color} 8px, ${color} 10px, transparent 10px)
-                                    `,
-                                        backgroundSize: '30px 30px',
-                                        backgroundPosition: '0 0, 15px 15px'
-                                    };
-                                    break;
-                                case 'circles':
-                                    backgroundStyle = {
-                                        backgroundImage: `radial-gradient(circle, ${color} 3px, transparent 3px)`,
-                                        backgroundSize: '30px 30px'
-                                    };
-                                    break;
-                                case 'hexagon':
-                                    backgroundStyle = {
-                                        backgroundImage: `
-                                        radial-gradient(circle at 50% 0, ${color} 18%, transparent 18%),
-                                        radial-gradient(circle at 6.7% 75%, ${color} 18%, transparent 18%),
-                                        radial-gradient(circle at 93.3% 75%, ${color} 18%, transparent 18%)
-                                    `,
-                                        backgroundSize: '30px 52px',
-                                        backgroundPosition: '0 0, 0 0, 0 0'
-                                    };
-                                    break;
-                                case 'triangles':
-                                    backgroundStyle = {
-                                        backgroundImage: `
-                                        linear-gradient(30deg, ${color} 12%, transparent 12.5%, transparent 87%, ${color} 87.5%, ${color}),
-                                        linear-gradient(150deg, ${color} 12%, transparent 12.5%, transparent 87%, ${color} 87.5%, ${color}),
-                                        linear-gradient(30deg, ${color} 12%, transparent 12.5%, transparent 87%, ${color} 87.5%, ${color}),
-                                        linear-gradient(150deg, ${color} 12%, transparent 12.5%, transparent 87%, ${color} 87.5%, ${color})
-                                    `,
-                                        backgroundSize: '40px 70px',
-                                        backgroundPosition: '0 0, 0 0, 20px 35px, 20px 35px'
-                                    };
-                                    break;
-                                case 'zigzag':
-                                    backgroundStyle = {
-                                        backgroundImage: `
-                                        linear-gradient(135deg, ${color} 25%, transparent 25%),
-                                        linear-gradient(225deg, ${color} 25%, transparent 25%),
-                                        linear-gradient(45deg, ${color} 25%, transparent 25%),
-                                        linear-gradient(315deg, ${color} 25%, transparent 25%)
-                                    `,
-                                        backgroundSize: '20px 20px',
-                                        backgroundPosition: '10px 0, 10px 0, 0 0, 0 0'
-                                    };
-                                    break;
-                                case 'checkerboard':
-                                    backgroundStyle = {
-                                        backgroundImage: `
-                                        linear-gradient(45deg, ${color} 25%, transparent 25%),
-                                        linear-gradient(-45deg, ${color} 25%, transparent 25%),
-                                        linear-gradient(45deg, transparent 75%, ${color} 75%),
-                                        linear-gradient(-45deg, transparent 75%, ${color} 75%)
-                                    `,
-                                        backgroundSize: '20px 20px',
-                                        backgroundPosition: '0 0, 0 10px, 10px -10px, -10px 0px'
-                                    };
-                                    break;
-                                case 'custom':
-                                    if (theme.customPatternImage) {
-                                        backgroundStyle = {
-                                            backgroundImage: `url(${theme.customPatternImage})`,
-                                            backgroundSize: '100px 100px',
-                                            backgroundRepeat: 'repeat'
-                                        };
-                                    } else {
-                                        // Fallback to dots if no custom image
-                                        backgroundStyle = {
-                                            backgroundImage: `radial-gradient(circle, ${color} 1.5px, transparent 1.5px)`,
-                                            backgroundSize: '20px 20px'
-                                        };
-                                    }
-                                    break;
-                                default:
-                                    backgroundStyle = {
-                                        backgroundImage: `radial-gradient(circle, ${color} 1.5px, transparent 1.5px)`,
-                                        backgroundSize: '20px 20px'
-                                    };
-                            }
-
-                            return (
-                                <div className="absolute inset-0" style={{
-                                    ...backgroundStyle,
-                                    opacity: theme.patternOpacity ?? 0.1,
-                                    filter: theme.patternBlur ? `blur(${theme.patternBlur}px)` : 'none'
-                                }} />
-                            );
-                        })()}
-
-                        <BackgroundEffects theme={theme} />
-
-                        <div className={`relative z-10 flex flex-col items-center min-h-full mx-auto ${previewDevice === 'desktop' ? 'w-full pt-10 pb-20 px-4' : (previewDevice === 'tablet' ? 'max-w-2xl px-6 py-10' : 'w-full px-6 py-10')}`}>
+                        <div className={`relative z-10 flex flex-col items-center min-h-full mx-auto ${previewDevice === 'desktop' ? 'w-full pt-10 pb-12 px-4' : (previewDevice === 'tablet' ? 'max-w-2xl px-6 py-10' : 'w-full px-6 py-10')}`}>
                             <div className={`w-full flex flex-col items-center ${previewDevice === 'desktop' ? 'max-w-[420px] bg-white/[0.03] border border-white/10 rounded-[32px] overflow-hidden backdrop-blur-[2px] shadow-[0_0_0_1px_rgba(255,255,255,0.04),0_32px_80px_rgba(0,0,0,0.55),0_8px_24px_rgba(0,0,0,0.35)] p-6' : ''}`}>
                             {/* Profile Area */}
                             <div className={`flex flex-col items-center w-full transition-all duration-300 ${profile.headerLayout === 'hero' ? 'mb-6' : ''}`} style={profile.headerLayout === 'hero' ? { marginTop: `${profile.spacingAvatar ?? 16}px` } : {}}>
@@ -528,7 +551,11 @@ const PreviewSection = memo(({ theme, profile, links, socials, layoutType, previ
                             {theme.socialPosition === 'top' && (
                                 <div
                                     className={`flex flex-wrap w-full ${theme.socialAlignment === 'left' ? 'justify-start' : theme.socialAlignment === 'right' ? 'justify-end' : 'justify-center'}`}
-                                    style={{ gap: `${(theme.socialSpacing || 16) * 0.75}px`, marginTop: '4px' }}
+                                    style={{ 
+                                        gap: `${(theme.socialSpacing || 16) * 0.75}px`, 
+                                        marginTop: `${theme.socialMarginTop ?? 20}px`,
+                                        marginBottom: `${theme.socialMarginBottom ?? 20}px` 
+                                    }}
                                 >
                                     {socials.filter(s => s.url).map((social, index) => {
                                         const platform = social.platform;
@@ -587,7 +614,11 @@ const PreviewSection = memo(({ theme, profile, links, socials, layoutType, previ
                             {theme.socialPosition === 'bottom' && (
                                 <div
                                     className={`flex flex-wrap mt-auto pt-5 w-full border-t border-white/5 ${theme.socialAlignment === 'left' ? 'justify-start' : theme.socialAlignment === 'right' ? 'justify-end' : 'justify-center'}`}
-                                    style={{ gap: `${(theme.socialSpacing || 16) * 0.75}px` }}
+                                    style={{ 
+                                        gap: `${(theme.socialSpacing || 16) * 0.75}px`,
+                                        marginTop: `${theme.socialMarginTop ?? 20}px`,
+                                        marginBottom: `${theme.socialMarginBottom ?? 20}px` 
+                                    }}
                                 >
                                     {socials.filter(s => s.url).map((social, index) => {
                                         const platform = social.platform;

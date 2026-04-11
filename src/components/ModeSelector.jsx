@@ -40,10 +40,10 @@ const ModeSelector = ({ id, mode, onChange, activeColor = 'emerald', ariaLabel }
                             flex-1 flex items-center justify-center gap-2 py-2.5 rounded-xl text-[10px] font-black uppercase tracking-[0.15em] transition-all duration-300
                             ${isActive
                                 ? `${accentBg} ${accentText} ${accentBorder} border shadow-lg`
-                                : 'bg-transparent border-transparent text-white/30 hover:text-white/60 hover:bg-white/5'}
+                                : 'bg-transparent border-transparent text-white/50 hover:text-white/60 hover:bg-white/5'}
                         `}
                     >
-                        <Icon size={14} className={isActive ? accentText : 'text-white/20'} aria-hidden="true" />
+                        <Icon size={14} className={isActive ? accentText : 'text-white/40'} aria-hidden="true" />
                         {m.label}
                     </button>
                 );
