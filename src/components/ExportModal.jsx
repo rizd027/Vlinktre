@@ -527,6 +527,26 @@ document.addEventListener('DOMContentLoaded', () => {
     }
     ` : ''}
     
+    ${theme.backgroundAudio ? `
+    // Background audio playback handling
+    const bgAudio = document.getElementById('vlink-bg-audio');
+    if (bgAudio) {
+        bgAudio.volume = ${(theme.audioVolume ?? 50) / 100};
+        ${theme.audioAutoplay ? `
+        var audioPlayPromise = bgAudio.play();
+        if (audioPlayPromise !== undefined) {
+            audioPlayPromise.catch(function() {
+                // Autoplay blocked. Wait for interaction to play.
+                document.body.addEventListener('click', function playAudioOnInteract() {
+                    bgAudio.play();
+                    document.body.removeEventListener('click', playAudioOnInteract);
+                }, { once: true });
+            });
+        }
+        ` : ''}
+    }
+    ` : ''}
+    
     console.log('VLink Page Ready');
 });
 `;
@@ -835,6 +855,10 @@ CSSPLACEHOLDER
             <div style="position: absolute; inset: 0; overflow: hidden; z-index: 0; will-change: transform; transform: translateZ(0);${theme.videoBlur ? ' filter: blur(' + theme.videoBlur + 'px);' : ''}">
                 <video id="vlink-bg-video" src="${resolveUrl(theme.backgroundVideo, 'bg_video')}" autoplay muted playsinline loop preload="metadata" poster="${theme.backgroundImage ? resolveUrl(theme.backgroundImage, 'wallpaper') : ''}" style="position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; opacity: ${theme.videoOpacity ?? 1}; transform: translateZ(0);"></video>
             </div>
+        ` : ''}
+        
+        ${theme.backgroundAudio ? `
+            <audio id="vlink-bg-audio" src="${resolveUrl(theme.backgroundAudio, 'bg_audio')}" loop preload="auto"${theme.audioAutoplay ? ' autoplay' : ''}></audio>
         ` : ''}
         
         ${theme.wallpaperStyle === 'blur' ? `

@@ -274,6 +274,18 @@ const PreviewSection = memo(({ theme, profile, links, socials, layoutType, previ
                         <div className={`absolute bottom-3 left-1/2 -translate-x-1/2 ${previewDevice === 'mobile' ? 'w-24 h-1' : 'w-12 h-1'} bg-white/20 rounded-full z-60`}></div>
                     )}
 
+                    {/* Background Audio */}
+                    {theme.backgroundAudio && (
+                        <audio
+                            autoPlay={theme.audioAutoplay}
+                            loop
+                            src={theme.backgroundAudio}
+                            ref={(el) => {
+                                if (el) el.volume = (theme.audioVolume ?? 50) / 100;
+                            }}
+                        />
+                    )}
+
                     {/* Background Video - No Blur */}
                     {theme.wallpaperStyle === 'video' && theme.backgroundVideo && (
                         <video
@@ -466,353 +478,353 @@ const PreviewSection = memo(({ theme, profile, links, socials, layoutType, previ
 
                         <div className={`relative z-10 flex flex-col items-center min-h-full mx-auto ${previewDevice === 'desktop' ? 'w-full pt-10 pb-12 px-4' : (previewDevice === 'tablet' ? 'max-w-2xl px-6 py-10' : 'w-full px-6 py-10')}`}>
                             <div className={`w-full flex flex-col items-center ${previewDevice === 'desktop' ? 'max-w-[420px] bg-white/[0.03] border border-white/10 rounded-[32px] overflow-hidden backdrop-blur-[2px] shadow-[0_0_0_1px_rgba(255,255,255,0.04),0_32px_80px_rgba(0,0,0,0.55),0_8px_24px_rgba(0,0,0,0.35)] p-6' : ''}`}>
-                            {/* Profile Area */}
-                            <div className={`flex flex-col items-center w-full transition-all duration-300 ${profile.headerLayout === 'hero' ? 'mb-6' : ''}`} style={profile.headerLayout === 'hero' ? { marginTop: `${profile.spacingAvatar ?? 16}px` } : {}}>
-                                {profile.headerLayout === 'hero' ? (
-                                    <div className="w-full relative flex flex-col items-center">
-                                        {/* Hero Variant Controller */}
-                                        {profile.heroModel === 'joined' && (
-                                            <div className="w-full flex flex-col items-center">
-                                                <div className={`relative z-20 ${theme.headerAnimation && theme.headerAnimation !== 'none' ? `animate-${theme.headerAnimation}` : ''} ${profile.showAvatar === false ? 'hidden' : ''}`}>
-                                                    <ProfileAvatar profile={profile} theme={theme} className="rounded-b-none border-b-0" />
+                                {/* Profile Area */}
+                                <div className={`flex flex-col items-center w-full transition-all duration-300 ${profile.headerLayout === 'hero' ? 'mb-6' : ''}`} style={profile.headerLayout === 'hero' ? { marginTop: `${profile.spacingAvatar ?? 16}px` } : {}}>
+                                    {profile.headerLayout === 'hero' ? (
+                                        <div className="w-full relative flex flex-col items-center">
+                                            {/* Hero Variant Controller */}
+                                            {profile.heroModel === 'joined' && (
+                                                <div className="w-full flex flex-col items-center">
+                                                    <div className={`relative z-20 ${theme.headerAnimation && theme.headerAnimation !== 'none' ? `animate-${theme.headerAnimation}` : ''} ${profile.showAvatar === false ? 'hidden' : ''}`}>
+                                                        <ProfileAvatar profile={profile} theme={theme} className="rounded-b-none border-b-0" />
+                                                    </div>
+                                                    <div className="bg-black/30 backdrop-blur-xl w-full py-8 px-6 rounded-3xl -mt-5 border border-white/10 shadow-2xl relative z-10 text-center flex flex-col gap-2">
+                                                        <ProfileTitle profile={profile} theme={theme} />
+                                                        <ProfileBio profile={profile} theme={theme} />
+                                                    </div>
                                                 </div>
-                                                <div className="bg-black/30 backdrop-blur-xl w-full py-8 px-6 rounded-3xl -mt-5 border border-white/10 shadow-2xl relative z-10 text-center flex flex-col gap-2">
-                                                    <ProfileTitle profile={profile} theme={theme} />
-                                                    <ProfileBio profile={profile} theme={theme} />
-                                                </div>
-                                            </div>
-                                        )}
+                                            )}
 
-                                        {profile.heroModel === 'float' && (
-                                            <div className="w-full flex flex-col items-center gap-6">
-                                                <div className={`relative z-20 ${theme.headerAnimation && theme.headerAnimation !== 'none' ? `animate-${theme.headerAnimation}` : ''} ${profile.showAvatar === false ? 'hidden' : ''}`}>
-                                                    <div className="absolute inset-0 bg-purple-500/20 blur-3xl rounded-full -z-10 animate-pulse"></div>
-                                                    <ProfileAvatar profile={profile} theme={theme} className="shadow-[0_20px_40px_rgba(0,0,0,0.4)] border-white/20 hover:scale-105 transition-transform" />
+                                            {profile.heroModel === 'float' && (
+                                                <div className="w-full flex flex-col items-center gap-6">
+                                                    <div className={`relative z-20 ${theme.headerAnimation && theme.headerAnimation !== 'none' ? `animate-${theme.headerAnimation}` : ''} ${profile.showAvatar === false ? 'hidden' : ''}`}>
+                                                        <div className="absolute inset-0 bg-purple-500/20 blur-3xl rounded-full -z-10 animate-pulse"></div>
+                                                        <ProfileAvatar profile={profile} theme={theme} className="shadow-[0_20px_40px_rgba(0,0,0,0.4)] border-white/20 hover:scale-105 transition-transform" />
+                                                    </div>
+                                                    <div className="bg-white/5 backdrop-blur-md w-full py-8 px-6 rounded-3xl border border-white/10 shadow-xl text-center flex flex-col gap-2">
+                                                        <ProfileTitle profile={profile} theme={theme} />
+                                                        <ProfileBio profile={profile} theme={theme} />
+                                                    </div>
                                                 </div>
-                                                <div className="bg-white/5 backdrop-blur-md w-full py-8 px-6 rounded-3xl border border-white/10 shadow-xl text-center flex flex-col gap-2">
-                                                    <ProfileTitle profile={profile} theme={theme} />
-                                                    <ProfileBio profile={profile} theme={theme} />
-                                                </div>
-                                            </div>
-                                        )}
+                                            )}
 
-                                        {profile.heroModel === 'minimal' && (
-                                            <div className="w-full flex flex-col items-center gap-6 py-4">
-                                                <div className={`relative z-20 ${theme.headerAnimation && theme.headerAnimation !== 'none' ? `animate-${theme.headerAnimation}` : ''} ${profile.showAvatar === false ? 'hidden' : ''}`}>
-                                                    <ProfileAvatar profile={profile} theme={theme} className="border-white/5 shadow-sm" />
+                                            {profile.heroModel === 'minimal' && (
+                                                <div className="w-full flex flex-col items-center gap-6 py-4">
+                                                    <div className={`relative z-20 ${theme.headerAnimation && theme.headerAnimation !== 'none' ? `animate-${theme.headerAnimation}` : ''} ${profile.showAvatar === false ? 'hidden' : ''}`}>
+                                                        <ProfileAvatar profile={profile} theme={theme} className="border-white/5 shadow-sm" />
+                                                    </div>
+                                                    <div className="text-center flex flex-col gap-2 w-full px-4">
+                                                        <ProfileTitle profile={profile} theme={theme} />
+                                                        <ProfileBio profile={profile} theme={theme} />
+                                                    </div>
                                                 </div>
-                                                <div className="text-center flex flex-col gap-2 w-full px-4">
-                                                    <ProfileTitle profile={profile} theme={theme} />
-                                                    <ProfileBio profile={profile} theme={theme} />
-                                                </div>
-                                            </div>
-                                        )}
+                                            )}
 
-                                        {profile.heroModel === 'glass' && (
-                                            <div className="w-full relative py-12 px-6 flex flex-col items-center gap-6">
-                                                {/* Background backlight glow */}
-                                                <div className="absolute top-0 left-1/2 -translate-x-1/2 w-48 h-48 bg-purple-500/30 blur-[100px] rounded-full -z-10"></div>
+                                            {profile.heroModel === 'glass' && (
+                                                <div className="w-full relative py-12 px-6 flex flex-col items-center gap-6">
+                                                    {/* Background backlight glow */}
+                                                    <div className="absolute top-0 left-1/2 -translate-x-1/2 w-48 h-48 bg-purple-500/30 blur-[100px] rounded-full -z-10"></div>
 
-                                                <div className={`relative z-20 ${theme.headerAnimation && theme.headerAnimation !== 'none' ? `animate-${theme.headerAnimation}` : ''} ${profile.showAvatar === false ? 'hidden' : ''}`}>
-                                                    <ProfileAvatar profile={profile} theme={theme} className="border-white/30 ring-4 ring-white/5" />
+                                                    <div className={`relative z-20 ${theme.headerAnimation && theme.headerAnimation !== 'none' ? `animate-${theme.headerAnimation}` : ''} ${profile.showAvatar === false ? 'hidden' : ''}`}>
+                                                        <ProfileAvatar profile={profile} theme={theme} className="border-white/30 ring-4 ring-white/5" />
+                                                    </div>
+                                                    <div className="bg-white/10 backdrop-blur-2xl w-full py-10 px-8 rounded-[3rem] border border-white/20 shadow-[0_30px_60px_-15px_rgba(0,0,0,0.5)] text-center flex flex-col gap-3 relative overflow-hidden">
+                                                        {/* Subtle glass reflection */}
+                                                        <div className="absolute top-0 left-0 right-0 h-px bg-linear-to-r from-transparent via-white/30 to-transparent"></div>
+                                                        <ProfileTitle profile={profile} theme={theme} />
+                                                        <ProfileBio profile={profile} theme={theme} />
+                                                    </div>
                                                 </div>
-                                                <div className="bg-white/10 backdrop-blur-2xl w-full py-10 px-8 rounded-[3rem] border border-white/20 shadow-[0_30px_60px_-15px_rgba(0,0,0,0.5)] text-center flex flex-col gap-3 relative overflow-hidden">
-                                                    {/* Subtle glass reflection */}
-                                                    <div className="absolute top-0 left-0 right-0 h-px bg-linear-to-r from-transparent via-white/30 to-transparent"></div>
-                                                    <ProfileTitle profile={profile} theme={theme} />
-                                                    <ProfileBio profile={profile} theme={theme} />
-                                                </div>
-                                            </div>
-                                        )}
-                                    </div>
-                                ) : (
-                                    /* Classic Layout */
-                                    <>
-                                        <div
-                                            className={`relative ${theme.headerAnimation && theme.headerAnimation !== 'none' ? `animate-${theme.headerAnimation}` : ''} ${profile.showAvatar === false ? 'hidden' : ''}`}
-                                            style={{ marginTop: `${profile.spacingAvatar ?? 16}px` }}
-                                        >
-                                            <ProfileAvatar profile={profile} theme={theme} />
+                                            )}
                                         </div>
-                                        <div
-                                            className="flex flex-col items-center gap-1 text-center px-3"
-                                            style={{ marginTop: `${profile.spacingUsername ?? 12}px` }}
-                                        >
-                                            <ProfileTitle profile={profile} theme={theme} />
-                                        </div>
-                                        <div style={{ marginTop: `${profile.spacingBio ?? 6}px`, width: '100%', display: 'flex', justifyContent: 'center' }}>
-                                            <ProfileBio profile={profile} theme={theme} />
-                                        </div>
-                                    </>
-                                )}
-                            </div>
-
-                            {/* Social Icons - Top Position */}
-                            {theme.socialPosition === 'top' && (
-                                <div
-                                    className={`flex flex-wrap w-full ${theme.socialAlignment === 'left' ? 'justify-start' : theme.socialAlignment === 'right' ? 'justify-end' : 'justify-center'}`}
-                                    style={{ 
-                                        gap: `${(theme.socialSpacing || 16) * 0.75}px`, 
-                                        marginTop: `${theme.socialMarginTop ?? 20}px`,
-                                        marginBottom: `${theme.socialMarginBottom ?? 20}px` 
-                                    }}
-                                >
-                                    {socials.filter(s => s.url).map((social, index) => {
-                                        const platform = social.platform;
-                                        const Icon = platform === 'instagram' ? Instagram :
-                                            platform === 'twitter' ? Twitter :
-                                                platform === 'youtube' ? Youtube :
-                                                    platform === 'github' ? Github :
-                                                        platform === 'linkedin' ? Linkedin :
-                                                            platform === 'tiktok' ? TikTok :
-                                                                Mail;
-                                        const pData = PLATFORMS.find(p => p.id === platform);
-                                        const color = theme.socialColorType === 'brand' && pData ? pData.color.replace('text-', '') :
-                                            theme.socialColorType === 'custom' ? theme.socialCustomColor : (theme.pageColor || '#ffffff');
-
-                                        const hoverClass = theme.socialHover === 'lift' ? 'hover:-translate-y-1' :
-                                            theme.socialHover === 'scale' ? 'hover:scale-110' :
-                                                theme.socialHover === 'glow' ? 'hover:drop-shadow-[0_0_8px_rgba(168,85,247,0.5)]' : '';
-
-                                        return (
-                                            <a
-                                                key={platform}
-                                                href={social.url}
-                                                target="_blank"
-                                                rel="noopener noreferrer"
-                                                style={{
-                                                    color: theme.socialColorType === 'brand' ? undefined : color,
-                                                    fontFamily: theme.socialFont || 'Inter',
-                                                    fontWeight: theme.socialTextWeight || 700,
-                                                    animationDelay: `${index * 0.3}s`
-                                                }}
-                                                className={`opacity-70 hover:opacity-100 transition-all duration-300 flex items-center gap-2 transform-gpu ${hoverClass} ${theme.socialColorType === 'brand' ? (pData?.color || '') : ''} ${theme.socialAnimation && theme.socialAnimation !== 'none' ? (theme.socialAnimation === 'sweep' ? 'animate-sweep' : `animate-${theme.socialAnimation}`) : ''}`}
-                                            >
-                                                <Icon size={theme.socialSize || 18} strokeWidth={2} />
-                                                {theme.socialStyle === 'icon-text' && (
-                                                    <span className={`text-[10px] uppercase tracking-widest ${theme.socialAnimation === 'sweep' ? 'animate-sweep-text' : ''}`}>{platform}</span>
-                                                )}
-                                            </a>
-                                        );
-                                    })}
-                                </div>
-                            )}
-
-                            {/* Links Area */}
-                            <div className={`w-full ${layoutType === 'grid' ? 'grid grid-cols-2' :
-                                layoutType === 'carousel' ? 'flex overflow-x-auto pb-4 snap-x snap-mandatory hide-scrollbar' :
-                                    'flex flex-col'
-                                }`}
-                                style={{ gap: `${theme.btnSpacing || 12}px`, marginTop: `${profile.spacingLinks ?? 20}px` }}
-                            >
-                                {links.filter(l => l.active).map((link, i) => (
-                                    <LinkItem key={link.id} link={link} i={i} layoutType={link.layout || layoutType} theme={theme} />
-                                ))}
-                            </div>
-
-                            {/* Social Icons - Bottom Position */}
-                            {theme.socialPosition === 'bottom' && (
-                                <div
-                                    className={`flex flex-wrap mt-auto pt-5 w-full border-t border-white/5 ${theme.socialAlignment === 'left' ? 'justify-start' : theme.socialAlignment === 'right' ? 'justify-end' : 'justify-center'}`}
-                                    style={{ 
-                                        gap: `${(theme.socialSpacing || 16) * 0.75}px`,
-                                        marginTop: `${theme.socialMarginTop ?? 20}px`,
-                                        marginBottom: `${theme.socialMarginBottom ?? 20}px` 
-                                    }}
-                                >
-                                    {socials.filter(s => s.url).map((social, index) => {
-                                        const platform = social.platform;
-                                        const Icon = platform === 'instagram' ? Instagram :
-                                            platform === 'twitter' ? Twitter :
-                                                platform === 'youtube' ? Youtube :
-                                                    platform === 'github' ? Github :
-                                                        platform === 'linkedin' ? Linkedin :
-                                                            platform === 'tiktok' ? TikTok :
-                                                                Mail;
-                                        const pData = PLATFORMS.find(p => p.id === platform);
-                                        const color = theme.socialColorType === 'brand' && pData ? pData.color.replace('text-', '') :
-                                            theme.socialColorType === 'custom' ? theme.socialCustomColor : (theme.pageColor || '#ffffff');
-
-                                        const hoverClass = theme.socialHover === 'lift' ? 'hover:-translate-y-1' :
-                                            theme.socialHover === 'scale' ? 'hover:scale-110' :
-                                                theme.socialHover === 'glow' ? 'hover:drop-shadow-[0_0_8px_rgba(168,85,247,0.5)]' : '';
-
-                                        return (
-                                            <a
-                                                key={platform}
-                                                href={social.url}
-                                                target="_blank"
-                                                rel="noopener noreferrer"
-                                                style={{
-                                                    color: theme.socialColorType === 'brand' ? undefined : color,
-                                                    fontFamily: theme.socialFont || 'Inter',
-                                                    fontWeight: theme.socialTextWeight || 700,
-                                                    animationDelay: `${index * 0.3}s`
-                                                }}
-                                                className={`opacity-70 hover:opacity-100 transition-all duration-300 flex items-center gap-2 transform-gpu ${hoverClass} ${theme.socialColorType === 'brand' ? (pData?.color || '') : ''} ${theme.socialAnimation && theme.socialAnimation !== 'none' ? (theme.socialAnimation === 'sweep' ? 'animate-sweep' : `animate-${theme.socialAnimation}`) : ''}`}
-                                            >
-                                                <Icon size={theme.socialSize || 20} strokeWidth={2} />
-                                                {theme.socialStyle === 'icon-text' && (
-                                                    <span className={`text-[10px] uppercase tracking-widest ${theme.socialAnimation === 'sweep' ? 'animate-sweep-text' : ''}`}>{platform}</span>
-                                                )}
-                                            </a>
-                                        );
-                                    })}
-                                </div>
-                            )}
-
-                            {/* Minimalist Footer Preview */}
-                            <div className="w-full flex flex-col gap-4 mt-2">
-                                {/* Greeting Card Preview */}
-                                {theme.showFooter && (() => {
-                                    // Background and Border Logic (Identical to LinkItem)
-                                    const getFooterBg = () => {
-                                        if (theme.footerBtnStyle === 'glass') {
-                                            return {
-                                                className: 'bg-white/5 backdrop-blur-md border border-white/10 shadow-lg',
-                                                style: { backgroundColor: theme.footerBtnColor ? `${theme.footerBtnColor}1A` : 'rgba(255,255,255,0.05)' }
-                                            };
-                                        }
-                                        if (theme.footerBtnStyle === 'outline') {
-                                            return {
-                                                className: 'bg-transparent border-2',
-                                                style: { borderColor: theme.footerBtnColor || '#ffffff' }
-                                            };
-                                        }
-                                        let bgStyle = { backgroundColor: theme.footerBtnColor || '#ffffff' };
-                                        if (theme.footerBtnColorType === 'gradient') {
-                                            bgStyle = { backgroundImage: `linear-gradient(135deg, ${theme.footerBtnColorGradient1 || '#8228d9'}, ${theme.footerBtnColorGradient2 || '#6366f1'})` };
-                                        } else if (theme.footerBtnColorType === 'pattern') {
-                                            if (theme.footerBtnColorPattern === 'dots') {
-                                                bgStyle = {
-                                                    backgroundColor: theme.footerBtnColor || '#ffffff',
-                                                    backgroundImage: `radial-gradient(rgba(255,255,255,0.3) 1.5px, transparent 1.5px)`,
-                                                    backgroundSize: '12px 12px'
-                                                };
-                                            } else if (theme.footerBtnColorPattern === 'stripes') {
-                                                bgStyle = {
-                                                    backgroundColor: theme.footerBtnColor || '#ffffff',
-                                                    backgroundImage: `linear-gradient(45deg, rgba(255,255,255,0.1) 25%, transparent 25%, transparent 50%, rgba(255,255,255,0.1) 50%, rgba(255,255,255,0.1) 75%, transparent 75%, transparent)`,
-                                                    backgroundSize: '24px 24px'
-                                                };
-                                            }
-                                        }
-                                        return { className: 'border-none', style: bgStyle };
-                                    };
-
-                                    // Text Style Logic
-                                    const getFooterTextStyle = (isDesc = false) => {
-                                        const baseStyle = {
-                                            fontFamily: theme.footerFont || 'Inter',
-                                            fontWeight: theme.footerWeight || 400,
-                                            textTransform: theme.footerTransform || 'none',
-                                            fontSize: isDesc ? `${Math.max(10, (theme.footerFontSize || 12) * 0.9)}px` : `${theme.footerFontSize || 12}px`
-                                        };
-
-                                        if (theme.footerBtnTextColorType === 'solid') {
-                                            const color = theme.footerBtnTextColor || (theme.footerBtnStyle === 'solid' ? '#000000' : '#ffffff');
-                                            return { ...baseStyle, color: isDesc ? color + '99' : color };
-                                        }
-                                        const textGradient = theme.footerBtnTextColorType === 'gradient'
-                                            ? `linear-gradient(135deg, ${theme.footerBtnTextColorGradient1 || '#ffffff'}, ${theme.footerBtnTextColorGradient2 || '#cbd5e1'})`
-                                            : theme.footerBtnTextColorType === 'pattern'
-                                                ? `radial-gradient(circle, ${theme.footerBtnTextColor || '#ffffff'} 2px, transparent 2px)`
-                                                : 'none';
-                                        const patternSize = theme.footerBtnTextColorType === 'pattern' ? '8px 8px' : 'auto';
-                                        return {
-                                            ...baseStyle,
-                                            backgroundImage: textGradient,
-                                            backgroundSize: patternSize,
-                                            WebkitBackgroundClip: 'text',
-                                            backgroundClip: 'text',
-                                            WebkitTextFillColor: 'transparent',
-                                            color: 'transparent',
-                                            opacity: isDesc ? 0.8 : 1
-                                        };
-                                    };
-
-                                    // Shadow Logic
-                                    const getFooterShadowStyle = () => {
-                                        if (!theme.footerShadowType || theme.footerShadowType === 'none') return null;
-                                        if (theme.footerShadowType === 'solid') return null;
-
-                                        let shadowBg = { backgroundColor: theme.footerShadowColor || 'rgba(0,0,0,0.5)' };
-                                        if (theme.footerShadowType === 'gradient') {
-                                            shadowBg = { backgroundImage: `linear-gradient(135deg, ${theme.footerShadowColorGradient1 || '#000'}, ${theme.footerShadowColorGradient2 || '#000'})` };
-                                        } else if (theme.footerShadowType === 'pattern') {
-                                            if (theme.footerShadowPattern === 'dots') {
-                                                shadowBg = {
-                                                    backgroundImage: `radial-gradient(${theme.footerShadowColor} 1.5px, transparent 1.5px)`,
-                                                    backgroundSize: '12px 12px'
-                                                };
-                                            } else if (theme.footerShadowPattern === 'stripes') {
-                                                shadowBg = {
-                                                    backgroundImage: `linear-gradient(45deg, ${theme.footerShadowColor} 25%, transparent 25%, transparent 50%, ${theme.footerShadowColor} 50%, ${theme.footerShadowColor} 75%, transparent 75%, transparent)`,
-                                                    backgroundSize: '24px 24px'
-                                                };
-                                            } else if (theme.footerShadowPattern === 'noise') {
-                                                shadowBg = { backgroundImage: NOISE_TEXTURE, backgroundBlendMode: 'overlay' };
-                                            } else if (theme.footerShadowPattern === 'custom' && theme.footerShadowCustomPattern) {
-                                                shadowBg = { backgroundImage: `url(${theme.footerShadowCustomPattern})`, backgroundSize: 'cover', backgroundBlendMode: 'overlay' };
-                                            }
-                                        }
-
-                                        const spread = theme.footerShadowSpread || 0;
-                                        return {
-                                            position: 'absolute',
-                                            zIndex: 5,
-                                            top: `${-spread}px`,
-                                            bottom: `${-spread}px`,
-                                            left: `${-spread}px`,
-                                            right: `${-spread}px`,
-                                            transform: `translate(${theme.footerShadowX || 0}px, ${theme.footerShadowY || 0}px)`,
-                                            filter: `blur(${theme.footerShadowBlur || 0}px)`,
-                                            opacity: theme.footerShadowOpacity ?? 0.5,
-                                            borderRadius: `${theme.footerBtnRadius}px`,
-                                            pointerEvents: 'none', ...shadowBg
-                                        };
-                                    };
-
-                                    const { className: bgClass, style: bgStyle } = getFooterBg();
-                                    const shadowStyle = getFooterShadowStyle();
-
-                                    return (
-                                        <div className="relative w-full">
-                                            {shadowStyle && <div style={shadowStyle} />}
+                                    ) : (
+                                        /* Classic Layout */
+                                        <>
                                             <div
-                                                className={`p-4 flex flex-col items-start text-left gap-1.5 relative overflow-hidden group z-10 ${bgClass} ${theme.footerAnimation && theme.footerAnimation !== 'none' ? (theme.footerAnimation === 'sweep' ? 'animate-sweep' : `animate-${theme.footerAnimation}`) : ''}`}
-                                                style={{
-                                                    borderRadius: `${theme.footerBtnRadius}px`,
-                                                    boxShadow: theme.footerShadowType === 'solid' && theme.footerShadowColor
-                                                        ? `${theme.footerShadowX || 0}px ${theme.footerShadowY || 0}px ${theme.footerShadowBlur || 0}px ${theme.footerShadowSpread || 0}px ${theme.footerShadowColor}${Math.round((theme.footerShadowOpacity ?? 0.5) * 255).toString(16).padStart(2, '0')}`
-                                                        : 'none',
-                                                    ...bgStyle
-                                                }}
+                                                className={`relative ${theme.headerAnimation && theme.headerAnimation !== 'none' ? `animate-${theme.headerAnimation}` : ''} ${profile.showAvatar === false ? 'hidden' : ''}`}
+                                                style={{ marginTop: `${profile.spacingAvatar ?? 16}px` }}
                                             >
-                                                <div className="flex items-center gap-2 relative z-10">
-                                                    <Heart size={12} className="text-purple-400 fill-purple-400/10 shrink-0" />
-                                                    <h3 className={`text-xs font-bold tracking-tight leading-tight ${theme.footerAnimation === 'sweep' ? 'animate-sweep-text' : ''}`} style={getFooterTextStyle()}>
-                                                        {theme.footerGreetingTitle}
-                                                    </h3>
-                                                </div>
-                                                <p className={`text-[10px] font-medium leading-relaxed relative z-10 ${theme.footerAnimation === 'sweep' ? 'animate-sweep-text' : ''}`} style={getFooterTextStyle(true)}>
-                                                    {theme.footerGreetingDesc}
-                                                </p>
+                                                <ProfileAvatar profile={profile} theme={theme} />
                                             </div>
-                                        </div>
-                                    );
-                                })()}
+                                            <div
+                                                className="flex flex-col items-center gap-1 text-center px-3"
+                                                style={{ marginTop: `${profile.spacingUsername ?? 12}px` }}
+                                            >
+                                                <ProfileTitle profile={profile} theme={theme} />
+                                            </div>
+                                            <div style={{ marginTop: `${profile.spacingBio ?? 6}px`, width: '100%', display: 'flex', justifyContent: 'center' }}>
+                                                <ProfileBio profile={profile} theme={theme} />
+                                            </div>
+                                        </>
+                                    )}
+                                </div>
 
-                                {/* Vlink Branding Preview - Minimalist */}
-                                {theme.showVlink && (
-                                    <div className="flex flex-col items-center gap-2 mt-2">
-                                        <div className="h-px w-8 bg-white/5"></div>
-                                        <div className="flex items-center gap-1.5 opacity-30 hover:opacity-100 transition-opacity duration-300 cursor-default">
-                                            <span className="text-[10px] font-medium tracking-tight text-white/60">Made with</span>
-                                            <span className="text-[10px] font-bold text-white">Vlink.id x rizddf</span>
-                                        </div>
+                                {/* Social Icons - Top Position */}
+                                {theme.socialPosition === 'top' && (
+                                    <div
+                                        className={`flex flex-wrap w-full ${theme.socialAlignment === 'left' ? 'justify-start' : theme.socialAlignment === 'right' ? 'justify-end' : 'justify-center'}`}
+                                        style={{
+                                            gap: `${(theme.socialSpacing || 16) * 0.75}px`,
+                                            marginTop: `${theme.socialMarginTop ?? 20}px`,
+                                            marginBottom: `${theme.socialMarginBottom ?? 20}px`
+                                        }}
+                                    >
+                                        {socials.filter(s => s.url).map((social, index) => {
+                                            const platform = social.platform;
+                                            const Icon = platform === 'instagram' ? Instagram :
+                                                platform === 'twitter' ? Twitter :
+                                                    platform === 'youtube' ? Youtube :
+                                                        platform === 'github' ? Github :
+                                                            platform === 'linkedin' ? Linkedin :
+                                                                platform === 'tiktok' ? TikTok :
+                                                                    Mail;
+                                            const pData = PLATFORMS.find(p => p.id === platform);
+                                            const color = theme.socialColorType === 'brand' && pData ? pData.color.replace('text-', '') :
+                                                theme.socialColorType === 'custom' ? theme.socialCustomColor : (theme.pageColor || '#ffffff');
+
+                                            const hoverClass = theme.socialHover === 'lift' ? 'hover:-translate-y-1' :
+                                                theme.socialHover === 'scale' ? 'hover:scale-110' :
+                                                    theme.socialHover === 'glow' ? 'hover:drop-shadow-[0_0_8px_rgba(168,85,247,0.5)]' : '';
+
+                                            return (
+                                                <a
+                                                    key={platform}
+                                                    href={social.url}
+                                                    target="_blank"
+                                                    rel="noopener noreferrer"
+                                                    style={{
+                                                        color: theme.socialColorType === 'brand' ? undefined : color,
+                                                        fontFamily: theme.socialFont || 'Inter',
+                                                        fontWeight: theme.socialTextWeight || 700,
+                                                        animationDelay: `${index * 0.3}s`
+                                                    }}
+                                                    className={`opacity-70 hover:opacity-100 transition-all duration-300 flex items-center gap-2 transform-gpu ${hoverClass} ${theme.socialColorType === 'brand' ? (pData?.color || '') : ''} ${theme.socialAnimation && theme.socialAnimation !== 'none' ? (theme.socialAnimation === 'sweep' ? 'animate-sweep' : `animate-${theme.socialAnimation}`) : ''}`}
+                                                >
+                                                    <Icon size={theme.socialSize || 18} strokeWidth={2} />
+                                                    {theme.socialStyle === 'icon-text' && (
+                                                        <span className={`text-[10px] uppercase tracking-widest ${theme.socialAnimation === 'sweep' ? 'animate-sweep-text' : ''}`}>{platform}</span>
+                                                    )}
+                                                </a>
+                                            );
+                                        })}
                                     </div>
                                 )}
+
+                                {/* Links Area */}
+                                <div className={`w-full ${layoutType === 'grid' ? 'grid grid-cols-2' :
+                                    layoutType === 'carousel' ? 'flex overflow-x-auto pb-4 snap-x snap-mandatory hide-scrollbar' :
+                                        'flex flex-col'
+                                    }`}
+                                    style={{ gap: `${theme.btnSpacing || 12}px`, marginTop: `${profile.spacingLinks ?? 20}px` }}
+                                >
+                                    {links.filter(l => l.active).map((link, i) => (
+                                        <LinkItem key={link.id} link={link} i={i} layoutType={link.layout || layoutType} theme={theme} />
+                                    ))}
+                                </div>
+
+                                {/* Social Icons - Bottom Position */}
+                                {theme.socialPosition === 'bottom' && (
+                                    <div
+                                        className={`flex flex-wrap mt-auto pt-5 w-full border-t border-white/5 ${theme.socialAlignment === 'left' ? 'justify-start' : theme.socialAlignment === 'right' ? 'justify-end' : 'justify-center'}`}
+                                        style={{
+                                            gap: `${(theme.socialSpacing || 16) * 0.75}px`,
+                                            marginTop: `${theme.socialMarginTop ?? 20}px`,
+                                            marginBottom: `${theme.socialMarginBottom ?? 20}px`
+                                        }}
+                                    >
+                                        {socials.filter(s => s.url).map((social, index) => {
+                                            const platform = social.platform;
+                                            const Icon = platform === 'instagram' ? Instagram :
+                                                platform === 'twitter' ? Twitter :
+                                                    platform === 'youtube' ? Youtube :
+                                                        platform === 'github' ? Github :
+                                                            platform === 'linkedin' ? Linkedin :
+                                                                platform === 'tiktok' ? TikTok :
+                                                                    Mail;
+                                            const pData = PLATFORMS.find(p => p.id === platform);
+                                            const color = theme.socialColorType === 'brand' && pData ? pData.color.replace('text-', '') :
+                                                theme.socialColorType === 'custom' ? theme.socialCustomColor : (theme.pageColor || '#ffffff');
+
+                                            const hoverClass = theme.socialHover === 'lift' ? 'hover:-translate-y-1' :
+                                                theme.socialHover === 'scale' ? 'hover:scale-110' :
+                                                    theme.socialHover === 'glow' ? 'hover:drop-shadow-[0_0_8px_rgba(168,85,247,0.5)]' : '';
+
+                                            return (
+                                                <a
+                                                    key={platform}
+                                                    href={social.url}
+                                                    target="_blank"
+                                                    rel="noopener noreferrer"
+                                                    style={{
+                                                        color: theme.socialColorType === 'brand' ? undefined : color,
+                                                        fontFamily: theme.socialFont || 'Inter',
+                                                        fontWeight: theme.socialTextWeight || 700,
+                                                        animationDelay: `${index * 0.3}s`
+                                                    }}
+                                                    className={`opacity-70 hover:opacity-100 transition-all duration-300 flex items-center gap-2 transform-gpu ${hoverClass} ${theme.socialColorType === 'brand' ? (pData?.color || '') : ''} ${theme.socialAnimation && theme.socialAnimation !== 'none' ? (theme.socialAnimation === 'sweep' ? 'animate-sweep' : `animate-${theme.socialAnimation}`) : ''}`}
+                                                >
+                                                    <Icon size={theme.socialSize || 20} strokeWidth={2} />
+                                                    {theme.socialStyle === 'icon-text' && (
+                                                        <span className={`text-[10px] uppercase tracking-widest ${theme.socialAnimation === 'sweep' ? 'animate-sweep-text' : ''}`}>{platform}</span>
+                                                    )}
+                                                </a>
+                                            );
+                                        })}
+                                    </div>
+                                )}
+
+                                {/* Minimalist Footer Preview */}
+                                <div className="w-full flex flex-col gap-4 mt-2">
+                                    {/* Greeting Card Preview */}
+                                    {theme.showFooter && (() => {
+                                        // Background and Border Logic (Identical to LinkItem)
+                                        const getFooterBg = () => {
+                                            if (theme.footerBtnStyle === 'glass') {
+                                                return {
+                                                    className: 'bg-white/5 backdrop-blur-md border border-white/10 shadow-lg',
+                                                    style: { backgroundColor: theme.footerBtnColor ? `${theme.footerBtnColor}1A` : 'rgba(255,255,255,0.05)' }
+                                                };
+                                            }
+                                            if (theme.footerBtnStyle === 'outline') {
+                                                return {
+                                                    className: 'bg-transparent border-2',
+                                                    style: { borderColor: theme.footerBtnColor || '#ffffff' }
+                                                };
+                                            }
+                                            let bgStyle = { backgroundColor: theme.footerBtnColor || '#ffffff' };
+                                            if (theme.footerBtnColorType === 'gradient') {
+                                                bgStyle = { backgroundImage: `linear-gradient(135deg, ${theme.footerBtnColorGradient1 || '#8228d9'}, ${theme.footerBtnColorGradient2 || '#6366f1'})` };
+                                            } else if (theme.footerBtnColorType === 'pattern') {
+                                                if (theme.footerBtnColorPattern === 'dots') {
+                                                    bgStyle = {
+                                                        backgroundColor: theme.footerBtnColor || '#ffffff',
+                                                        backgroundImage: `radial-gradient(rgba(255,255,255,0.3) 1.5px, transparent 1.5px)`,
+                                                        backgroundSize: '12px 12px'
+                                                    };
+                                                } else if (theme.footerBtnColorPattern === 'stripes') {
+                                                    bgStyle = {
+                                                        backgroundColor: theme.footerBtnColor || '#ffffff',
+                                                        backgroundImage: `linear-gradient(45deg, rgba(255,255,255,0.1) 25%, transparent 25%, transparent 50%, rgba(255,255,255,0.1) 50%, rgba(255,255,255,0.1) 75%, transparent 75%, transparent)`,
+                                                        backgroundSize: '24px 24px'
+                                                    };
+                                                }
+                                            }
+                                            return { className: 'border-none', style: bgStyle };
+                                        };
+
+                                        // Text Style Logic
+                                        const getFooterTextStyle = (isDesc = false) => {
+                                            const baseStyle = {
+                                                fontFamily: theme.footerFont || 'Inter',
+                                                fontWeight: theme.footerWeight || 400,
+                                                textTransform: theme.footerTransform || 'none',
+                                                fontSize: isDesc ? `${Math.max(10, (theme.footerFontSize || 12) * 0.9)}px` : `${theme.footerFontSize || 12}px`
+                                            };
+
+                                            if (theme.footerBtnTextColorType === 'solid') {
+                                                const color = theme.footerBtnTextColor || (theme.footerBtnStyle === 'solid' ? '#000000' : '#ffffff');
+                                                return { ...baseStyle, color: isDesc ? color + '99' : color };
+                                            }
+                                            const textGradient = theme.footerBtnTextColorType === 'gradient'
+                                                ? `linear-gradient(135deg, ${theme.footerBtnTextColorGradient1 || '#ffffff'}, ${theme.footerBtnTextColorGradient2 || '#cbd5e1'})`
+                                                : theme.footerBtnTextColorType === 'pattern'
+                                                    ? `radial-gradient(circle, ${theme.footerBtnTextColor || '#ffffff'} 2px, transparent 2px)`
+                                                    : 'none';
+                                            const patternSize = theme.footerBtnTextColorType === 'pattern' ? '8px 8px' : 'auto';
+                                            return {
+                                                ...baseStyle,
+                                                backgroundImage: textGradient,
+                                                backgroundSize: patternSize,
+                                                WebkitBackgroundClip: 'text',
+                                                backgroundClip: 'text',
+                                                WebkitTextFillColor: 'transparent',
+                                                color: 'transparent',
+                                                opacity: isDesc ? 0.8 : 1
+                                            };
+                                        };
+
+                                        // Shadow Logic
+                                        const getFooterShadowStyle = () => {
+                                            if (!theme.footerShadowType || theme.footerShadowType === 'none') return null;
+                                            if (theme.footerShadowType === 'solid') return null;
+
+                                            let shadowBg = { backgroundColor: theme.footerShadowColor || 'rgba(0,0,0,0.5)' };
+                                            if (theme.footerShadowType === 'gradient') {
+                                                shadowBg = { backgroundImage: `linear-gradient(135deg, ${theme.footerShadowColorGradient1 || '#000'}, ${theme.footerShadowColorGradient2 || '#000'})` };
+                                            } else if (theme.footerShadowType === 'pattern') {
+                                                if (theme.footerShadowPattern === 'dots') {
+                                                    shadowBg = {
+                                                        backgroundImage: `radial-gradient(${theme.footerShadowColor} 1.5px, transparent 1.5px)`,
+                                                        backgroundSize: '12px 12px'
+                                                    };
+                                                } else if (theme.footerShadowPattern === 'stripes') {
+                                                    shadowBg = {
+                                                        backgroundImage: `linear-gradient(45deg, ${theme.footerShadowColor} 25%, transparent 25%, transparent 50%, ${theme.footerShadowColor} 50%, ${theme.footerShadowColor} 75%, transparent 75%, transparent)`,
+                                                        backgroundSize: '24px 24px'
+                                                    };
+                                                } else if (theme.footerShadowPattern === 'noise') {
+                                                    shadowBg = { backgroundImage: NOISE_TEXTURE, backgroundBlendMode: 'overlay' };
+                                                } else if (theme.footerShadowPattern === 'custom' && theme.footerShadowCustomPattern) {
+                                                    shadowBg = { backgroundImage: `url(${theme.footerShadowCustomPattern})`, backgroundSize: 'cover', backgroundBlendMode: 'overlay' };
+                                                }
+                                            }
+
+                                            const spread = theme.footerShadowSpread || 0;
+                                            return {
+                                                position: 'absolute',
+                                                zIndex: 5,
+                                                top: `${-spread}px`,
+                                                bottom: `${-spread}px`,
+                                                left: `${-spread}px`,
+                                                right: `${-spread}px`,
+                                                transform: `translate(${theme.footerShadowX || 0}px, ${theme.footerShadowY || 0}px)`,
+                                                filter: `blur(${theme.footerShadowBlur || 0}px)`,
+                                                opacity: theme.footerShadowOpacity ?? 0.5,
+                                                borderRadius: `${theme.footerBtnRadius}px`,
+                                                pointerEvents: 'none', ...shadowBg
+                                            };
+                                        };
+
+                                        const { className: bgClass, style: bgStyle } = getFooterBg();
+                                        const shadowStyle = getFooterShadowStyle();
+
+                                        return (
+                                            <div className="relative w-full">
+                                                {shadowStyle && <div style={shadowStyle} />}
+                                                <div
+                                                    className={`p-4 flex flex-col items-start text-left gap-1.5 relative overflow-hidden group z-10 ${bgClass} ${theme.footerAnimation && theme.footerAnimation !== 'none' ? (theme.footerAnimation === 'sweep' ? 'animate-sweep' : `animate-${theme.footerAnimation}`) : ''}`}
+                                                    style={{
+                                                        borderRadius: `${theme.footerBtnRadius}px`,
+                                                        boxShadow: theme.footerShadowType === 'solid' && theme.footerShadowColor
+                                                            ? `${theme.footerShadowX || 0}px ${theme.footerShadowY || 0}px ${theme.footerShadowBlur || 0}px ${theme.footerShadowSpread || 0}px ${theme.footerShadowColor}${Math.round((theme.footerShadowOpacity ?? 0.5) * 255).toString(16).padStart(2, '0')}`
+                                                            : 'none',
+                                                        ...bgStyle
+                                                    }}
+                                                >
+                                                    <div className="flex items-center gap-2 relative z-10">
+                                                        <Heart size={12} className="text-purple-400 fill-purple-400/10 shrink-0" />
+                                                        <h3 className={`text-xs font-bold tracking-tight leading-tight ${theme.footerAnimation === 'sweep' ? 'animate-sweep-text' : ''}`} style={getFooterTextStyle()}>
+                                                            {theme.footerGreetingTitle}
+                                                        </h3>
+                                                    </div>
+                                                    <p className={`text-[10px] font-medium leading-relaxed relative z-10 ${theme.footerAnimation === 'sweep' ? 'animate-sweep-text' : ''}`} style={getFooterTextStyle(true)}>
+                                                        {theme.footerGreetingDesc}
+                                                    </p>
+                                                </div>
+                                            </div>
+                                        );
+                                    })()}
+
+                                    {/* Vlink Branding Preview - Minimalist */}
+                                    {theme.showVlink && (
+                                        <div className="flex flex-col items-center gap-2 mt-2">
+                                            <div className="h-px w-8 bg-white/5"></div>
+                                            <div className="flex items-center gap-1.5 opacity-30 hover:opacity-100 transition-opacity duration-300 cursor-default">
+                                                <span className="text-[10px] font-medium tracking-tight text-white/60">Made with</span>
+                                                <span className="text-[10px] font-bold text-white">Vlink.id x rizddf</span>
+                                            </div>
+                                        </div>
+                                    )}
                                 </div>
                             </div>
                         </div>

@@ -1,10 +1,10 @@
-import { User, Layout, Image, Type, Square, Star, Paintbrush, LayoutGrid, Monitor, Share2, Instagram, Twitter, Youtube, Github, Linkedin, Mail, PaintRoller, Scan, Footprints } from 'lucide-react';
+import { User, Layout, Image as ImageIcon, Type, Square, Star, Paintbrush, LayoutGrid, Monitor, Share2, Instagram, Twitter, Youtube, Github, Linkedin, Mail, PaintRoller, Scan, Footprints, Music } from 'lucide-react';
 import CustomTikTok from '../components/TikTok';
 
 export const LAYOUT_OPTIONS = [
     { id: 'stack', name: 'Stack', icon: Layout, description: 'Display links in a compact list.' },
     { id: 'grid', name: 'Grid', icon: LayoutGrid, description: 'Display links in a grid layout.' },
-    { id: 'carousel', name: 'Carousel', icon: Image, description: 'Display links in a carousel.' },
+    { id: 'carousel', name: 'Carousel', icon: ImageIcon, description: 'Display links in a carousel.' },
     { id: 'showcase', name: 'Showcase', icon: Monitor, description: 'Display links in showcase mode.' }
 ];
 
@@ -15,6 +15,7 @@ export const SIDEBAR_ITEMS = [
     { id: 'buttons', icon: Square, label: 'Button' },
     { id: 'footer', icon: Footprints, label: 'Footer' },
     { id: 'socials', icon: Share2, label: 'Social Icon' },
+    { id: 'audio', icon: Music, label: 'Audio' },
 ];
 
 export const PLATFORMS = [

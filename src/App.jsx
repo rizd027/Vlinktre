@@ -12,6 +12,7 @@ import WallpaperSettings from './components/Appearance/WallpaperSettings';
 import ButtonSettings from './components/Appearance/ButtonSettings';
 import FooterSettings from './components/Appearance/FooterSettings';
 import SocialSettings from './components/Appearance/SocialSettings';
+import BackgroundAudioSettings from './components/Appearance/BackgroundAudioSettings';
 import {
     PanelLeft, Palette, Settings, LogOut, ExternalLink,
     Plus, Search, Github, Twitter, Instagram, Youtube, Linkedin,
@@ -579,6 +580,9 @@ function App() {
             pageAnimation: 'none',
             titleLogo: null,
             titleLogoSize: 100,
+            backgroundAudio: null,
+            audioAutoplay: true,
+            audioVolume: 50,
         };
         if (saved) {
             const parsed = JSON.parse(saved);
@@ -713,7 +717,7 @@ function App() {
                     <PanelLeft size={20} className="absolute transition-all opacity-0 group-hover:opacity-100" />
                 </button>
 
-                <nav className="flex flex-row md:flex-col shrink-0 items-center w-full md:w-auto justify-around md:justify-start px-2 md:px-0 h-full overflow-x-auto no-scrollbar md:gap-2">
+                <nav className="flex flex-row md:flex-col shrink-0 md:shrink items-center w-full md:w-auto md:flex-1 justify-around md:justify-start px-2 md:px-0 h-full md:h-auto overflow-x-auto md:overflow-y-auto md:overflow-x-hidden hide-scrollbar md:gap-2 pb-2 md:pb-8">
                     {activeTab === 'appearance' ? (
                         SIDEBAR_ITEMS.map((item) => (
                             <NavItem
@@ -1959,6 +1963,13 @@ const AppearanceEditor = memo(function AppearanceEditor({ theme, setTheme, profi
                                 setTheme={setTheme}
                                 socials={socials}
                                 setSocials={setSocials}
+                            />
+                        )}
+
+                        {subTab === 'audio' && (
+                            <BackgroundAudioSettings
+                                theme={theme}
+                                setTheme={setTheme}
                             />
                         )}
                     </>

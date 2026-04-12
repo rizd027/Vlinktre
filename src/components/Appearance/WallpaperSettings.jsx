@@ -423,12 +423,12 @@ const WallpaperSettings = memo(({ theme, setTheme }) => {
                                     <Upload size={20} className="text-white/40 group-hover:text-emerald-400" />
                                 </div>
                                 <span className="text-xs font-bold text-white/60">Choose Wallpaper Image</span>
-                                <span className="text-[9px] text-white/40 font-black uppercase tracking-widest mt-1">PNG, JPG up to 10MB</span>
+                                <span className="text-[9px] text-white/40 font-black uppercase tracking-widest mt-1">PNG, JPG, GIF up to 10MB</span>
                                 <input
                                     id="bg-image-upload"
                                     name="bg-image-upload"
                                     type="file"
-                                    accept="image/*"
+                                    accept="image/png, image/jpeg, image/gif, image/webp"
                                     className="hidden"
                                     onChange={(e) => {
                                         const file = e.target.files[0];

@@ -185,6 +185,14 @@
     background: #d1d5db;
   }
 
+  .hide-scrollbar::-webkit-scrollbar {
+    display: none;
+  }
+  .hide-scrollbar {
+    -ms-overflow-style: none;  /* IE and Edge */
+    scrollbar-width: none;  /* Firefox */
+  }
+
   /* GPU Optimized Utilities (Static) */
   .gpu-accelerated {
     transform: translateZ(0);
@@ -397,7 +405,6 @@ input[type='number'] {
   .hover\:drop-shadow-\[0_0_8px_rgba\(168\,85\,247\,0\.5\)\]:hover {
     transform: none !important;
     filter: none !important;
-    drop-shadow: none !important;
     box-shadow: none !important;
   }
 }
