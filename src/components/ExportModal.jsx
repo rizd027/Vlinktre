@@ -747,7 +747,8 @@ document.addEventListener('DOMContentLoaded', () => {
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>${profile.username} | VLink Builder</title>
+    <title>${profile.tabTitle || (profile.username ? `${profile.username} | VLink Builder` : 'VLink Builder')}</title>
+    ${profile.favicon ? `<link rel="icon" href="${resolveUrl(profile.favicon, 'favicon')}">` : ''}
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="${googleFontsUrl}" rel="stylesheet">

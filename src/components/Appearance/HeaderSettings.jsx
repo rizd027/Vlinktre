@@ -1,15 +1,30 @@
-import React, { memo } from 'react';
+import React, { memo, useState } from 'react';
 import { 
     User, Edit3, EyeOff, Eye, LayoutGrid, Wand2, 
     Image, Layers, Type, Maximize, Box, MousePointer2, Zap,
-    Trash2
+    Trash2, Globe
 } from 'lucide-react';
 import { FONTS, ANIMATION_OPTIONS } from '../../data/constants';
 import ColorPickerRow from '../ColorPickerRow';
 import ModeSelector from '../ModeSelector';
 import SelectField from '../SelectField';
+import FaviconCropModal from './FaviconCropModal';
 
 const HeaderSettings = memo(({ profile, setProfile, theme, setTheme, setProfileImageModalOpen, setLogoImageModalOpen }) => {
+    const [faviconDragging, setFaviconDragging] = useState(false);
+    const [cropImage, setCropImage] = useState(null);
+    const [cropModalOpen, setCropModalOpen] = useState(false);
+
+    const handleFaviconFile = (file) => {
+        if (!file || !file.type.startsWith('image/')) return;
+        
+        const reader = new FileReader();
+        reader.onloadend = () => {
+            setCropImage(reader.result);
+            setCropModalOpen(true);
+        };
+        reader.readAsDataURL(file);
+    };
     return (
         <div className="flex flex-col gap-10">
             <div className="flex items-center justify-between px-2">
@@ -800,6 +815,190 @@ const HeaderSettings = memo(({ profile, setProfile, theme, setTheme, setProfileI
                     </div>
                 </div>
             </div>
+
+            {/* Favicon Selection */}
+            <div className="flex flex-col gap-6 p-6 rounded-3xl md:rounded-[2rem] bg-white/3 border border-white/5">
+                <div className="flex items-center gap-3 px-1">
+                    <div className="w-6 h-6 rounded-lg bg-green-500/10 flex items-center justify-center border border-green-500/10">
+                        <Image size={12} className="text-green-400" />
+                    </div>
+                    <span className="text-[9px] font-bold uppercase tracking-widest text-white/50">Tab Browser Settings</span>
+                </div>
+                <div className="flex flex-col gap-5 px-1">
+                    {/* Tab Title Text */}
+                    <div className="flex flex-col gap-2">
+                        <div className="flex items-center gap-2 mb-1">
+                            <Globe size={11} className="text-green-400/70" />
+                            <span className="text-[9px] font-black text-white/40 uppercase tracking-[0.2em]">Tab Title Text</span>
+                        </div>
+                        <input
+                            id="tab-title-input"
+                            type="text"
+                            value={profile.tabTitle ?? ''}
+                            onChange={(e) => setProfile({ tabTitle: e.target.value })}
+                            placeholder={`${profile.username || '@username'} | VLink Builder`}
+                            className="w-full bg-black/20 border border-white/5 rounded-xl px-4 py-3 text-sm font-medium text-white outline-none focus:border-green-500/30 focus:bg-white/5 transition-all placeholder:text-white/20"
+                        />
+                        <p className="text-[9px] text-white/25 px-1">Kosong = pakai nama username otomatis</p>
+                    </div>
+
+                    {/* Browser Tab Preview */}
+                    <div className="flex flex-col gap-2">
+                        <div className="flex items-center gap-2 px-1">
+                            <span className="text-[9px] font-black text-white/40 uppercase tracking-[0.2em]">Preview</span>
+                        </div>
+                        <div className="rounded-xl overflow-hidden border border-white/8 bg-[#1e1e1e] shadow-xl">
+                            {/* Browser chrome bar */}
+                            <div className="flex items-center gap-1.5 px-3 py-2 bg-[#2a2a2a] border-b border-white/5">
+                                <div className="w-2.5 h-2.5 rounded-full bg-red-500/70" />
+                                <div className="w-2.5 h-2.5 rounded-full bg-yellow-500/70" />
+                                <div className="w-2.5 h-2.5 rounded-full bg-green-500/70" />
+                            </div>
+                            {/* Tab strip */}
+                            <div className="flex items-end px-2 pt-2 bg-[#1a1a1a] gap-1">
+                                {/* Active tab */}
+                                <div className="flex items-center gap-2 px-3 py-2 bg-[#2a2a2a] rounded-t-lg border border-b-0 border-white/8 max-w-[220px] min-w-0 relative">
+                                    {profile.favicon ? (
+                                        <img
+                                            src={profile.favicon}
+                                            alt="favicon"
+                                            className="w-4 h-4 object-contain flex-shrink-0 rounded-sm"
+                                        />
+                                    ) : (
+                                        <Globe size={13} className="text-white/30 flex-shrink-0" />
+                                    )}
+                                    <span className="text-[11px] font-medium text-white/80 truncate leading-none">
+                                        {profile.tabTitle || (profile.username ? `${profile.username} | VLink Builder` : 'VLink Builder')}
+                                    </span>
+                                    <span className="ml-auto text-white/20 hover:text-white/50 flex-shrink-0 text-[10px] cursor-pointer pl-1">×</span>
+                                </div>
+                                {/* New tab button */}
+                                <div className="pb-2 px-1 text-white/20 text-lg leading-none cursor-pointer hover:text-white/40">+</div>
+                            </div>
+                            {/* URL bar */}
+                            <div className="flex items-center gap-2 px-3 py-2 bg-[#2a2a2a] border-t border-white/5">
+                                <div className="flex-1 flex items-center gap-2 bg-[#3a3a3a] rounded-full px-3 py-1.5">
+                                    <div className="w-2.5 h-2.5 rounded-full border border-green-500/50 flex items-center justify-center flex-shrink-0">
+                                        <div className="w-1 h-1 rounded-full bg-green-500/50" />
+                                    </div>
+                                    <span className="text-[10px] text-white/30 truncate">vlinktre.com</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div className="border-t border-white/5 pt-4 flex flex-col gap-3">
+                    <span className="text-[9px] font-black text-white/40 uppercase tracking-[0.2em]">Select Quick Icon</span>
+                    <div className="flex flex-wrap gap-1.5">
+                        {[
+                            { id: 'globe', color: '#38bdf8', svg: '<svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><circle cx="12" cy="12" r="10" fill="#38bdf8"/><path d="M12 2C12 2 8 7 8 12s4 10 4 10M12 2c0 0 4 5 4 10s-4 10-4 10M2 12h20" stroke="#fff" stroke-width="1.5" stroke-linecap="round"/><path d="M4.93 7h14.14M4.93 17H19.07" stroke="#fff" stroke-width="1.5" stroke-linecap="round"/></svg>' },
+                            { id: 'bolt', color: '#facc15', svg: '<svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><rect width="24" height="24" rx="6" fill="#facc15"/><path d="M13 2L4 14h7l-1 8 9-12h-7l2-8z" fill="#fff"/></svg>' },
+                            { id: 'fire', color: '#f97316', svg: '<svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><rect width="24" height="24" rx="6" fill="#f97316"/><path d="M12 21c-4.418 0-8-3.134-8-7 0-2.5 1.5-4.5 3-6 0 2 1 3 2 3-1-3 1-6 4-8 0 3 2 5 4 5-1-1.5-.5-3.5 1-4.5 1 2 3 3.5 3 6.5 0 5-4.03 7-9 5z" fill="#fff"/></svg>' },
+                            { id: 'rocket', color: '#a78bfa', svg: '<svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><rect width="24" height="24" rx="6" fill="#a78bfa"/><path d="M12 2s5 3 5 9v1l2 4h-3v2a2 2 0 01-4 0v-2H9l2-4v-1c0-6 1-9 1-9z" fill="#fff"/><circle cx="12" cy="10" r="1.5" fill="#a78bfa"/></svg>' },
+                            { id: 'gem', color: '#f472b6', svg: '<svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><rect width="24" height="24" rx="6" fill="#f472b6"/><path d="M8 4h8l4 6-8 10L4 10l4-6z" fill="#fff"/><path d="M4 10h16M8 4l4 6 4-6" stroke="#f472b6" stroke-width="1.5"/></svg>' },
+                            { id: 'star', color: '#fbbf24', svg: '<svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><rect width="24" height="24" rx="6" fill="#fbbf24"/><path d="M12 3l2.47 5.01L20 9.27l-4 3.9.94 5.5L12 16.01 7.06 18.67l.94-5.5-4-3.9 5.53-.76L12 3z" fill="#fff"/></svg>' },
+                            { id: 'heart', color: '#f43f5e', svg: '<svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><rect width="24" height="24" rx="6" fill="#f43f5e"/><path d="M12 20s-8-5.5-8-11a5 5 0 0110 0 5 5 0 0110 0c0 5.5-8 11-8 11-1 0-2.5-.5-4-4z" fill="#fff" stroke="#fff"/><circle cx="9" cy="10" r="1" fill="#f43f5e" opacity=".8"/></svg>' },
+                            { id: 'music', color: '#818cf8', svg: '<svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><rect width="24" height="24" rx="6" fill="#818cf8"/><path d="M9 17V8l9-2v9" stroke="#fff" stroke-width="1.8" stroke-linecap="round"/><circle cx="7" cy="17" r="2" fill="#fff"/><circle cx="16" cy="15" r="2" fill="#fff"/></svg>' },
+                            { id: 'code', color: '#34d399', svg: '<svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><rect width="24" height="24" rx="6" fill="#34d399"/><path d="M8 9l-4 3 4 3M16 9l4 3-4 3M14 7l-4 10" stroke="#fff" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg>' },
+                            { id: 'camera', color: '#64748b', svg: '<svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><rect width="24" height="24" rx="6" fill="#64748b"/><path d="M9 5l-1.5 2H5a1 1 0 00-1 1v9a1 1 0 001 1h14a1 1 0 001-1V8a1 1 0 00-1-1h-2.5L15 5H9z" fill="#fff"/><circle cx="12" cy="12" r="3" fill="#64748b"/></svg>' },
+                            { id: 'crown', color: '#f59e0b', svg: '<svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><rect width="24" height="24" rx="6" fill="#f59e0b"/><path d="M4 17l2-8 4.5 4L12 6l1.5 7L18 9l2 8H4z" fill="#fff"/><rect x="4" y="17" width="16" height="2" rx="1" fill="#fff"/></svg>' },
+                            { id: 'coffee', color: '#92400e', svg: '<svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><rect width="24" height="24" rx="6" fill="#92400e"/><path d="M5 8h11v8a3 3 0 01-3 3H8a3 3 0 01-3-3V8z" fill="#fff"/><path d="M16 10h2a2 2 0 010 4h-2" stroke="#fff" stroke-width="1.5"/><path d="M8 4c0 0 0 2 2 2s2-2 2-2" stroke="#fff" stroke-width="1.5" stroke-linecap="round"/></svg>' },
+                            { id: 'leaf', color: '#22c55e', svg: '<svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><rect width="24" height="24" rx="6" fill="#22c55e"/><path d="M5 19c0 0 2-10 10-12 2.5-.5 5 0 6 1-1 1-3.5 5-9 7L5 19z" fill="#fff"/><path d="M5 19c3-3 5-6 7-8" stroke="#22c55e" stroke-width="1.5" stroke-linecap="round"/></svg>' },
+                            { id: 'moon', color: '#6366f1', svg: '<svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><rect width="24" height="24" rx="6" fill="#6366f1"/><path d="M21 12.79A9 9 0 1111.21 3 7 7 0 0021 12.79z" fill="#fff"/></svg>' },
+                            { id: 'sun', color: '#fb923c', svg: '<svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><rect width="24" height="24" rx="6" fill="#fb923c"/><circle cx="12" cy="12" r="4" fill="#fff"/><path d="M12 3v2M12 19v2M3 12h2M19 12h2M5.64 5.64l1.41 1.41M16.95 16.95l1.41 1.41M5.64 18.36l1.41-1.41M16.95 7.05l1.41-1.41" stroke="#fff" stroke-width="2" stroke-linecap="round"/></svg>' },
+                            { id: 'target', color: '#ef4444', svg: '<svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><rect width="24" height="24" rx="6" fill="#ef4444"/><circle cx="12" cy="12" r="8" stroke="#fff" stroke-width="2"/><circle cx="12" cy="12" r="4" stroke="#fff" stroke-width="2"/><circle cx="12" cy="12" r="1.5" fill="#fff"/></svg>' },
+                            { id: 'palette', color: '#c084fc', svg: '<svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><rect width="24" height="24" rx="6" fill="#c084fc"/><path d="M12 3a9 9 0 000 18c.83 0 1.5-.67 1.5-1.5 0-.39-.15-.74-.39-1.01-.23-.26-.38-.61-.38-.99 0-.83.67-1.5 1.5-1.5H16a5 5 0 005-5c0-4.42-4.03-8-9-8z" fill="#fff"/><circle cx="6.5" cy="11.5" r="1.5" fill="#c084fc"/><circle cx="9.5" cy="7.5" r="1.5" fill="#c084fc"/><circle cx="14.5" cy="7.5" r="1.5" fill="#c084fc"/></svg>' },
+                            { id: 'lock', color: '#475569', svg: '<svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><rect width="24" height="24" rx="6" fill="#475569"/><rect x="6" y="11" width="12" height="9" rx="2" fill="#fff"/><path d="M8 11V8a4 4 0 018 0v3" stroke="#fff" stroke-width="2" stroke-linecap="round"/><circle cx="12" cy="15.5" r="1.5" fill="#475569"/></svg>' },
+                            { id: 'smile', color: '#84cc16', svg: '<svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><rect width="24" height="24" rx="6" fill="#84cc16"/><circle cx="12" cy="12" r="8" fill="#fff"/><path d="M9 15s1 2 3 2 3-2 3-2" stroke="#84cc16" stroke-width="1.8" stroke-linecap="round"/><circle cx="9" cy="10" r="1.2" fill="#84cc16"/><circle cx="15" cy="10" r="1.2" fill="#84cc16"/></svg>' },
+                            { id: 'link2', color: '#0ea5e9', svg: '<svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><rect width="24" height="24" rx="6" fill="#0ea5e9"/><path d="M10 13a5 5 0 007.54.54l3-3a5 5 0 00-7.07-7.07l-1.72 1.71" stroke="#fff" stroke-width="2" stroke-linecap="round"/><path d="M14 11a5 5 0 00-7.54-.54l-3 3a5 5 0 007.07 7.07l1.71-1.71" stroke="#fff" stroke-width="2" stroke-linecap="round"/></svg>' },
+                            { id: 'zap2', color: '#fde047', svg: '<svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><circle cx="12" cy="12" r="12" fill="#fde047"/><path d="M13 2L4 14h7l-1 8 9-12h-7l2-8z" fill="#1e293b"/></svg>' },
+                        ].map(({ id, color, svg }) => {
+                            const dataUrl = `data:image/svg+xml;charset=utf-8,${encodeURIComponent(svg)}`;
+                            const isSelected = profile.favicon === dataUrl;
+                            return (
+                                <button
+                                    key={id}
+                                    onClick={() => setProfile({ favicon: dataUrl })}
+                                    title={id}
+                                    className={`w-8 h-8 rounded-lg flex items-center justify-center transition-all duration-150 ${isSelected ? 'ring-2 ring-green-400/70 ring-offset-1 ring-offset-black scale-110' : 'hover:scale-110 opacity-70 hover:opacity-100'}`}
+                                >
+                                    <img src={dataUrl} alt={id} className="w-6 h-6 rounded-md" />
+                                </button>
+                            );
+                        })}
+                    </div>
+                    
+                    <span className="text-[9px] font-black text-white/40 uppercase tracking-[0.2em] mt-2">Or Upload Custom Icon</span>
+
+                    {/* Drag & Drop Zone */}
+                    <input
+                        type="file"
+                        id="favicon-upload"
+                        accept="image/*"
+                        className="hidden"
+                        onChange={(e) => handleFaviconFile(e.target.files[0])}
+                    />
+                    <label
+                        htmlFor="favicon-upload"
+                        onDragOver={(e) => { e.preventDefault(); setFaviconDragging(true); }}
+                        onDragLeave={() => setFaviconDragging(false)}
+                        onDrop={(e) => {
+                            e.preventDefault();
+                            setFaviconDragging(false);
+                            handleFaviconFile(e.dataTransfer.files[0]);
+                        }}
+                        className={`relative flex flex-col items-center justify-center gap-3 w-full py-6 rounded-2xl border-2 border-dashed cursor-pointer transition-all duration-200 ${
+                            faviconDragging
+                                ? 'border-green-400/70 bg-green-500/10 scale-[1.01]'
+                                : 'border-white/15 bg-white/3 hover:border-green-500/40 hover:bg-white/5'
+                        }`}
+                    >
+                        {profile.favicon && !['🌍', '⚡', '🔥', '🚀', '💎'].some(e => profile.favicon?.includes(e)) ? (
+                            <>
+                                <img src={profile.favicon} alt="Favicon" className="w-10 h-10 object-contain rounded-lg" />
+                                <span className="text-[10px] font-bold text-green-400 uppercase tracking-widest">Icon Uploaded ✓</span>
+                                <span className="text-[9px] text-white/30">Click or drag to replace</span>
+                            </>
+                        ) : (
+                            <>
+                                <div className={`w-10 h-10 rounded-xl flex items-center justify-center transition-all ${
+                                    faviconDragging ? 'bg-green-500/20' : 'bg-white/5'
+                                }`}>
+                                    <Image size={18} className={faviconDragging ? 'text-green-400' : 'text-white/40'} />
+                                </div>
+                                <div className="text-center">
+                                    <p className={`text-[10px] font-bold uppercase tracking-widest transition-colors ${
+                                        faviconDragging ? 'text-green-400' : 'text-white/50'
+                                    }`}>
+                                        {faviconDragging ? 'Drop to Upload!' : 'Drag & Drop or Click'}
+                                    </p>
+                                    <p className="text-[9px] text-white/25 mt-1">PNG, JPG, SVG, ICO supported</p>
+                                </div>
+                            </>
+                        )}
+                    </label>
+
+                    {profile.favicon && (
+                        <button
+                            onClick={() => setProfile({ favicon: null })}
+                            className="w-full py-2 rounded-xl hover:bg-red-500/5 text-red-500/30 hover:text-red-400 text-[9px] font-bold uppercase tracking-widest transition-all text-center"
+                        >
+                            Remove Icon
+                        </button>
+                    )}
+                    </div>
+                </div>
+            </div>
+
+            <FaviconCropModal
+                isOpen={cropModalOpen}
+                onClose={() => setCropModalOpen(false)}
+                image={cropImage}
+                onCrop={(croppedData) => {
+                    setProfile({ favicon: croppedData });
+                    setCropModalOpen(false);
+                }}
+            />
         </div>
     );
 });
