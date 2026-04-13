@@ -16,6 +16,7 @@ export const SIDEBAR_ITEMS = [
     { id: 'footer', icon: Footprints, label: 'Footer' },
     { id: 'socials', icon: Share2, label: 'Social Icon' },
     { id: 'audio', icon: Music, label: 'Audio' },
+    { id: 'frame', icon: Monitor, label: 'Frame Box' },
 ];
 
 export const PLATFORMS = [

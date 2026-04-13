@@ -1,13 +1,29 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, memo } from 'react';
 import { X, Copy, Download, Check, FileCode, Code } from 'lucide-react';
 import { saveAs } from 'file-saver';
 import { getEffectHtmlElements, getBgEffectRawCss } from '../data/bg-effects';
 
-const ExportModal = ({ isOpen, onClose, profile, links, socials, theme, layoutType, previewDevice }) => {
+const ExportModal = memo(({ isOpen, onClose, profile, links, socials, theme, layoutType, previewDevice }) => {
     const [copied, setCopied] = useState(false);
     const [htmlCode, setHtmlCode] = useState('');
 
     const [assetMap, setAssetMap] = useState({});
+
+    const hexToRgba = (hex, opacity) => {
+        if (!hex) return `rgba(255, 255, 255, ${opacity})`;
+        let r = 0, g = 0, b = 0;
+        const h = hex.replace('#', '');
+        if (h.length === 3) {
+            r = parseInt(h[0] + h[0], 16);
+            g = parseInt(h[1] + h[1], 16);
+            b = parseInt(h[2] + h[2], 16);
+        } else if (h.length === 6) {
+            r = parseInt(h.substring(0, 2), 16);
+            g = parseInt(h.substring(2, 4), 16);
+            b = parseInt(h.substring(4, 6), 16);
+        }
+        return `rgba(${r}, ${g}, ${b}, ${opacity})`;
+    };
 
     useEffect(() => {
         const prepare = async () => {
@@ -518,10 +534,15 @@ document.addEventListener('DOMContentLoaded', () => {
                 // Autoplay blocked. Mute it to allow visual playback, wait for interaction to unmute.
                 bgVideo.muted = true;
                 bgVideo.play();
-                document.body.addEventListener('click', function playOnInteract() {
+                const playOnInteract = function() {
                     bgVideo.muted = false;
-                    document.body.removeEventListener('click', playOnInteract);
-                }, { once: true });
+                    window.removeEventListener('click', playOnInteract);
+                    window.removeEventListener('touchstart', playOnInteract);
+                    window.removeEventListener('keydown', playOnInteract);
+                };
+                window.addEventListener('click', playOnInteract, { once: true });
+                window.addEventListener('touchstart', playOnInteract, { once: true });
+                window.addEventListener('keydown', playOnInteract, { once: true });
             });
         }
     }
@@ -537,10 +558,15 @@ document.addEventListener('DOMContentLoaded', () => {
         if (audioPlayPromise !== undefined) {
             audioPlayPromise.catch(function() {
                 // Autoplay blocked. Wait for interaction to play.
-                document.body.addEventListener('click', function playAudioOnInteract() {
+                const playAudioOnInteract = function() {
                     bgAudio.play();
-                    document.body.removeEventListener('click', playAudioOnInteract);
-                }, { once: true });
+                    window.removeEventListener('click', playAudioOnInteract);
+                    window.removeEventListener('touchstart', playAudioOnInteract);
+                    window.removeEventListener('keydown', playAudioOnInteract);
+                };
+                window.addEventListener('click', playAudioOnInteract, { once: true });
+                window.addEventListener('touchstart', playAudioOnInteract, { once: true });
+                window.addEventListener('keydown', playAudioOnInteract, { once: true });
             });
         }
         ` : ''}
@@ -806,9 +832,45 @@ CSSPLACEHOLDER
         .hover-glow:hover { box-shadow: 0 0 20px rgba(255,255,255,0.3); }
         .active-push:active { transform: scale(0.95); }
         .active-inset:active { transform: scale(0.97); filter: brightness(0.8); }
+        /* Desktop Frame Box Outer Effects */
+        ${theme.frameEffect === 'flames' ? `        @keyframes frameFlames {
+            0%, 100% { box-shadow: 0 0 20px 5px rgba(239, 68, 68, 0.4), inset 0 0 20px rgba(249, 115, 22, 0.2); border-color: rgba(249, 115, 22, 0.4); }
+            50% { box-shadow: 0 0 30px 10px rgba(249, 115, 22, 0.6), inset 0 0 25px rgba(234, 179, 8, 0.3); border-color: rgba(234, 179, 8, 0.6); }
+        }
+        .effect-flames { animation: frameFlames 3s ease-in-out infinite; }` : ''}
+        ${theme.frameEffect === 'ice' ? `        @keyframes frameIce {
+            0% { box-shadow: 0 0 15px 2px rgba(6, 182, 212, 0.3), inset 0 0 10px rgba(255, 255, 255, 0.1); border-color: rgba(165, 243, 252, 0.3); }
+            50% { box-shadow: 0 0 25px 5px rgba(56, 189, 248, 0.5), inset 0 0 15px rgba(255, 255, 255, 0.2); border-color: rgba(186, 230, 253, 0.6); }
+            100% { box-shadow: 0 0 15px 2px rgba(6, 182, 212, 0.3), inset 0 0 10px rgba(255, 255, 255, 0.1); border-color: rgba(165, 243, 252, 0.3); }
+        }
+        .effect-ice { animation: frameIce 4s ease-in-out infinite; }` : ''}
+        ${theme.frameEffect === 'summer' ? `        @keyframes frameSummer {
+            0% { box-shadow: 0 0 25px 5px rgba(250, 204, 21, 0.3), 0 0 40px rgba(251, 146, 60, 0.2), inset 0 0 20px rgba(252, 211, 77, 0.2); border-color: rgba(250, 204, 21, 0.3); }
+            33% { box-shadow: 0 0 35px 8px rgba(250, 204, 21, 0.5), 0 0 50px rgba(251, 146, 60, 0.3), inset 0 0 25px rgba(252, 211, 77, 0.3); border-color: rgba(251, 146, 60, 0.4); }
+            66% { box-shadow: 0 0 20px 3px rgba(251, 146, 60, 0.4), 0 0 60px rgba(244, 63, 94, 0.2), inset 0 0 15px rgba(251, 113, 133, 0.2); border-color: rgba(244, 63, 94, 0.3); }
+            100% { box-shadow: 0 0 25px 5px rgba(250, 204, 21, 0.3), 0 0 40px rgba(251, 146, 60, 0.2), inset 0 0 20px rgba(252, 211, 77, 0.2); border-color: rgba(250, 204, 21, 0.3); }
+        }
+        .effect-summer { animation: frameSummer 6s ease-in-out infinite; }` : ''}
+        ${theme.frameEffect === 'neon' ? `        @keyframes frameNeon {
+            0%, 100% { box-shadow: 0 0 15px 2px rgba(217, 70, 239, 0.4), 0 0 30px rgba(168, 85, 247, 0.3), inset 0 0 15px rgba(217, 70, 239, 0.2); border-color: rgba(217, 70, 239, 0.5); }
+            50% { box-shadow: 0 0 25px 8px rgba(236, 72, 153, 0.6), 0 0 45px rgba(217, 70, 239, 0.4), inset 0 0 25px rgba(236, 72, 153, 0.3); border-color: rgba(244, 114, 182, 0.8); }
+        }
+        .effect-neon { animation: frameNeon 2s ease-in-out infinite; }` : ''}
+        ${theme.frameEffect === 'custom-glow' ? `        @keyframes frameCustomGlow {
+            0%, 100% { 
+                box-shadow: 0 0 20px 2px ${hexToRgba(theme.frameEffectColor || '#a855f7', 0.2)}, inset 0 0 15px ${hexToRgba(theme.frameEffectColor || '#a855f7', 0.1)}; 
+                border-color: ${hexToRgba(theme.frameEffectColor || '#a855f7', 0.5)};
+            }
+            50% { 
+                box-shadow: 0 0 35px 10px ${hexToRgba(theme.frameEffectColor || '#a855f7', 0.5)}, inset 0 0 25px ${hexToRgba(theme.frameEffectColor || '#a855f7', 0.2)}; 
+                border-color: ${theme.frameEffectColor || '#a855f7'};
+            }
+        }
+        .effect-custom-glow { animation: frameCustomGlow 3s ease-in-out infinite; }` : ''}
 
-        /* Desktop Frame Box */
         .desktop-frame-outer {
+            position: relative;
+            z-index: 10;
             display: flex;
             align-items: flex-start;
             justify-content: center;
@@ -818,14 +880,16 @@ CSSPLACEHOLDER
         .desktop-frame-box {
             position: relative;
             width: 100%;
-            max-width: 420px;
-            background: rgba(255,255,255,0.03);
-            border: 1px solid rgba(255,255,255,0.10);
-            border-radius: 32px;
-            box-shadow: 0 0 0 1px rgba(255,255,255,0.04), 0 32px 80px rgba(0,0,0,0.55), 0 8px 24px rgba(0,0,0,0.35);
-            backdrop-filter: blur(2px);
-            -webkit-backdrop-filter: blur(2px);
+            max-width: ${theme.frameWidth !== undefined ? theme.frameWidth : 420}px;
+            background: rgba(255,255,255,${(theme.frameBgOpacity !== undefined ? theme.frameBgOpacity : 3) / 100});
+            border: 1px solid ${hexToRgba(theme.frameBorderColor || '#ffffff', (theme.frameBorderOpacity !== undefined ? theme.frameBorderOpacity : 10) / 100)};
+            border-radius: ${theme.frameRadius !== undefined ? theme.frameRadius : 32}px;
+            ${(theme.frameEffect && theme.frameEffect !== 'none') ? '' : (theme.frameShadow !== false ? `box-shadow: 0 0 0 1px rgba(255,255,255,0.04), 0 32px 80px rgba(0,0,0,0.55), 0 8px 24px rgba(0,0,0,0.35);` : 'box-shadow: none;')}
+            backdrop-filter: blur(${theme.frameBlur !== undefined ? theme.frameBlur : 2}px);
+            -webkit-backdrop-filter: blur(${theme.frameBlur !== undefined ? theme.frameBlur : 2}px);
             overflow: hidden;
+            margin-top: 24px;
+            margin-bottom: 24px;
         }
         /* Mobile: remove frame, fill screen */
         @media (max-width: 767px) {
@@ -834,10 +898,13 @@ CSSPLACEHOLDER
                 max-width: 100%;
                 border-radius: 0;
                 border: none;
-                box-shadow: none;
+                box-shadow: none !important;
                 background: transparent;
                 backdrop-filter: none;
                 -webkit-backdrop-filter: none;
+                margin-top: 0;
+                margin-bottom: 0;
+                animation: none !important;
             }
         }
     </style>
@@ -871,7 +938,7 @@ CSSPLACEHOLDER
     </div>
 
     <div class="desktop-frame-outer">
-        <div class="desktop-frame-box">
+        <div class="desktop-frame-box ${theme.frameEffect && theme.frameEffect !== 'none' ? `effect-${theme.frameEffect}` : ''}">
             <div class="flex flex-col items-center py-10 px-6 relative z-10 text-center">
         
         <!-- Header -->
@@ -1213,6 +1280,6 @@ JSPLACEHOLDER
             </div>
         </div>
     );
-};
+});
 
 export default ExportModal;

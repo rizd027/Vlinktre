@@ -188,6 +188,20 @@ const ProfileBio = memo(({ profile, theme }) => {
     );
 });
 
+const hexToRgba = (hex, opacity) => {
+    let r = 0, g = 0, b = 0;
+    if (hex.length === 4) {
+        r = parseInt(hex[1] + hex[1], 16);
+        g = parseInt(hex[2] + hex[2], 16);
+        b = parseInt(hex[3] + hex[3], 16);
+    } else if (hex.length === 7) {
+        r = parseInt(hex.substring(1, 3), 16);
+        g = parseInt(hex.substring(3, 5), 16);
+        b = parseInt(hex.substring(5, 7), 16);
+    }
+    return `rgba(${r}, ${g}, ${b}, ${opacity})`;
+};
+
 const PreviewSection = memo(({ theme, profile, links, socials, layoutType, previewDevice = 'mobile', setPreviewDevice, isEditorHidden, isMobileView }) => {
     const config = DEVICE_CONFIG[previewDevice] || DEVICE_CONFIG.mobile;
 
@@ -477,7 +491,23 @@ const PreviewSection = memo(({ theme, profile, links, socials, layoutType, previ
                     >
 
                         <div className={`relative z-10 flex flex-col items-center min-h-full mx-auto ${previewDevice === 'desktop' ? 'w-full pt-10 pb-12 px-4' : (previewDevice === 'tablet' ? 'max-w-2xl px-6 py-10' : 'w-full px-6 py-10')}`}>
-                            <div className={`w-full flex flex-col items-center ${previewDevice === 'desktop' ? 'max-w-[420px] bg-white/[0.03] border border-white/10 rounded-[32px] overflow-hidden backdrop-blur-[2px] shadow-[0_0_0_1px_rgba(255,255,255,0.04),0_32px_80px_rgba(0,0,0,0.55),0_8px_24px_rgba(0,0,0,0.35)] p-6' : ''}`}>
+                            <div 
+                                className={`w-full flex flex-col items-center relative ${previewDevice === 'desktop' ? `p-6 ${theme.frameEffect && theme.frameEffect !== 'none' ? `effect-${theme.frameEffect}` : ''}` : ''}`}
+                                style={previewDevice === 'desktop' ? {
+                                    maxWidth: `${theme.frameWidth || 420}px`,
+                                    background: `rgba(255, 255, 255, ${(theme.frameBgOpacity !== undefined ? theme.frameBgOpacity : 3) / 100})`,
+                                    border: `1px solid ${hexToRgba(theme.frameBorderColor || '#ffffff', (theme.frameBorderOpacity !== undefined ? theme.frameBorderOpacity : 10) / 100)}`,
+                                    borderRadius: `${theme.frameRadius !== undefined ? theme.frameRadius : 32}px`,
+                                    backdropFilter: `blur(${theme.frameBlur !== undefined ? theme.frameBlur : 2}px)`,
+                                    WebkitBackdropFilter: `blur(${theme.frameBlur !== undefined ? theme.frameBlur : 2}px)`,
+                                    boxShadow: (theme.frameEffect && theme.frameEffect !== 'none') ? undefined : (theme.frameShadow !== false ? '0 0 0 1px rgba(255,255,255,0.04), 0 32px 80px rgba(0,0,0,0.55), 0 8px 24px rgba(0,0,0,0.35)' : 'none'),
+                                    overflow: 'hidden',
+                                    '--frame-glow-color': theme.frameEffectColor || '#a855f7',
+                                    '--frame-glow-color-semi': hexToRgba(theme.frameEffectColor || '#a855f7', 0.5),
+                                    '--frame-glow-color-transparent': hexToRgba(theme.frameEffectColor || '#a855f7', 0.2),
+                                    '--frame-glow-color-very-transparent': hexToRgba(theme.frameEffectColor || '#a855f7', 0.1),
+                                } : {}}
+                            >
                                 {/* Profile Area */}
                                 <div className={`flex flex-col items-center w-full transition-all duration-300 ${profile.headerLayout === 'hero' ? 'mb-6' : ''}`} style={profile.headerLayout === 'hero' ? { marginTop: `${profile.spacingAvatar ?? 16}px` } : {}}>
                                     {profile.headerLayout === 'hero' ? (

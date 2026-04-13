@@ -13,6 +13,7 @@ import ButtonSettings from './components/Appearance/ButtonSettings';
 import FooterSettings from './components/Appearance/FooterSettings';
 import SocialSettings from './components/Appearance/SocialSettings';
 import BackgroundAudioSettings from './components/Appearance/BackgroundAudioSettings';
+import FrameBoxSettings from './components/Appearance/FrameBoxSettings';
 import {
     PanelLeft, Palette, Settings, LogOut, ExternalLink,
     Plus, Search, Github, Twitter, Instagram, Youtube, Linkedin,
@@ -583,6 +584,16 @@ function App() {
             backgroundAudio: null,
             audioAutoplay: true,
             audioVolume: 50,
+            frameWidth: 420,
+            frameBgColor: '#ffffff',
+            frameBgOpacity: 3,
+            frameBorderColor: '#ffffff',
+            frameBorderOpacity: 10,
+            frameRadius: 32,
+            frameBlur: 2,
+            frameShadow: true,
+            frameEffect: 'none',
+            frameEffectColor: '#a855f7',
         };
         if (saved) {
             const parsed = JSON.parse(saved);
@@ -1968,6 +1979,13 @@ const AppearanceEditor = memo(function AppearanceEditor({ theme, setTheme, profi
 
                         {subTab === 'audio' && (
                             <BackgroundAudioSettings
+                                theme={theme}
+                                setTheme={setTheme}
+                            />
+                        )}
+
+                        {subTab === 'frame' && (
+                            <FrameBoxSettings
                                 theme={theme}
                                 setTheme={setTheme}
                             />

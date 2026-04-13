@@ -11,7 +11,7 @@ const BackgroundAudioSettings = memo(({ theme, setTheme }) => {
         if (file) {
             const reader = new FileReader();
             reader.onloadend = () => {
-                setTheme({ ...theme, backgroundAudio: reader.result });
+                setTheme({ ...theme, backgroundAudio: reader.result, backgroundAudioName: file.name });
             };
             reader.readAsDataURL(file);
         }
@@ -34,7 +34,7 @@ const BackgroundAudioSettings = memo(({ theme, setTheme }) => {
         if (file && file.type.startsWith('audio/')) {
             const reader = new FileReader();
             reader.onloadend = () => {
-                setTheme({ ...theme, backgroundAudio: reader.result });
+                setTheme({ ...theme, backgroundAudio: reader.result, backgroundAudioName: file.name });
             };
             reader.readAsDataURL(file);
         }
@@ -42,13 +42,19 @@ const BackgroundAudioSettings = memo(({ theme, setTheme }) => {
 
     const handleUrlAdd = () => {
         if (urlInput) {
-            setTheme({ ...theme, backgroundAudio: urlInput });
+            let filename = 'External Audio Link';
+            try {
+                const urlObj = new URL(urlInput);
+                const pathName = urlObj.pathname.split('/').pop();
+                if (pathName) filename = pathName;
+            } catch (e) {}
+            setTheme({ ...theme, backgroundAudio: urlInput, backgroundAudioName: filename });
             setUrlInput('');
         }
     };
 
     const handleRemoveAudio = () => {
-        setTheme({ ...theme, backgroundAudio: null });
+        setTheme({ ...theme, backgroundAudio: null, backgroundAudioName: null });
     };
 
     return (
@@ -125,14 +131,14 @@ const BackgroundAudioSettings = memo(({ theme, setTheme }) => {
                         </>
                     ) : (
                         <div className="flex flex-col gap-4">
-                            <div className="flex items-center justify-between p-4 rounded-2xl bg-fuchsia-500/10 border border-fuchsia-500/20">
-                                <div className="flex items-center gap-4 overflow-hidden">
+                            <div className="flex items-start justify-between p-4 rounded-2xl bg-fuchsia-500/10 border border-fuchsia-500/20">
+                                <div className="flex items-center gap-4 flex-1 mr-4">
                                     <div className="w-12 h-12 rounded-full bg-fuchsia-500/20 flex items-center justify-center text-fuchsia-400 shrink-0">
                                         <PlayCircle size={24} />
                                     </div>
-                                    <div className="flex flex-col overflow-hidden">
-                                        <span className="font-bold text-white text-sm truncate">Audio Track Added</span>
-                                        <span className="text-[10px] text-fuchsia-400/80 font-black uppercase tracking-widest truncate">{theme.backgroundAudio.startsWith('data:') ? 'Local Upload' : 'External Link'}</span>
+                                    <div className="flex flex-col">
+                                        <span className="font-bold text-white text-sm break-all line-clamp-3" title={theme.backgroundAudioName || 'Audio Track Added'}>{theme.backgroundAudioName || 'Audio Track Added'}</span>
+                                        <span className="text-[10px] text-fuchsia-400/80 font-black uppercase tracking-widest mt-1">{(theme.backgroundAudio && theme.backgroundAudio.startsWith('data:')) ? 'Local Upload' : 'External Link'}</span>
                                     </div>
                                 </div>
                                 <button
