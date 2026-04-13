@@ -34,12 +34,12 @@ const DEVICE_CONFIG = {
     }
 };
 
-const ProfileAvatar = memo(({ profile, theme, className = '' }) => {
+const ProfileAvatar = memo(({ profile, theme, className = '', style = {} }) => {
     const size = typeof profile.headerSize === 'number' ? profile.headerSize : (profile.headerSize === 'large' ? 120 : (profile.headerSize === 'small' ? 80 : 100));
     const finalSize = 96 * (size / 100);
 
     return (
-        <>
+        <div style={style}>
             {profile.avatar ? (
                 <img
                     src={profile.avatar}
@@ -61,7 +61,7 @@ const ProfileAvatar = memo(({ profile, theme, className = '' }) => {
                 className={`rounded-full border-2 border-white/10 shadow-md relative z-10 flex items-center justify-center bg-white/5 ${profile.avatar ? 'hidden' : 'flex'} ${className}`}>
                 <User size={40 * (size / 100)} className="text-white/40" />
             </div>
-        </>
+        </div>
     );
 });
 
@@ -492,7 +492,7 @@ const PreviewSection = memo(({ theme, profile, links, socials, layoutType, previ
 
                         <div className={`relative z-10 flex flex-col items-center min-h-full mx-auto ${previewDevice === 'desktop' ? 'w-full pt-10 pb-12 px-4' : (previewDevice === 'tablet' ? 'max-w-2xl px-6 py-10' : 'w-full px-6 py-10')}`}>
                             <div 
-                                className={`w-full flex flex-col items-center relative ${previewDevice === 'desktop' ? `p-6 ${theme.frameEffect && theme.frameEffect !== 'none' ? `effect-${theme.frameEffect}` : ''}` : ''}`}
+                                className={`w-full flex flex-col items-center relative desktop-frame-box ${previewDevice === 'desktop' ? `p-6 ${theme.frameEffect && theme.frameEffect !== 'none' ? `effect-${theme.frameEffect}` : ''}` : ''}`}
                                 style={previewDevice === 'desktop' ? {
                                     maxWidth: `${theme.frameWidth || 420}px`,
                                     background: `rgba(255, 255, 255, ${(theme.frameBgOpacity !== undefined ? theme.frameBgOpacity : 3) / 100})`,
@@ -504,8 +504,8 @@ const PreviewSection = memo(({ theme, profile, links, socials, layoutType, previ
                                     overflow: 'hidden',
                                     '--frame-glow-color': theme.frameEffectColor || '#a855f7',
                                     '--frame-glow-color-semi': hexToRgba(theme.frameEffectColor || '#a855f7', 0.5),
-                                    '--frame-glow-color-transparent': hexToRgba(theme.frameEffectColor || '#a855f7', 0.2),
-                                    '--frame-glow-color-very-transparent': hexToRgba(theme.frameEffectColor || '#a855f7', 0.1),
+                                    '--frame-glow-color-transparent': hexToRgba(theme.frameEffectColor || '#a855f7', 0.3),
+                                    '--frame-glow-color-very-transparent': hexToRgba(theme.frameEffectColor || '#a855f7', 0.15),
                                 } : {}}
                             >
                                 {/* Profile Area */}
@@ -515,10 +515,16 @@ const PreviewSection = memo(({ theme, profile, links, socials, layoutType, previ
                                             {/* Hero Variant Controller */}
                                             {profile.heroModel === 'joined' && (
                                                 <div className="w-full flex flex-col items-center">
-                                                    <div className={`relative z-20 ${theme.headerAnimation && theme.headerAnimation !== 'none' ? `animate-${theme.headerAnimation}` : ''} ${profile.showAvatar === false ? 'hidden' : ''}`}>
+                                                    <div
+                                                        className={`relative z-20 ${theme.headerAnimation && theme.headerAnimation !== 'none' ? `animate-${theme.headerAnimation}` : ''} ${profile.showAvatar === false ? 'hidden' : ''}`}
+                                                        style={{ '--glow-color': theme.headerAvatarGlowColor || '#ffffff', '--pulse-color': theme.headerAvatarGlowColor || '#ffffff' }}
+                                                    >
                                                         <ProfileAvatar profile={profile} theme={theme} className="rounded-b-none border-b-0" />
                                                     </div>
-                                                    <div className="bg-black/30 backdrop-blur-xl w-full py-8 px-6 rounded-3xl -mt-5 border border-white/10 shadow-2xl relative z-10 text-center flex flex-col gap-2">
+                                                    <div className="bg-black/30 backdrop-blur-xl w-full py-8 px-6 rounded-3xl -mt-5 border border-white/10 shadow-2xl relative z-10 text-center flex flex-col gap-2" style={{
+                                                        '--glow-color': theme.headerAvatarGlowColor || '#ffffff',
+                                                        '--pulse-color': theme.headerAvatarGlowColor || '#ffffff'
+                                                    }}>
                                                         <ProfileTitle profile={profile} theme={theme} />
                                                         <ProfileBio profile={profile} theme={theme} />
                                                     </div>
@@ -527,11 +533,17 @@ const PreviewSection = memo(({ theme, profile, links, socials, layoutType, previ
 
                                             {profile.heroModel === 'float' && (
                                                 <div className="w-full flex flex-col items-center gap-6">
-                                                    <div className={`relative z-20 ${theme.headerAnimation && theme.headerAnimation !== 'none' ? `animate-${theme.headerAnimation}` : ''} ${profile.showAvatar === false ? 'hidden' : ''}`}>
-                                                        <div className="absolute inset-0 bg-purple-500/20 blur-3xl rounded-full -z-10 animate-pulse"></div>
+                                                    <div
+                                                        className={`relative z-20 ${theme.headerAnimation && theme.headerAnimation !== 'none' ? `animate-${theme.headerAnimation}` : ''} ${profile.showAvatar === false ? 'hidden' : ''}`}
+                                                        style={{ '--glow-color': theme.headerAvatarGlowColor || '#ffffff', '--pulse-color': theme.headerAvatarGlowColor || '#ffffff' }}
+                                                    >
+                                                        <div className="absolute inset-0 bg-purple-500/20 blur-3xl rounded-full -z-10 animate-pulse" style={{ backgroundColor: theme.headerAvatarGlowColor ? `${theme.headerAvatarGlowColor}33` : undefined }}></div>
                                                         <ProfileAvatar profile={profile} theme={theme} className="shadow-[0_20px_40px_rgba(0,0,0,0.4)] border-white/20 hover:scale-105 transition-transform" />
                                                     </div>
-                                                    <div className="bg-white/5 backdrop-blur-md w-full py-8 px-6 rounded-3xl border border-white/10 shadow-xl text-center flex flex-col gap-2">
+                                                    <div className="bg-white/5 backdrop-blur-md w-full py-8 px-6 rounded-3xl border border-white/10 shadow-xl text-center flex flex-col gap-2" style={{
+                                                        '--glow-color': theme.headerAvatarGlowColor || '#ffffff',
+                                                        '--pulse-color': theme.headerAvatarGlowColor || '#ffffff'
+                                                    }}>
                                                         <ProfileTitle profile={profile} theme={theme} />
                                                         <ProfileBio profile={profile} theme={theme} />
                                                     </div>
@@ -540,10 +552,16 @@ const PreviewSection = memo(({ theme, profile, links, socials, layoutType, previ
 
                                             {profile.heroModel === 'minimal' && (
                                                 <div className="w-full flex flex-col items-center gap-6 py-4">
-                                                    <div className={`relative z-20 ${theme.headerAnimation && theme.headerAnimation !== 'none' ? `animate-${theme.headerAnimation}` : ''} ${profile.showAvatar === false ? 'hidden' : ''}`}>
+                                                    <div
+                                                        className={`relative z-20 ${theme.headerAnimation && theme.headerAnimation !== 'none' ? `animate-${theme.headerAnimation}` : ''} ${profile.showAvatar === false ? 'hidden' : ''}`}
+                                                        style={{ '--glow-color': theme.headerAvatarGlowColor || '#ffffff', '--pulse-color': theme.headerAvatarGlowColor || '#ffffff' }}
+                                                    >
                                                         <ProfileAvatar profile={profile} theme={theme} className="border-white/5 shadow-sm" />
                                                     </div>
-                                                    <div className="text-center flex flex-col gap-2 w-full px-4">
+                                                    <div className="text-center flex flex-col gap-2 w-full px-4" style={{
+                                                        '--glow-color': theme.headerAvatarGlowColor || '#ffffff',
+                                                        '--pulse-color': theme.headerAvatarGlowColor || '#ffffff'
+                                                    }}>
                                                         <ProfileTitle profile={profile} theme={theme} />
                                                         <ProfileBio profile={profile} theme={theme} />
                                                     </div>
@@ -553,41 +571,55 @@ const PreviewSection = memo(({ theme, profile, links, socials, layoutType, previ
                                             {profile.heroModel === 'glass' && (
                                                 <div className="w-full relative py-12 px-6 flex flex-col items-center gap-6">
                                                     {/* Background backlight glow */}
-                                                    <div className="absolute top-0 left-1/2 -translate-x-1/2 w-48 h-48 bg-purple-500/30 blur-[100px] rounded-full -z-10"></div>
+                                                    <div className="absolute top-0 left-1/2 -translate-x-1/2 w-48 h-48 bg-purple-500/30 blur-[100px] rounded-full -z-10" style={{ backgroundColor: theme.headerAvatarGlowColor ? `${theme.headerAvatarGlowColor}4D` : undefined }}></div>
 
-                                                    <div className={`relative z-20 ${theme.headerAnimation && theme.headerAnimation !== 'none' ? `animate-${theme.headerAnimation}` : ''} ${profile.showAvatar === false ? 'hidden' : ''}`}>
+                                                    <div
+                                                        className={`relative z-20 ${theme.headerAnimation && theme.headerAnimation !== 'none' ? `animate-${theme.headerAnimation}` : ''} ${profile.showAvatar === false ? 'hidden' : ''}`}
+                                                        style={{ '--glow-color': theme.headerAvatarGlowColor || '#ffffff', '--pulse-color': theme.headerAvatarGlowColor || '#ffffff' }}
+                                                    >
                                                         <ProfileAvatar profile={profile} theme={theme} className="border-white/30 ring-4 ring-white/5" />
                                                     </div>
-                                                    <div className="bg-white/10 backdrop-blur-2xl w-full py-10 px-8 rounded-[3rem] border border-white/20 shadow-[0_30px_60px_-15px_rgba(0,0,0,0.5)] text-center flex flex-col gap-3 relative overflow-hidden">
-                                                        {/* Subtle glass reflection */}
-                                                        <div className="absolute top-0 left-0 right-0 h-px bg-linear-to-r from-transparent via-white/30 to-transparent"></div>
-                                                        <ProfileTitle profile={profile} theme={theme} />
-                                                        <ProfileBio profile={profile} theme={theme} />
-                                                    </div>
-                                                </div>
-                                            )}
-                                        </div>
-                                    ) : (
-                                        /* Classic Layout */
-                                        <>
-                                            <div
-                                                className={`relative ${theme.headerAnimation && theme.headerAnimation !== 'none' ? `animate-${theme.headerAnimation}` : ''} ${profile.showAvatar === false ? 'hidden' : ''}`}
-                                                style={{ marginTop: `${profile.spacingAvatar ?? 16}px` }}
-                                            >
-                                                <ProfileAvatar profile={profile} theme={theme} />
-                                            </div>
-                                            <div
-                                                className="flex flex-col items-center gap-1 text-center px-3"
-                                                style={{ marginTop: `${profile.spacingUsername ?? 12}px` }}
-                                            >
-                                                <ProfileTitle profile={profile} theme={theme} />
-                                            </div>
-                                            <div style={{ marginTop: `${profile.spacingBio ?? 6}px`, width: '100%', display: 'flex', justifyContent: 'center' }}>
-                                                <ProfileBio profile={profile} theme={theme} />
-                                            </div>
-                                        </>
-                                    )}
-                                </div>
+                                                     <div className="bg-white/10 backdrop-blur-2xl w-full py-10 px-8 rounded-[3rem] border border-white/20 shadow-[0_30px_60px_-15px_rgba(0,0,0,0.5)] text-center flex flex-col gap-3 relative overflow-hidden" style={{
+                                                         '--glow-color': theme.headerAvatarGlowColor || '#ffffff',
+                                                         '--pulse-color': theme.headerAvatarGlowColor || '#ffffff'
+                                                     }}>
+                                                         {/* Subtle glass reflection */}
+                                                         <div className="absolute top-0 left-0 right-0 h-px bg-linear-to-r from-transparent via-white/30 to-transparent"></div>
+                                                         <ProfileTitle profile={profile} theme={theme} />
+                                                         <ProfileBio profile={profile} theme={theme} />
+                                                     </div>
+                                                 </div>
+                                             )}
+                                         </div>
+                                     ) : (
+                                         /* Classic Layout */
+                                         <>
+                                             <div
+                                                 className={`relative ${theme.headerAnimation && theme.headerAnimation !== 'none' ? `animate-${theme.headerAnimation}` : ''} ${profile.showAvatar === false ? 'hidden' : ''}`}
+                                                 style={{
+                                                     marginTop: `${profile.spacingAvatar ?? 16}px`,
+                                                     '--glow-color': theme.headerAvatarGlowColor || '#ffffff',
+                                                     '--pulse-color': theme.headerAvatarGlowColor || '#ffffff'
+                                                 }}
+                                             >
+                                                 <ProfileAvatar profile={profile} theme={theme} />
+                                             </div>
+                                             <div
+                                                 className="flex flex-col items-center gap-1 text-center px-3"
+                                                 style={{ 
+                                                     marginTop: `${profile.spacingUsername ?? 12}px`,
+                                                     '--glow-color': theme.headerAvatarGlowColor || '#ffffff',
+                                                     '--pulse-color': theme.headerAvatarGlowColor || '#ffffff'
+                                                 }}
+                                             >
+                                                 <ProfileTitle profile={profile} theme={theme} />
+                                             </div>
+                                             <div style={{ marginTop: `${profile.spacingBio ?? 6}px`, width: '100%', display: 'flex', justifyContent: 'center' }}>
+                                                 <ProfileBio profile={profile} theme={theme} />
+                                             </div>
+                                         </>
+                                     )}
+                                 </div>
 
                                 {/* Social Icons - Top Position */}
                                 {theme.socialPosition === 'top' && (

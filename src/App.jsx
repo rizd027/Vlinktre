@@ -706,13 +706,34 @@ function App() {
                         <h1 className="text-lg font-bold text-white">Appearance</h1>
                     )}
                 </div>
-                <button
-                    onClick={() => setIsExportModalOpen(true)}
-                    className="flex items-center gap-2 px-4 py-2 rounded-xl bg-[#1c1c1e] border border-white/10 text-white hover:bg-white/5 transition-all active:scale-95"
-                >
-                    <FileCode size={18} className="text-purple-400" />
-                    <span className="text-sm font-bold">Export</span>
-                </button>
+                <div className="flex items-center gap-2">
+                    <button
+                        onClick={() => setIsMobilePreview(!isMobilePreview)}
+                        className={`flex items-center gap-2 px-3 py-2 rounded-xl border transition-all active:scale-95 ${isMobilePreview
+                            ? 'bg-purple-600/20 border-purple-500/30 text-purple-400 shadow-[0_0_15px_rgba(168,85,247,0.15)]'
+                            : 'bg-[#1c1c1e] border-white/10 text-white hover:bg-white/5'
+                        }`}
+                    >
+                        {isMobilePreview ? (
+                            <>
+                                <Edit3 size={18} className="text-purple-400" />
+                                <span className="text-sm font-bold">Edit</span>
+                            </>
+                        ) : (
+                            <>
+                                <Eye size={18} className="text-purple-400" />
+                                <span className="text-sm font-bold">View</span>
+                            </>
+                        )}
+                    </button>
+                    <button
+                        onClick={() => setIsExportModalOpen(true)}
+                        className="flex items-center gap-2 px-4 py-2 rounded-xl bg-[#1c1c1e] border border-white/10 text-white hover:bg-white/5 transition-all active:scale-95"
+                    >
+                        <FileCode size={18} className="text-purple-400" />
+                        <span className="text-sm font-bold">Export</span>
+                    </button>
+                </div>
             </header>
 
             {/* Sidebar Navigation - Permanent Bar on Desktop, Bottom Bar on Mobile */}

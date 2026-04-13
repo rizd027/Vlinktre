@@ -177,6 +177,18 @@ const HeaderSettings = memo(({ profile, setProfile, theme, setTheme, setProfileI
                             ))}
                         </SelectField>
                     </div>
+
+                    {(theme.headerAnimation === 'glow-custom' || theme.headerAnimation === 'pulse-custom') && (
+                        <div className="mt-4 animate-in fade-in slide-in-from-top-2 duration-300">
+                            <ColorPickerRow
+                                label={`${theme.headerAnimation === 'glow-custom' ? 'Glow' : 'Pulse'} Color`}
+                                value={theme.headerAvatarGlowColor || '#ffffff'}
+                                onChange={(val) => setTheme({ headerAvatarGlowColor: val })}
+                                colorId="avatar-glow-color"
+                                activeColor="pink"
+                            />
+                        </div>
+                    )}
                 </div>
             </div>
 

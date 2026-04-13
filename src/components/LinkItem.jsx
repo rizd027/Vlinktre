@@ -308,7 +308,11 @@ const LinkItem = memo(function LinkItem({ link, i, layoutType, theme }) {
                 <div style={shadowStyles.outerStyle}>
                     <div
                         className={theme.btnShadowAnimation && theme.btnShadowAnimation !== 'none' ? `animate-${theme.btnShadowAnimation}` : ''}
-                        style={shadowStyles.innerStyle}
+                        style={{
+                            ...shadowStyles.innerStyle,
+                            '--glow-color': theme.btnShadowGlowColor || theme.btnGlowColor || theme.accentColor || '#ffffff',
+                            '--pulse-color': theme.btnShadowGlowColor || theme.btnGlowColor || theme.accentColor || '#ffffff'
+                        }}
                     />
                 </div>
             )}
@@ -329,6 +333,8 @@ const LinkItem = memo(function LinkItem({ link, i, layoutType, theme }) {
                     width: '100%',
                     borderRadius: `${theme.btnRadius}px`,
                     boxShadow: 'none',
+                    '--glow-color': theme.btnGlowColor || theme.accentColor || '#ffffff',
+                    '--pulse-color': theme.btnGlowColor || theme.accentColor || '#ffffff',
                     ...bgStyle
                 }}
             >

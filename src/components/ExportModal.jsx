@@ -53,12 +53,13 @@ const ExportModal = memo(({ isOpen, onClose, profile, links, socials, theme, lay
         const getProfileAvatarHtml = (className = '') => {
             if (profile.showAvatar === false) return '';
             const size = 96 * getHeaderSizeScale();
+            const avatarVars = `--glow-color: ${theme.headerAvatarGlowColor || '#ffffff'}; --pulse-color: ${theme.headerAvatarGlowColor || '#ffffff'};`;
 
             if (profile.avatar) {
-                return `<img src="${resolveUrl(profile.avatar, 'avatar')}" alt="Avatar" class="rounded-full border-2 border-white/10 shadow-md relative z-10 object-cover ${className} ${avatarAnimationClass}" style="width: ${size}px; height: ${size}px;">`;
+                return `<img src="${resolveUrl(profile.avatar, 'avatar')}" alt="Avatar" class="rounded-full border-2 border-white/10 shadow-md relative z-10 object-cover ${className} ${avatarAnimationClass}" style="width: ${size}px; height: ${size}px; ${avatarVars}">`;
             }
             return `
-            <div style="width: ${size}px; height: ${size}px;" class="rounded-full border-2 border-white/10 shadow-md relative z-10 flex items-center justify-center bg-white/5 ${className} ${avatarAnimationClass}">
+            <div style="width: ${size}px; height: ${size}px; ${avatarVars}" class="rounded-full border-2 border-white/10 shadow-md relative z-10 flex items-center justify-center bg-white/5 ${className} ${avatarAnimationClass}">
                 <svg width="${40 * getHeaderSizeScale()}" height="${40 * getHeaderSizeScale()}" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="text-white/40"><path d="M19 21v-2a4 4 0 0 0-4-4H9a4 4 0 0 0-4 4v2"></path><circle cx="12" cy="7" r="4"></circle></svg>
             </div>`;
         };
@@ -262,13 +263,13 @@ body {
 }
 
 @keyframes pulse-custom {
-    0%, 100% { transform: scale(1); }
-    50% { transform: scale(1.05); }
+    0%, 100% { transform: scale(1); filter: drop-shadow(0 0 0px transparent); }
+    50% { transform: scale(1.05); filter: drop-shadow(0 0 10px var(--pulse-color, rgba(255,255,255,0.4))); }
 }
 
 @keyframes glow-custom {
-    0%, 100% { filter: drop-shadow(0 0 5px rgba(255,255,255,0.3)); }
-    50% { filter: drop-shadow(0 0 20px rgba(255,255,255,0.8)); }
+    0%, 100% { filter: drop-shadow(0 0 5px var(--glow-color, rgba(255,255,255,0.3))); opacity: 0.8; }
+    50% { filter: drop-shadow(0 0 20px var(--glow-color, rgba(255,255,255,0.8))); opacity: 1; }
 }
 
 @keyframes lightSweep {
@@ -628,6 +629,10 @@ document.addEventListener('DOMContentLoaded', () => {
             if (theme.btnStyle === 'solid' && !theme.btnTextColor) textColor = '#000000';
             styles += `color: ${textColor};`;
 
+            // Custom Glow/Pulse Colors
+            const btnGlowColor = theme.btnGlowColor || theme.accentColor || '#ffffff';
+            styles += `--glow-color: ${btnGlowColor}; --pulse-color: ${btnGlowColor};`;
+
             return styles;
         };
 
@@ -658,8 +663,9 @@ document.addEventListener('DOMContentLoaded', () => {
 
             const sx = theme.btnShadowX || 0;
             const sy = theme.btnShadowY || 4;
+            const shadowGlowColor = theme.btnShadowGlowColor || theme.btnGlowColor || theme.accentColor || '#ffffff';
 
-            const outerStyle = `position: absolute; z-index: 5; inset: ${-spread}px; --sx: ${sx}px; --sy: ${sy}px; transform: translate(var(--sx), var(--sy)); pointer-events: none; transition: transform 0.3s cubic-bezier(0.19, 1, 0.22, 1);`;
+            const outerStyle = `position: absolute; z-index: 5; inset: ${-spread}px; --sx: ${sx}px; --sy: ${sy}px; --glow-color: ${shadowGlowColor}; --pulse-color: ${shadowGlowColor}; transform: translate(var(--sx), var(--sy)); pointer-events: none; transition: transform 0.3s cubic-bezier(0.19, 1, 0.22, 1);`;
             const innerStyle = `position: absolute; inset: 0; border-radius: ${theme.btnRadius || 12}px; filter: blur(${theme.btnShadowBlur || 0}px); opacity: ${theme.btnShadowOpacity ?? (theme.btnShadowType === 'solid' ? 1 : 0.5)}; ${shadowBg}`;
 
             return `<div style="${outerStyle}"><div class="${shadowAnimClass}" style="${innerStyle}"></div></div>`;
@@ -834,36 +840,36 @@ CSSPLACEHOLDER
         .active-inset:active { transform: scale(0.97); filter: brightness(0.8); }
         /* Desktop Frame Box Outer Effects */
         ${theme.frameEffect === 'flames' ? `        @keyframes frameFlames {
-            0%, 100% { box-shadow: 0 0 20px 5px rgba(239, 68, 68, 0.4), inset 0 0 20px rgba(249, 115, 22, 0.2); border-color: rgba(249, 115, 22, 0.4); }
-            50% { box-shadow: 0 0 30px 10px rgba(249, 115, 22, 0.6), inset 0 0 25px rgba(234, 179, 8, 0.3); border-color: rgba(234, 179, 8, 0.6); }
+            0%, 100% { box-shadow: 0 0 20px 5px var(--frame-glow-color-transparent), inset 0 0 20px var(--frame-glow-color-very-transparent); border-color: var(--frame-glow-color-semi); }
+            50% { box-shadow: 0 0 30px 10px var(--frame-glow-color-semi), inset 0 0 25px var(--frame-glow-color-transparent); border-color: var(--frame-glow-color); }
         }
         .effect-flames { animation: frameFlames 3s ease-in-out infinite; }` : ''}
         ${theme.frameEffect === 'ice' ? `        @keyframes frameIce {
-            0% { box-shadow: 0 0 15px 2px rgba(6, 182, 212, 0.3), inset 0 0 10px rgba(255, 255, 255, 0.1); border-color: rgba(165, 243, 252, 0.3); }
-            50% { box-shadow: 0 0 25px 5px rgba(56, 189, 248, 0.5), inset 0 0 15px rgba(255, 255, 255, 0.2); border-color: rgba(186, 230, 253, 0.6); }
-            100% { box-shadow: 0 0 15px 2px rgba(6, 182, 212, 0.3), inset 0 0 10px rgba(255, 255, 255, 0.1); border-color: rgba(165, 243, 252, 0.3); }
+            0% { box-shadow: 0 0 15px 2px var(--frame-glow-color-transparent), inset 0 0 10px var(--frame-glow-color-very-transparent); border-color: var(--frame-glow-color-semi); }
+            50% { box-shadow: 0 0 25px 5px var(--frame-glow-color-semi), inset 0 0 15px var(--frame-glow-color-transparent); border-color: var(--frame-glow-color); }
+            100% { box-shadow: 0 0 15px 2px var(--frame-glow-color-transparent), inset 0 0 10px var(--frame-glow-color-very-transparent); border-color: var(--frame-glow-color-semi); }
         }
         .effect-ice { animation: frameIce 4s ease-in-out infinite; }` : ''}
         ${theme.frameEffect === 'summer' ? `        @keyframes frameSummer {
-            0% { box-shadow: 0 0 25px 5px rgba(250, 204, 21, 0.3), 0 0 40px rgba(251, 146, 60, 0.2), inset 0 0 20px rgba(252, 211, 77, 0.2); border-color: rgba(250, 204, 21, 0.3); }
-            33% { box-shadow: 0 0 35px 8px rgba(250, 204, 21, 0.5), 0 0 50px rgba(251, 146, 60, 0.3), inset 0 0 25px rgba(252, 211, 77, 0.3); border-color: rgba(251, 146, 60, 0.4); }
-            66% { box-shadow: 0 0 20px 3px rgba(251, 146, 60, 0.4), 0 0 60px rgba(244, 63, 94, 0.2), inset 0 0 15px rgba(251, 113, 133, 0.2); border-color: rgba(244, 63, 94, 0.3); }
-            100% { box-shadow: 0 0 25px 5px rgba(250, 204, 21, 0.3), 0 0 40px rgba(251, 146, 60, 0.2), inset 0 0 20px rgba(252, 211, 77, 0.2); border-color: rgba(250, 204, 21, 0.3); }
+            0% { box-shadow: 0 0 25px 5px var(--frame-glow-color-transparent), 0 0 40px var(--frame-glow-color-very-transparent), inset 0 0 20px var(--frame-glow-color-very-transparent); border-color: var(--frame-glow-color-transparent); }
+            33% { box-shadow: 0 0 35px 8px var(--frame-glow-color-semi), 0 0 50px var(--frame-glow-color-transparent), inset 0 0 25px var(--frame-glow-color-transparent); border-color: var(--frame-glow-color-semi); }
+            66% { box-shadow: 0 0 20px 3px var(--frame-glow-color-semi), 0 0 60px var(--frame-glow-color-transparent), inset 0 0 15px var(--frame-glow-color-transparent); border-color: var(--frame-glow-color-very-transparent); }
+            100% { box-shadow: 0 0 25px 5px var(--frame-glow-color-transparent), 0 0 40px var(--frame-glow-color-very-transparent), inset 0 0 20px var(--frame-glow-color-very-transparent); border-color: var(--frame-glow-color-transparent); }
         }
         .effect-summer { animation: frameSummer 6s ease-in-out infinite; }` : ''}
         ${theme.frameEffect === 'neon' ? `        @keyframes frameNeon {
-            0%, 100% { box-shadow: 0 0 15px 2px rgba(217, 70, 239, 0.4), 0 0 30px rgba(168, 85, 247, 0.3), inset 0 0 15px rgba(217, 70, 239, 0.2); border-color: rgba(217, 70, 239, 0.5); }
-            50% { box-shadow: 0 0 25px 8px rgba(236, 72, 153, 0.6), 0 0 45px rgba(217, 70, 239, 0.4), inset 0 0 25px rgba(236, 72, 153, 0.3); border-color: rgba(244, 114, 182, 0.8); }
+            0%, 100% { box-shadow: 0 0 15px 2px var(--frame-glow-color-transparent), 0 0 30px var(--frame-glow-color-very-transparent), inset 0 0 15px var(--frame-glow-color-very-transparent); border-color: var(--frame-glow-color-semi); }
+            50% { box-shadow: 0 0 25px 8px var(--frame-glow-color-semi), 0 0 45px var(--frame-glow-color-transparent), inset 0 0 25px var(--frame-glow-color-very-transparent); border-color: var(--frame-glow-color); }
         }
         .effect-neon { animation: frameNeon 2s ease-in-out infinite; }` : ''}
         ${theme.frameEffect === 'custom-glow' ? `        @keyframes frameCustomGlow {
             0%, 100% { 
-                box-shadow: 0 0 20px 2px ${hexToRgba(theme.frameEffectColor || '#a855f7', 0.2)}, inset 0 0 15px ${hexToRgba(theme.frameEffectColor || '#a855f7', 0.1)}; 
-                border-color: ${hexToRgba(theme.frameEffectColor || '#a855f7', 0.5)};
+                box-shadow: 0 0 20px 2px var(--frame-glow-color-transparent), inset 0 0 15px var(--frame-glow-color-very-transparent); 
+                border-color: var(--frame-glow-color-semi);
             }
             50% { 
-                box-shadow: 0 0 35px 10px ${hexToRgba(theme.frameEffectColor || '#a855f7', 0.5)}, inset 0 0 25px ${hexToRgba(theme.frameEffectColor || '#a855f7', 0.2)}; 
-                border-color: ${theme.frameEffectColor || '#a855f7'};
+                box-shadow: 0 0 35px 10px var(--frame-glow-color-semi), inset 0 0 25px var(--frame-glow-color-transparent); 
+                border-color: var(--frame-glow-color);
             }
         }
         .effect-custom-glow { animation: frameCustomGlow 3s ease-in-out infinite; }` : ''}
@@ -938,7 +944,12 @@ CSSPLACEHOLDER
     </div>
 
     <div class="desktop-frame-outer">
-        <div class="desktop-frame-box ${theme.frameEffect && theme.frameEffect !== 'none' ? `effect-${theme.frameEffect}` : ''}">
+        <div class="desktop-frame-box ${theme.frameEffect && theme.frameEffect !== 'none' ? `effect-${theme.frameEffect}` : ''}" style="${theme.frameEffect && theme.frameEffect !== 'none' ? `
+            --frame-glow-color: ${theme.frameEffectColor || '#a855f7'};
+            --frame-glow-color-semi: ${hexToRgba(theme.frameEffectColor || '#a855f7', 0.5)};
+            --frame-glow-color-transparent: ${hexToRgba(theme.frameEffectColor || '#a855f7', 0.3)};
+            --frame-glow-color-very-transparent: ${hexToRgba(theme.frameEffectColor || '#a855f7', 0.15)};
+        ` : ''}">
             <div class="flex flex-col items-center py-10 px-6 relative z-10 text-center">
         
         <!-- Header -->

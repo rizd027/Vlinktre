@@ -501,24 +501,18 @@ const ButtonSettings = memo(({ theme, setTheme, buttonDesignSubTab, setButtonDes
                                 )}
                             </div>
                         )}
-                        {/* Animation Effect */}
-                        <div className="flex flex-col gap-3 pt-6 border-t border-white/5">
-                            <span className="text-[10px] font-black text-white/40 uppercase tracking-widest px-1">Entrance Animation</span>
-                            <div className="grid grid-cols-2 gap-2">
-                                {ANIMATION_OPTIONS.map(opt => (
-                                    <button
-                                        key={opt.id}
-                                        onClick={() => setTheme({ btnAnimation: opt.id })}
-                                        className={`py-3 px-3 rounded-xl text-[9px] font-black uppercase tracking-widest transition-all border ${(theme.btnAnimation || 'none') === opt.id
-                                            ? 'bg-amber-500/20 text-white border-amber-500/40 shadow-xl shadow-amber-500/10'
-                                            : 'bg-black/20 text-white/50 border-white/5 hover:border-white/10 hover:text-white/60 hover:bg-white/5'
-                                            }`}
-                                    >
-                                        {opt.label}
-                                    </button>
-                                ))}
+
+                        {(theme.btnAnimation === 'glow-custom' || theme.btnAnimation === 'pulse-custom') && (
+                            <div className="mt-4 animate-in fade-in slide-in-from-top-2 duration-300">
+                                <ColorPickerRow
+                                    label={`Btn Animation ${theme.btnAnimation === 'glow-custom' ? 'Glow' : 'Pulse'} Color`}
+                                    value={theme.btnGlowColor || theme.accentColor || '#ffffff'}
+                                    onChange={(val) => setTheme({ btnGlowColor: val })}
+                                    colorId="btn-anim-glow-color"
+                                    activeColor="amber"
+                                />
                             </div>
-                        </div>
+                        )}
                     </div>
                 </div>
             </div>
@@ -705,25 +699,18 @@ const ButtonSettings = memo(({ theme, setTheme, buttonDesignSubTab, setButtonDes
                                 </div>
                             </div>
                         )}
-                    </div>
 
-                    {/* Shadow Animation Selector */}
-                    <div className="flex flex-col gap-3 pt-6 border-t border-white/5">
-                        <span className="text-[10px] font-black text-white/40 uppercase tracking-widest px-1">Shadow Animation</span>
-                        <div className="grid grid-cols-2 gap-2">
-                            {ANIMATION_OPTIONS.map(opt => (
-                                <button
-                                    key={opt.id}
-                                    onClick={() => setTheme({ btnShadowAnimation: opt.id })}
-                                    className={`py-3 px-3 rounded-xl text-[9px] font-black uppercase tracking-widest transition-all border ${(theme.btnShadowAnimation || 'none') === opt.id
-                                        ? 'bg-indigo-500/20 text-white border-indigo-500/40 shadow-xl shadow-indigo-500/10'
-                                        : 'bg-black/20 text-white/50 border-white/5 hover:border-white/10 hover:text-white/60 hover:bg-white/5'
-                                        }`}
-                                >
-                                    {opt.label}
-                                </button>
-                            ))}
-                        </div>
+                        {(theme.btnShadowAnimation === 'glow-custom' || theme.btnShadowAnimation === 'pulse-custom') && (
+                            <div className="mt-4 animate-in fade-in slide-in-from-top-2 duration-300">
+                                <ColorPickerRow
+                                    label={`Shadow ${theme.btnShadowAnimation === 'glow-custom' ? 'Glow' : 'Pulse'} Color`}
+                                    value={theme.btnShadowGlowColor || theme.accentColor || '#000000'}
+                                    onChange={(val) => setTheme({ btnShadowGlowColor: val })}
+                                    colorId="btn-shadow-anim-color"
+                                    activeColor="indigo"
+                                />
+                            </div>
+                        )}
                     </div>
                 </div>
             </div>
