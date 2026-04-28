@@ -557,13 +557,59 @@ document.addEventListener('DOMContentLoaded', () => {
         ${theme.audioAutoplay ? `
         var _audioUnlocked = false;
 
+        // --- Speaker icon (mobile only) ---
+        var _speakerBtn = document.createElement('button');
+        _speakerBtn.id = 'vlink-speaker-btn';
+        _speakerBtn.setAttribute('aria-label', 'Toggle audio');
+        _speakerBtn.style.cssText = [
+            'position:fixed',
+            'top:16px',
+            'right:16px',
+            'z-index:9999',
+            'width:36px',
+            'height:36px',
+            'border-radius:50%',
+            'background:rgba(255,255,255,0.10)',
+            'border:1px solid rgba(255,255,255,0.18)',
+            'backdrop-filter:blur(8px)',
+            '-webkit-backdrop-filter:blur(8px)',
+            'display:none',           /* hidden by default; shown via CSS on mobile */
+            'align-items:center',
+            'justify-content:center',
+            'cursor:pointer',
+            'padding:0',
+            'transition:opacity 0.3s,transform 0.3s',
+            'opacity:0.55',
+        ].join(';');
+
+        /* SVG: muted speaker (no waves) */
+        var _svgMuted = '<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"></polygon><line x1="23" y1="9" x2="17" y2="15"></line><line x1="17" y1="9" x2="23" y2="15"></line></svg>';
+        /* SVG: speaker with waves (playing) */
+        var _svgPlaying = '<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"></polygon><path d="M19.07 4.93a10 10 0 0 1 0 14.14"></path><path d="M15.54 8.46a5 5 0 0 1 0 7.07"></path></svg>';
+
+        _speakerBtn.innerHTML = _svgMuted;
+
+        /* Only show on mobile via inline media-aware trick */
+        var _speakerStyle = document.createElement('style');
+        _speakerStyle.textContent = '@media(max-width:767px){#vlink-speaker-btn{display:flex!important}}' +
+            '@keyframes _speakerPulse{0%,100%{opacity:0.55}50%{opacity:0.9}}' +
+            '#vlink-speaker-btn.playing{animation:_speakerPulse 2s ease-in-out infinite}';
+        document.head.appendChild(_speakerStyle);
+        document.body.appendChild(_speakerBtn);
+
+        function _setAudioPlaying() {
+            _audioUnlocked = true;
+            _speakerBtn.innerHTML = _svgPlaying;
+            _speakerBtn.classList.add('playing');
+            _removeInteractionListeners();
+        }
+
         function _playBgAudio() {
             if (_audioUnlocked) return;
             var p = bgAudio.play();
             if (p !== undefined) {
                 p.then(function() {
-                    _audioUnlocked = true;
-                    _removeInteractionListeners();
+                    _setAudioPlaying();
                 }).catch(function() {
                     // Autoplay blocked — will retry on first user gesture
                 });
@@ -573,11 +619,20 @@ document.addEventListener('DOMContentLoaded', () => {
         function _onFirstInteraction() {
             if (!_audioUnlocked) {
                 bgAudio.play().then(function() {
-                    _audioUnlocked = true;
-                    _removeInteractionListeners();
+                    _setAudioPlaying();
                 }).catch(function(){});
             }
         }
+
+        /* Tapping the speaker icon also unlocks audio */
+        _speakerBtn.addEventListener('click', function(e) {
+            e.stopPropagation();
+            _onFirstInteraction();
+        });
+        _speakerBtn.addEventListener('touchend', function(e) {
+            e.stopPropagation();
+            _onFirstInteraction();
+        });
 
         function _removeInteractionListeners() {
             document.removeEventListener('touchstart', _onFirstInteraction, true);
