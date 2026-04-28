@@ -563,27 +563,39 @@ document.addEventListener('DOMContentLoaded', () => {
             if (p !== undefined) {
                 p.then(function() {
                     _audioUnlocked = true;
+                    _removeInteractionListeners();
                 }).catch(function() {
                     // Autoplay blocked — will retry on first user gesture
                 });
             }
         }
 
-        // Try autoplay immediately (works on desktop)
-        _playBgAudio();
-
-        // Silently retry on first touch/click anywhere — no overlay shown
         function _onFirstInteraction() {
             if (!_audioUnlocked) {
                 bgAudio.play().then(function() {
                     _audioUnlocked = true;
+                    _removeInteractionListeners();
                 }).catch(function(){});
             }
         }
-        document.addEventListener('touchstart', _onFirstInteraction, { once: true, capture: true });
-        document.addEventListener('touchend', _onFirstInteraction, { once: true, capture: true });
-        document.addEventListener('click', _onFirstInteraction, { once: true, capture: true });
+
+        function _removeInteractionListeners() {
+            document.removeEventListener('touchstart', _onFirstInteraction, true);
+            document.removeEventListener('touchend',   _onFirstInteraction, true);
+            document.removeEventListener('click',      _onFirstInteraction, true);
+            document.removeEventListener('pointerdown',_onFirstInteraction, true);
+            document.removeEventListener('scroll',     _onFirstInteraction, true);
+        }
+
+        // Try autoplay immediately (works on desktop)
+        _playBgAudio();
+
+        // Trigger on tap, press, or scroll — covers all mobile interaction patterns
+        document.addEventListener('touchstart',  _onFirstInteraction, { once: true, capture: true });
+        document.addEventListener('touchend',    _onFirstInteraction, { once: true, capture: true });
+        document.addEventListener('click',       _onFirstInteraction, { once: true, capture: true });
         document.addEventListener('pointerdown', _onFirstInteraction, { once: true, capture: true });
+        document.addEventListener('scroll',      _onFirstInteraction, { once: true, capture: true });
         ` : ``}
     }
     ` : ``}
