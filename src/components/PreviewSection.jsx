@@ -218,6 +218,29 @@ const PreviewSection = memo(({ theme, profile, links, socials, layoutType, previ
                         -webkit-backface-visibility: hidden;
                     }
                 }
+                @keyframes imgKenBurns {
+                    0%   { transform: scale(1.0) translate(0%, 0%); }
+                    25%  { transform: scale(1.08) translate(-2%, -1%); }
+                    50%  { transform: scale(1.12) translate(2%, 1%); }
+                    75%  { transform: scale(1.06) translate(-1%, 2%); }
+                    100% { transform: scale(1.0) translate(0%, 0%); }
+                }
+                @keyframes imgZoomIn {
+                    0%   { transform: scale(1.0); }
+                    100% { transform: scale(1.18); }
+                }
+                @keyframes imgZoomOut {
+                    0%   { transform: scale(1.18); }
+                    100% { transform: scale(1.0); }
+                }
+                @keyframes imgPanLeft {
+                    0%   { transform: scale(1.12) translateX(6%); }
+                    100% { transform: scale(1.12) translateX(-6%); }
+                }
+                @keyframes imgPanRight {
+                    0%   { transform: scale(1.12) translateX(-6%); }
+                    100% { transform: scale(1.12) translateX(6%); }
+                }
             `}</style>
             {/* Device Switcher */}
             <div className="flex items-center gap-1 p-1 bg-white/5 border border-white/10 rounded-2xl mb-8 backdrop-blur-md shadow-xl z-70">
@@ -331,22 +354,39 @@ const PreviewSection = memo(({ theme, profile, links, socials, layoutType, previ
                         />
                     )}
 
-                    {/* Background Image - No Blur */}
-                    {theme.wallpaperStyle === 'image' && theme.backgroundImage && (
-                        <img
-                            src={theme.backgroundImage}
-                            alt="Wallpaper"
-                            loading="lazy"
-                            decoding="async"
-                            width="320"
-                            height="640"
-                            className="absolute inset-0 w-full h-full object-cover"
-                            style={{
-                                opacity: theme.imageOpacity ?? 1,
-                                filter: theme.imageBlur ? `blur(${theme.imageBlur}px)` : 'none'
-                            }}
-                        />
-                    )}
+                    {/* Background Image */}
+                    {theme.wallpaperStyle === 'image' && theme.backgroundImage && (() => {
+                        const anim = theme.imageAnimation;
+                        const speed = theme.imageAnimationSpeed ?? 20;
+                        const animMap = {
+                            kenburns: `imgKenBurns ${speed}s ease-in-out infinite`,
+                            zoomin:   `imgZoomIn ${speed}s ease-in-out alternate infinite`,
+                            zoomout:  `imgZoomOut ${speed}s ease-in-out alternate infinite`,
+                            panleft:  `imgPanLeft ${speed}s ease-in-out infinite`,
+                            panright: `imgPanRight ${speed}s ease-in-out infinite`,
+                        };
+                        const animStyle = (anim && anim !== 'none' && animMap[anim])
+                            ? { animation: animMap[anim], transformOrigin: 'center center', willChange: 'transform' }
+                            : {};
+                        return (
+                            <div className="absolute inset-0 overflow-hidden">
+                                <img
+                                    src={theme.backgroundImage}
+                                    alt="Wallpaper"
+                                    loading="lazy"
+                                    decoding="async"
+                                    width="320"
+                                    height="640"
+                                    className="absolute inset-0 w-full h-full object-cover"
+                                    style={{
+                                        opacity: theme.imageOpacity ?? 1,
+                                        filter: theme.imageBlur ? `blur(${theme.imageBlur}px)` : 'none',
+                                        ...animStyle
+                                    }}
+                                />
+                            </div>
+                        );
+                    })()}
 
                     {/* Blur Style Overlay */}
                     {theme.wallpaperStyle === 'blur' && (
