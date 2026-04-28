@@ -535,20 +535,15 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     };
     initIcons();
-    
-    ${theme.wallpaperStyle === 'video' && theme.videoAudioEnabled ? `
-    // Video audio handling (mobile-compatible, with speaker toggle)
-    const bgVideo = document.getElementById('vlink-bg-video');
-    if (bgVideo) {
-        bgVideo.volume = ${(theme.videoVolume ?? 50) / 100};
-        var _vidAudioUnlocked = false;
-        var _vidAudioMuted    = false;
 
-        // --- Speaker icon (mobile only) ---
-        var _vidSpeakerBtn = document.createElement('button');
-        _vidSpeakerBtn.id = 'vlink-speaker-btn';
-        _vidSpeakerBtn.setAttribute('aria-label', 'Toggle video audio');
-        _vidSpeakerBtn.style.cssText = [
+    ${(theme.wallpaperStyle === 'video' && theme.videoAudioEnabled) || theme.backgroundAudio ? `
+    // --- Shared speaker button factory (created once, only when audio is configured) ---
+    function _createSpeakerBtn() {
+        if (document.getElementById('vlink-speaker-btn')) return document.getElementById('vlink-speaker-btn');
+        var btn = document.createElement('button');
+        btn.id = 'vlink-speaker-btn';
+        btn.setAttribute('aria-label', 'Toggle audio');
+        btn.style.cssText = [
             'position:fixed','top:16px','right:16px','z-index:9999',
             'width:36px','height:36px','border-radius:50%',
             'background:rgba(255,255,255,0.10)',
@@ -562,30 +557,41 @@ document.addEventListener('DOMContentLoaded', () => {
             'touch-action:manipulation',
             'transition:opacity 0.3s, transform 0.2s','opacity:0.55',
         ].join(';');
-
-        var _vidSvgMuted   = '<svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"></polygon><line x1="23" y1="9" x2="17" y2="15"></line><line x1="17" y1="9" x2="23" y2="15"></line></svg>';
-        var _vidSvgPlaying = '<svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"></polygon><path d="M19.07 4.93a10 10 0 0 1 0 14.14"></path><path d="M15.54 8.46a5 5 0 0 1 0 7.07"></path></svg>';
-
-        _vidSpeakerBtn.innerHTML = _vidSvgMuted;
-
-        var _vidSpeakerStyle = document.createElement('style');
-        _vidSpeakerStyle.textContent =
+        var style = document.createElement('style');
+        style.textContent =
             '@media(max-width:767px){#vlink-speaker-btn{display:flex!important}}' +
             '#vlink-speaker-btn:focus{outline:none!important;box-shadow:none!important}' +
             '#vlink-speaker-btn:focus-visible{outline:none!important}' +
             '#vlink-speaker-btn:active{transform:scale(0.88);opacity:0.9!important}' +
             '@keyframes _speakerPulse{0%,100%{opacity:0.55}50%{opacity:0.85}}' +
             '#vlink-speaker-btn.snd-playing{animation:_speakerPulse 2.5s ease-in-out infinite}';
-        document.head.appendChild(_vidSpeakerStyle);
-        document.body.appendChild(_vidSpeakerBtn);
+        document.head.appendChild(style);
+        document.body.appendChild(btn);
+        return btn;
+    }
+    var _svgMuted   = '<svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"></polygon><line x1="23" y1="9" x2="17" y2="15"></line><line x1="17" y1="9" x2="23" y2="15"></line></svg>';
+    var _svgPlaying = '<svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"></polygon><path d="M19.07 4.93a10 10 0 0 1 0 14.14"></path><path d="M15.54 8.46a5 5 0 0 1 0 7.07"></path></svg>';
+    ` : ''}
+
+    ${theme.wallpaperStyle === 'video' && theme.videoAudioEnabled ? `
+    // Video audio handling (mobile-compatible, with speaker toggle)
+    const bgVideo = document.getElementById('vlink-bg-video');
+    if (bgVideo) {
+        bgVideo.volume = ${(theme.videoVolume ?? 50) / 100};
+        var _vidAudioUnlocked = false;
+        var _vidAudioMuted    = false;
+
+        // --- Speaker icon (shared, mobile only) ---
+        var _vidSpeakerBtn = _createSpeakerBtn();
+        _vidSpeakerBtn.innerHTML = _svgMuted;
 
         function _vidUpdateUI() {
             if (_vidAudioMuted) {
-                _vidSpeakerBtn.innerHTML = _vidSvgMuted;
+                _vidSpeakerBtn.innerHTML = _svgMuted;
                 _vidSpeakerBtn.classList.remove('snd-playing');
                 _vidSpeakerBtn.style.opacity = '0.45';
             } else {
-                _vidSpeakerBtn.innerHTML = _vidSvgPlaying;
+                _vidSpeakerBtn.innerHTML = _svgPlaying;
                 _vidSpeakerBtn.classList.add('snd-playing');
                 _vidSpeakerBtn.style.opacity = '';
             }
@@ -673,57 +679,9 @@ document.addEventListener('DOMContentLoaded', () => {
         var _audioUnlocked = false;
         var _audioMuted = false;
 
-        // --- Speaker icon (mobile only) ---
-        var _speakerBtn = document.createElement('button');
-        _speakerBtn.id = 'vlink-speaker-btn';
-        _speakerBtn.setAttribute('aria-label', 'Toggle audio');
-        _speakerBtn.style.cssText = [
-            'position:fixed',
-            'top:16px',
-            'right:16px',
-            'z-index:9999',
-            'width:36px',
-            'height:36px',
-            'border-radius:50%',
-            'background:rgba(255,255,255,0.10)',
-            'border:1px solid rgba(255,255,255,0.18)',
-            'backdrop-filter:blur(8px)',
-            '-webkit-backdrop-filter:blur(8px)',
-            'display:none',
-            'align-items:center',
-            'justify-content:center',
-            'cursor:pointer',
-            'padding:0',
-            'margin:0',
-            'outline:none',
-            '-webkit-tap-highlight-color:transparent',
-            '-webkit-appearance:none',
-            'appearance:none',
-            'user-select:none',
-            '-webkit-user-select:none',
-            'touch-action:manipulation',
-            'transition:opacity 0.3s, transform 0.2s',
-            'opacity:0.55',
-        ].join(';');
-
-        /* SVG: muted speaker (with X) */
-        var _svgMuted   = '<svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"></polygon><line x1="23" y1="9" x2="17" y2="15"></line><line x1="17" y1="9" x2="23" y2="15"></line></svg>';
-        /* SVG: speaker with sound waves (playing) */
-        var _svgPlaying = '<svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"></polygon><path d="M19.07 4.93a10 10 0 0 1 0 14.14"></path><path d="M15.54 8.46a5 5 0 0 1 0 7.07"></path></svg>';
-
+        // --- Speaker icon (shared, mobile only) ---
+        var _speakerBtn = _createSpeakerBtn();
         _speakerBtn.innerHTML = _svgMuted;
-
-        /* CSS: show on mobile only, pulse animation, no focus ring */
-        var _speakerStyle = document.createElement('style');
-        _speakerStyle.textContent =
-            '@media(max-width:767px){#vlink-speaker-btn{display:flex!important}}' +
-            '#vlink-speaker-btn:focus{outline:none!important;box-shadow:none!important}' +
-            '#vlink-speaker-btn:focus-visible{outline:none!important}' +
-            '#vlink-speaker-btn:active{transform:scale(0.88);opacity:0.9!important}' +
-            '@keyframes _speakerPulse{0%,100%{opacity:0.55}50%{opacity:0.85}}' +
-            '#vlink-speaker-btn.snd-playing{animation:_speakerPulse 2.5s ease-in-out infinite}';
-        document.head.appendChild(_speakerStyle);
-        document.body.appendChild(_speakerBtn);
 
         /* Update icon & class to reflect current state */
         function _updateSpeakerUI() {
