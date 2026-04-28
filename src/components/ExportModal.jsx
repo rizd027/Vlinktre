@@ -570,11 +570,11 @@ document.addEventListener('DOMContentLoaded', () => {
         btn.setAttribute('aria-label', 'Toggle audio');
         btn.style.cssText = [
             'position:fixed','top:16px','right:16px','z-index:9999',
-            'width:36px','height:36px','border-radius:50%',
+            'width:40px','height:40px','border-radius:50%',
             'background:rgba(255,255,255,0.10)',
             'border:1px solid rgba(255,255,255,0.18)',
             'backdrop-filter:blur(8px)','-webkit-backdrop-filter:blur(8px)',
-            'display:none','align-items:center','justify-content:center',
+            'display:flex','align-items:center','justify-content:center',
             'cursor:pointer','padding:0','margin:0','outline:none',
             '-webkit-tap-highlight-color:transparent',
             '-webkit-appearance:none','appearance:none',
@@ -584,7 +584,8 @@ document.addEventListener('DOMContentLoaded', () => {
         ].join(';');
         var style = document.createElement('style');
         style.textContent =
-            '@media(max-width:767px){#vlink-speaker-btn{display:flex!important}}' +
+            '#vlink-speaker-btn{display:flex!important}' +
+            '#vlink-speaker-btn:hover{opacity:0.9!important;background:rgba(255,255,255,0.18)!important}' +
             '#vlink-speaker-btn:focus{outline:none!important;box-shadow:none!important}' +
             '#vlink-speaker-btn:focus-visible{outline:none!important}' +
             '#vlink-speaker-btn:active{transform:scale(0.88);opacity:0.9!important}' +
@@ -606,7 +607,7 @@ document.addEventListener('DOMContentLoaded', () => {
         var _vidAudioUnlocked = false;
         var _vidAudioMuted    = false;
 
-        // --- Speaker icon (shared, mobile only) ---
+        // --- Speaker icon (all devices) ---
         var _vidSpeakerBtn = _createSpeakerBtn();
         _vidSpeakerBtn.innerHTML = _svgMuted;
 
@@ -704,7 +705,7 @@ document.addEventListener('DOMContentLoaded', () => {
         var _audioUnlocked = false;
         var _audioMuted = false;
 
-        // --- Speaker icon (shared, mobile only) ---
+        // --- Speaker icon (all devices) ---
         var _speakerBtn = _createSpeakerBtn();
         _speakerBtn.innerHTML = _svgMuted;
 
