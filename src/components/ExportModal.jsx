@@ -227,7 +227,7 @@ const ExportModal = memo(({ isOpen, onClose, profile, links, socials, theme, lay
     --font-body: '${theme.pageFont || 'Inter'}', sans-serif;
 }
 
-* { box-sizing: border-box; -webkit-font-smoothing: antialiased; -moz-osx-font-smoothing: grayscale; }
+* { box-sizing: border-box; -webkit-font-smoothing: antialiased; -moz-osx-font-smoothing: grayscale; -webkit-tap-highlight-color: transparent; }
 body, h1, h2, h3, h4, h5, h6, p, ul, ol, li, figure, blockquote, dl, dd { margin: 0; padding: 0; }
 
 html { font-size: 16px; }
@@ -393,6 +393,8 @@ body {
     overflow: hidden;
     width: 100%;
     z-index: 10;
+    -webkit-tap-highlight-color: transparent;
+    outline: none;
 }
 
 .link-item:active { transform: scale(0.98); }
@@ -931,7 +933,7 @@ document.addEventListener('DOMContentLoaded', () => {
 CSSPLACEHOLDER
     </style>
     <style>
-        .social-btn { padding: 8px; transition: all 0.3s ease; opacity: 0.75; display: flex; align-items: center; gap: 8px; font-size: 11px; text-transform: uppercase; letter-spacing: 0.1em; font-weight: 700; }
+        .social-btn { padding: 8px; transition: all 0.3s ease; opacity: 0.75; display: flex; align-items: center; gap: 8px; font-size: 11px; text-transform: uppercase; letter-spacing: 0.1em; font-weight: 700; -webkit-tap-highlight-color: transparent; outline: none; }
         .social-btn:hover { transform: translateY(-3px); opacity: 1; }
         
         /* Hero Styles */
