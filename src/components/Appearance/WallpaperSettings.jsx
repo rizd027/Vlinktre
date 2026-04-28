@@ -376,7 +376,7 @@ const WallpaperSettings = memo(({ theme, setTheme }) => {
                                     <img src={theme.backgroundImage} className="w-full h-full object-cover" alt="Wallpaper" />
                                     <button
                                         onClick={() => setTheme({ backgroundImage: null })}
-                                        className="absolute top-4 right-4 w-10 h-10 bg-black/60 hover:bg-red-500/80 text-white rounded-full transition-all flex items-center justify-center backdrop-blur-md border border-white/10 opacity-0 group-hover:opacity-100"
+                                        className="absolute top-4 right-4 w-10 h-10 bg-black/60 hover:bg-red-500/80 text-white rounded-full transition-all flex items-center justify-center backdrop-blur-md border border-white/10 shadow-lg z-10"
                                     >
                                         <Trash2 size={16} />
                                     </button>
@@ -463,8 +463,13 @@ const WallpaperSettings = memo(({ theme, setTheme }) => {
                                 <div className="relative aspect-video rounded-2xl overflow-hidden group border border-white/10">
                                     <video src={theme.backgroundVideo} className="w-full h-full object-cover" autoPlay muted loop />
                                     <button
-                                        onClick={() => setTheme({ backgroundVideo: null })}
-                                        className="absolute top-4 right-4 w-10 h-10 bg-black/60 hover:bg-red-500/80 text-white rounded-full transition-all flex items-center justify-center backdrop-blur-md border border-white/10 opacity-0 group-hover:opacity-100"
+                                         onClick={() => {
+                                             if (theme.backgroundVideo && theme.backgroundVideo.startsWith('blob:')) {
+                                                 URL.revokeObjectURL(theme.backgroundVideo);
+                                             }
+                                             setTheme({ backgroundVideo: null });
+                                         }}
+                                        className="absolute top-4 right-4 w-10 h-10 bg-black/60 hover:bg-red-500/80 text-white rounded-full transition-all flex items-center justify-center backdrop-blur-md border border-white/10 shadow-lg z-10"
                                     >
                                         <Trash2 size={16} />
                                     </button>
@@ -547,6 +552,7 @@ const WallpaperSettings = memo(({ theme, setTheme }) => {
                                 </div>
                                 <span className="text-xs font-bold text-white/60">Choose Wallpaper Video</span>
                                 <span className="text-[9px] text-white/40 font-black uppercase tracking-widest mt-1">MP4, MOV up to 50MB</span>
+                                <span className="text-[8px] text-emerald-400/60 font-medium mt-2">Note: Video is temporary for this session</span>
                                 <input
                                     id="bg-video-upload"
                                     name="bg-video-upload"
@@ -556,6 +562,10 @@ const WallpaperSettings = memo(({ theme, setTheme }) => {
                                     onChange={(e) => {
                                         const file = e.target.files[0];
                                         if (file) {
+                                            // Revoke old URL if it exists
+                                            if (theme.backgroundVideo && theme.backgroundVideo.startsWith('blob:')) {
+                                                URL.revokeObjectURL(theme.backgroundVideo);
+                                            }
                                             const url = URL.createObjectURL(file);
                                             setTheme({ backgroundVideo: url });
                                         }

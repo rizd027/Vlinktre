@@ -648,7 +648,14 @@ function App() {
         const timer = setTimeout(() => {
             localStorage.setItem('vlinktree_links', JSON.stringify(links));
             localStorage.setItem('vlinktree_profile', JSON.stringify(profile));
-            localStorage.setItem('vlinktree_theme', JSON.stringify(theme));
+            
+            // Strip blob URLs from theme before saving
+            const themeToSave = { ...theme };
+            if (themeToSave.backgroundVideo && themeToSave.backgroundVideo.startsWith('blob:')) {
+                themeToSave.backgroundVideo = null;
+            }
+            localStorage.setItem('vlinktree_theme', JSON.stringify(themeToSave));
+            
             localStorage.setItem('vlinktree_socials', JSON.stringify(socials));
         }, 1000); // 1s debounce to prevent UI lag during frequent updates
 
@@ -859,6 +866,7 @@ function App() {
                     setPreviewDevice={setPreviewDevice}
                     isEditorHidden={isEditorHidden}
                     isMobileView={isMobilePreview}
+                    updateTheme={updateTheme}
                 />
             </div>
 

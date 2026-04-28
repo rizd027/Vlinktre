@@ -202,7 +202,7 @@ const hexToRgba = (hex, opacity) => {
     return `rgba(${r}, ${g}, ${b}, ${opacity})`;
 };
 
-const PreviewSection = memo(({ theme, profile, links, socials, layoutType, previewDevice = 'mobile', setPreviewDevice, isEditorHidden, isMobileView }) => {
+const PreviewSection = memo(({ theme, profile, links, socials, layoutType, previewDevice = 'mobile', setPreviewDevice, isEditorHidden, isMobileView, updateTheme }) => {
     const config = DEVICE_CONFIG[previewDevice] || DEVICE_CONFIG.mobile;
 
     return (
@@ -297,6 +297,10 @@ const PreviewSection = memo(({ theme, profile, links, socials, layoutType, previ
                             ref={(el) => {
                                 if (el) el.volume = (theme.audioVolume ?? 50) / 100;
                             }}
+                            onError={(e) => {
+                                console.warn("Background audio failed to load, resetting source.");
+                                updateTheme?.({ backgroundAudio: null });
+                            }}
                         />
                     )}
 
@@ -319,6 +323,10 @@ const PreviewSection = memo(({ theme, profile, links, socials, layoutType, previ
                             }}
                             ref={(el) => {
                                 if (el) el.volume = (theme.videoVolume ?? 50) / 100;
+                            }}
+                            onError={(e) => {
+                                console.warn("Background video failed to load, resetting source.");
+                                updateTheme?.({ backgroundVideo: null });
                             }}
                         />
                     )}
