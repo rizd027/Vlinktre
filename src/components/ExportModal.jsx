@@ -273,6 +273,31 @@ body {
     to { opacity: 1; transform: translateY(0); }
 }
 
+/* Wallpaper Image Animations */
+@keyframes imgKenBurns {
+    0%   { transform: scale(1.0) translate(0%, 0%); }
+    25%  { transform: scale(1.08) translate(-2%, -1%); }
+    50%  { transform: scale(1.12) translate(2%, 1%); }
+    75%  { transform: scale(1.06) translate(-1%, 2%); }
+    100% { transform: scale(1.0) translate(0%, 0%); }
+}
+@keyframes imgZoomIn {
+    0%   { transform: scale(1.0); }
+    100% { transform: scale(1.18); }
+}
+@keyframes imgZoomOut {
+    0%   { transform: scale(1.18); }
+    100% { transform: scale(1.0); }
+}
+@keyframes imgPanLeft {
+    0%   { transform: scale(1.12) translateX(6%); }
+    100% { transform: scale(1.12) translateX(-6%); }
+}
+@keyframes imgPanRight {
+    0%   { transform: scale(1.12) translateX(-6%); }
+    100% { transform: scale(1.12) translateX(6%); }
+}
+
 @keyframes pulse-custom {
     0%, 100% { transform: scale(1); filter: drop-shadow(0 0 0px transparent); }
     50% { transform: scale(1.05); filter: drop-shadow(0 0 10px var(--pulse-color, rgba(255,255,255,0.4))); }
@@ -1117,8 +1142,26 @@ CSSPLACEHOLDER
         ${theme.noise ? `<div style="position: absolute; inset: 0; background-image: url('https://grain-y.com/assets/images/noise.png'); opacity: 0.05; pointer-events: none; z-index: 1;"></div>` : ''}
         
         ${(theme.wallpaperStyle === 'image' || theme.wallpaperStyle === 'blur') && theme.backgroundImage ? `
-            <img src="${resolveUrl(theme.backgroundImage, 'wallpaper')}" style="position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; opacity: ${theme.imageOpacity ?? 1}; filter: blur(${theme.imageBlur ?? 0}px); z-index: 0;">
+            <div style="position: absolute; inset: 0; z-index: 0; overflow: hidden;">
+                <img src="${resolveUrl(theme.backgroundImage, 'wallpaper')}" style="position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; opacity: ${theme.imageOpacity ?? 1}; filter: blur(${theme.imageBlur ?? 0}px); transform-origin: center center; will-change: transform;${(() => {
+                    const anim = theme.imageAnimation;
+                    const speed = theme.imageAnimationSpeed ?? 20;
+                    if (!anim || anim === 'none') return '';
+                    const map = {
+                        kenburns: 'imgKenBurns',
+                        zoomin:   'imgZoomIn',
+                        zoomout:  'imgZoomOut',
+                        panleft:  'imgPanLeft',
+                        panright: 'imgPanRight',
+                    };
+                    const name = map[anim];
+                    if (!name) return '';
+                    const iter = (anim === 'zoomin' || anim === 'zoomout') ? 'alternate infinite' : 'infinite';
+                    return ` animation: ${name} ${speed}s ease-in-out ${iter};`;
+                })()}">
+            </div>
         ` : ''}
+
         
         ${theme.wallpaperStyle === 'video' && theme.backgroundVideo ? `
             <div style="position: absolute; inset: 0; overflow: hidden; z-index: 0; will-change: transform; transform: translateZ(0);${theme.videoBlur ? ' filter: blur(' + theme.videoBlur + 'px);' : ''}">

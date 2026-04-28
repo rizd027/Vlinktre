@@ -416,6 +416,60 @@ const WallpaperSettings = memo(({ theme, setTheme }) => {
                                         />
                                     </div>
                                 </div>
+
+                                {/* Image Animation */}
+                                <div className="flex flex-col gap-4 p-4 rounded-2xl bg-black/20 border border-white/5">
+                                    <div className="flex items-center gap-2">
+                                        <Zap size={12} className="text-emerald-400" />
+                                        <span className="text-[9px] font-black uppercase tracking-widest text-white/50">Image Animation</span>
+                                    </div>
+                                    <div className="grid grid-cols-3 gap-2">
+                                        {[
+                                            { id: 'none',       label: 'None',      emoji: '✕' },
+                                            { id: 'kenburns',   label: 'Ken Burns', emoji: '🎬' },
+                                            { id: 'zoomin',     label: 'Zoom In',   emoji: '🔍' },
+                                            { id: 'zoomout',    label: 'Zoom Out',  emoji: '🔎' },
+                                            { id: 'panleft',    label: 'Pan Left',  emoji: '←' },
+                                            { id: 'panright',   label: 'Pan Right', emoji: '→' },
+                                        ].map(anim => (
+                                            <button
+                                                key={anim.id}
+                                                onClick={() => setTheme({ imageAnimation: anim.id })}
+                                                className={`py-2.5 px-2 rounded-xl text-[9px] font-bold uppercase tracking-widest flex flex-col items-center gap-1 transition-all ${
+                                                    (theme.imageAnimation || 'none') === anim.id
+                                                        ? 'bg-emerald-500/20 text-emerald-400 border border-emerald-500/30 shadow-lg'
+                                                        : 'bg-white/5 text-white/50 border border-white/5 hover:bg-white/10 hover:text-white'
+                                                }`}
+                                            >
+                                                <span className="text-base leading-none">{anim.emoji}</span>
+                                                {anim.label}
+                                            </button>
+                                        ))}
+                                    </div>
+
+                                    {theme.imageAnimation && theme.imageAnimation !== 'none' && (
+                                        <div className="flex flex-col gap-3 pt-3 border-t border-white/5">
+                                            <div className="flex items-center justify-between px-1">
+                                                <label htmlFor="image-anim-speed" className="text-[9px] font-bold text-white/50 uppercase tracking-widest">Speed</label>
+                                                <span className="text-[10px] font-bold text-white">{theme.imageAnimationSpeed ?? 20}s</span>
+                                            </div>
+                                            <input
+                                                id="image-anim-speed"
+                                                name="image-anim-speed"
+                                                type="range"
+                                                min="5"
+                                                max="60"
+                                                value={theme.imageAnimationSpeed ?? 20}
+                                                onChange={(e) => setTheme({ imageAnimationSpeed: parseInt(e.target.value) })}
+                                                className="w-full h-1 bg-white/10 rounded-lg appearance-none cursor-pointer accent-emerald-500"
+                                            />
+                                            <div className="flex justify-between text-[8px] text-white/30 font-bold uppercase tracking-widest px-1">
+                                                <span>Fast</span>
+                                                <span>Slow</span>
+                                            </div>
+                                        </div>
+                                    )}
+                                </div>
                             </div>
                         ) : (
                             <label htmlFor="bg-image-upload" className="flex flex-col items-center justify-center aspect-video rounded-[2rem] border-2 border-dashed border-white/5 bg-white/2 hover:bg-white/5 hover:border-emerald-500/20 transition-all cursor-pointer group">
@@ -446,6 +500,7 @@ const WallpaperSettings = memo(({ theme, setTheme }) => {
                     </div>
                 </div>
             )}
+
 
             {/* Video Specific Controls */}
             {theme.wallpaperStyle === 'video' && (
