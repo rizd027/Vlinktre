@@ -247,8 +247,19 @@ body {
 
 @media (max-width: 767px) {
     #vlink-bg-video {
-        filter: none !important; /* Disable expensive blur on mobile GPUs */
+        filter: none !important;
         -webkit-filter: none !important;
+        /* Force hardware acceleration for mobile playback */
+        -webkit-transform: translateZ(0);
+        transform: translateZ(0);
+        will-change: transform;
+        /* Ensure full cover on mobile */
+        position: absolute !important;
+        inset: 0 !important;
+        width: 100% !important;
+        height: 100% !important;
+        object-fit: cover !important;
+        pointer-events: none;
     }
     .wallpaper-container {
         backface-visibility: hidden;
@@ -623,15 +634,25 @@ document.addEventListener('DOMContentLoaded', () => {
             document.removeEventListener('scroll',      _vidOnFirstInteraction, true);
         }
 
-        // Start muted (required for autoplay on mobile), try unmute immediately
+        // Start muted (required for autoplay on mobile)
         bgVideo.muted = true;
-        bgVideo.play().then(function() {
-            // Try unmuting right away (works on desktop)
-            bgVideo.muted = false;
-            _vidSetPlaying();
-        }).catch(function() {
-            bgVideo.play().catch(function(){});
-        });
+        var _startPromise = bgVideo.play();
+        if (_startPromise !== undefined) {
+            _startPromise.then(function() {
+                // Video is playing (muted). Now try to unmute (works on desktop/allowed browsers).
+                bgVideo.muted = false;
+                // Check if unmute worked
+                if (!bgVideo.muted) {
+                    _vidSetPlaying();
+                }
+                // If still muted (mobile blocked), the gesture listeners will handle it
+            }).catch(function() {
+                // Even muted autoplay failed — try again without sound
+                bgVideo.muted = true;
+                bgVideo.load();
+                bgVideo.play().catch(function(){});
+            });
+        }
 
         // On first user gesture, unmute silently
         document.addEventListener('touchstart',  _vidOnFirstInteraction, { once: true, capture: true });
@@ -1143,7 +1164,18 @@ CSSPLACEHOLDER
         
         ${theme.wallpaperStyle === 'video' && theme.backgroundVideo ? `
             <div style="position: absolute; inset: 0; overflow: hidden; z-index: 0; will-change: transform; transform: translateZ(0);${theme.videoBlur ? ' filter: blur(' + theme.videoBlur + 'px);' : ''}">
-                <video id="vlink-bg-video" src="${resolveUrl(theme.backgroundVideo, 'bg_video')}" autoplay muted playsinline loop preload="metadata" poster="${theme.backgroundImage ? resolveUrl(theme.backgroundImage, 'wallpaper') : ''}" style="position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; opacity: ${theme.videoOpacity ?? 1}; transform: translateZ(0);"></video>
+                <video id="vlink-bg-video"
+                    src="${resolveUrl(theme.backgroundVideo, 'bg_video')}"
+                    autoplay
+                    muted
+                    playsinline
+                    webkit-playsinline
+                    x-webkit-airplay="deny"
+                    loop
+                    preload="auto"
+                    poster="${theme.backgroundImage ? resolveUrl(theme.backgroundImage, 'wallpaper') : ''}"
+                    style="position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; opacity: ${theme.videoOpacity ?? 1}; transform: translateZ(0);">
+                </video>
             </div>
         ` : ''}
         
