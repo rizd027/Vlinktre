@@ -550,7 +550,7 @@ document.addEventListener('DOMContentLoaded', () => {
     ` : ''}
     
     ${theme.backgroundAudio ? `
-    // Background audio playback handling (mobile-compatible)
+    // Background audio playback handling (mobile-compatible, silent autoplay)
     const bgAudio = document.getElementById('vlink-bg-audio');
     if (bgAudio) {
         bgAudio.volume = ${(theme.audioVolume ?? 50) / 100};
@@ -563,56 +563,27 @@ document.addEventListener('DOMContentLoaded', () => {
             if (p !== undefined) {
                 p.then(function() {
                     _audioUnlocked = true;
-                    var overlay = document.getElementById('vlink-audio-overlay');
-                    if (overlay) overlay.style.display = 'none';
                 }).catch(function() {
-                    // Still blocked — show tap-to-play overlay
-                    _showAudioOverlay();
+                    // Autoplay blocked — will retry on first user gesture
                 });
             }
         }
 
-        function _showAudioOverlay() {
-            var overlay = document.getElementById('vlink-audio-overlay');
-            if (!overlay) {
-                overlay = document.createElement('div');
-                overlay.id = 'vlink-audio-overlay';
-                overlay.style.cssText = 'position:fixed;inset:0;z-index:99999;display:flex;align-items:center;justify-content:center;cursor:pointer;';
-                overlay.innerHTML = '<div style="background:rgba(0,0,0,0.55);backdrop-filter:blur(12px);-webkit-backdrop-filter:blur(12px);border:1px solid rgba(255,255,255,0.15);border-radius:24px;padding:24px 32px;display:flex;flex-direction:column;align-items:center;gap:12px;max-width:260px;text-align:center;">' +
-                    '<div style="width:56px;height:56px;border-radius:50%;background:rgba(255,255,255,0.1);border:2px solid rgba(255,255,255,0.3);display:flex;align-items:center;justify-content:center;">' +
-                    '<svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"></polygon><path d="M19.07 4.93a10 10 0 0 1 0 14.14"></path><path d="M15.54 8.46a5 5 0 0 1 0 7.07"></path></svg>' +
-                    '</div>' +
-                    '<p style="color:white;font-size:14px;font-weight:600;margin:0;font-family:inherit;">Tap to enable music</p>' +
-                    '<p style="color:rgba(255,255,255,0.6);font-size:12px;margin:0;font-family:inherit;">Background audio is ready to play</p>' +
-                    '</div>';
-                document.body.appendChild(overlay);
-            } else {
-                overlay.style.display = 'flex';
-            }
-
-            function _unlockAudio() {
-                bgAudio.play().then(function() {
-                    _audioUnlocked = true;
-                    overlay.style.display = 'none';
-                }).catch(function(){});
-                overlay.removeEventListener('click', _unlockAudio);
-                overlay.removeEventListener('touchend', _unlockAudio);
-            }
-            overlay.addEventListener('click', _unlockAudio);
-            overlay.addEventListener('touchend', _unlockAudio);
-        }
-
-        // Try autoplay immediately
+        // Try autoplay immediately (works on desktop)
         _playBgAudio();
 
-        // Fallback: also try on first user gesture anywhere on page (for iOS)
+        // Silently retry on first touch/click anywhere — no overlay shown
         function _onFirstInteraction() {
-            if (!_audioUnlocked) _playBgAudio();
-            document.removeEventListener('touchstart', _onFirstInteraction, true);
-            document.removeEventListener('click', _onFirstInteraction, true);
+            if (!_audioUnlocked) {
+                bgAudio.play().then(function() {
+                    _audioUnlocked = true;
+                }).catch(function(){});
+            }
         }
         document.addEventListener('touchstart', _onFirstInteraction, { once: true, capture: true });
+        document.addEventListener('touchend', _onFirstInteraction, { once: true, capture: true });
         document.addEventListener('click', _onFirstInteraction, { once: true, capture: true });
+        document.addEventListener('pointerdown', _onFirstInteraction, { once: true, capture: true });
         ` : ``}
     }
     ` : ``}
