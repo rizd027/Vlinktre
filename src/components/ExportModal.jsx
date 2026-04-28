@@ -550,12 +550,13 @@ document.addEventListener('DOMContentLoaded', () => {
     ` : ''}
     
     ${theme.backgroundAudio ? `
-    // Background audio playback handling (mobile-compatible, silent autoplay)
+    // Background audio playback handling (mobile-compatible)
     const bgAudio = document.getElementById('vlink-bg-audio');
     if (bgAudio) {
         bgAudio.volume = ${(theme.audioVolume ?? 50) / 100};
         ${theme.audioAutoplay ? `
         var _audioUnlocked = false;
+        var _audioMuted = false;
 
         // --- Speaker icon (mobile only) ---
         var _speakerBtn = document.createElement('button');
@@ -573,34 +574,59 @@ document.addEventListener('DOMContentLoaded', () => {
             'border:1px solid rgba(255,255,255,0.18)',
             'backdrop-filter:blur(8px)',
             '-webkit-backdrop-filter:blur(8px)',
-            'display:none',           /* hidden by default; shown via CSS on mobile */
+            'display:none',
             'align-items:center',
             'justify-content:center',
             'cursor:pointer',
             'padding:0',
-            'transition:opacity 0.3s,transform 0.3s',
+            'margin:0',
+            'outline:none',
+            '-webkit-tap-highlight-color:transparent',
+            '-webkit-appearance:none',
+            'appearance:none',
+            'user-select:none',
+            '-webkit-user-select:none',
+            'touch-action:manipulation',
+            'transition:opacity 0.3s, transform 0.2s',
             'opacity:0.55',
         ].join(';');
 
-        /* SVG: muted speaker (no waves) */
-        var _svgMuted = '<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"></polygon><line x1="23" y1="9" x2="17" y2="15"></line><line x1="17" y1="9" x2="23" y2="15"></line></svg>';
-        /* SVG: speaker with waves (playing) */
-        var _svgPlaying = '<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"></polygon><path d="M19.07 4.93a10 10 0 0 1 0 14.14"></path><path d="M15.54 8.46a5 5 0 0 1 0 7.07"></path></svg>';
+        /* SVG: muted speaker (with X) */
+        var _svgMuted   = '<svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"></polygon><line x1="23" y1="9" x2="17" y2="15"></line><line x1="17" y1="9" x2="23" y2="15"></line></svg>';
+        /* SVG: speaker with sound waves (playing) */
+        var _svgPlaying = '<svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"></polygon><path d="M19.07 4.93a10 10 0 0 1 0 14.14"></path><path d="M15.54 8.46a5 5 0 0 1 0 7.07"></path></svg>';
 
         _speakerBtn.innerHTML = _svgMuted;
 
-        /* Only show on mobile via inline media-aware trick */
+        /* CSS: show on mobile only, pulse animation, no focus ring */
         var _speakerStyle = document.createElement('style');
-        _speakerStyle.textContent = '@media(max-width:767px){#vlink-speaker-btn{display:flex!important}}' +
-            '@keyframes _speakerPulse{0%,100%{opacity:0.55}50%{opacity:0.9}}' +
-            '#vlink-speaker-btn.playing{animation:_speakerPulse 2s ease-in-out infinite}';
+        _speakerStyle.textContent =
+            '@media(max-width:767px){#vlink-speaker-btn{display:flex!important}}' +
+            '#vlink-speaker-btn:focus{outline:none!important;box-shadow:none!important}' +
+            '#vlink-speaker-btn:focus-visible{outline:none!important}' +
+            '#vlink-speaker-btn:active{transform:scale(0.88);opacity:0.9!important}' +
+            '@keyframes _speakerPulse{0%,100%{opacity:0.55}50%{opacity:0.85}}' +
+            '#vlink-speaker-btn.snd-playing{animation:_speakerPulse 2.5s ease-in-out infinite}';
         document.head.appendChild(_speakerStyle);
         document.body.appendChild(_speakerBtn);
 
+        /* Update icon & class to reflect current state */
+        function _updateSpeakerUI() {
+            if (_audioMuted) {
+                _speakerBtn.innerHTML = _svgMuted;
+                _speakerBtn.classList.remove('snd-playing');
+                _speakerBtn.style.opacity = '0.45';
+            } else {
+                _speakerBtn.innerHTML = _svgPlaying;
+                _speakerBtn.classList.add('snd-playing');
+                _speakerBtn.style.opacity = '';
+            }
+        }
+
         function _setAudioPlaying() {
             _audioUnlocked = true;
-            _speakerBtn.innerHTML = _svgPlaying;
-            _speakerBtn.classList.add('playing');
+            _audioMuted    = false;
+            _updateSpeakerUI();
             _removeInteractionListeners();
         }
 
@@ -611,7 +637,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 p.then(function() {
                     _setAudioPlaying();
                 }).catch(function() {
-                    // Autoplay blocked — will retry on first user gesture
+                    // Blocked — will retry on first gesture
                 });
             }
         }
@@ -624,28 +650,44 @@ document.addEventListener('DOMContentLoaded', () => {
             }
         }
 
-        /* Tapping the speaker icon also unlocks audio */
-        _speakerBtn.addEventListener('click', function(e) {
+        /* Speaker button: play/pause toggle */
+        function _handleSpeakerTap(e) {
+            e.preventDefault();
             e.stopPropagation();
-            _onFirstInteraction();
-        });
-        _speakerBtn.addEventListener('touchend', function(e) {
-            e.stopPropagation();
-            _onFirstInteraction();
-        });
+            if (!_audioUnlocked) {
+                // First interaction — unlock & play
+                bgAudio.play().then(function() {
+                    _setAudioPlaying();
+                }).catch(function(){});
+            } else if (_audioMuted) {
+                // Unmute
+                _audioMuted = false;
+                bgAudio.muted = false;
+                bgAudio.play().catch(function(){});
+                _updateSpeakerUI();
+            } else {
+                // Mute
+                _audioMuted = true;
+                bgAudio.muted = true;
+                _updateSpeakerUI();
+            }
+        }
+
+        _speakerBtn.addEventListener('click',    _handleSpeakerTap);
+        _speakerBtn.addEventListener('touchend', _handleSpeakerTap);
 
         function _removeInteractionListeners() {
-            document.removeEventListener('touchstart', _onFirstInteraction, true);
-            document.removeEventListener('touchend',   _onFirstInteraction, true);
-            document.removeEventListener('click',      _onFirstInteraction, true);
-            document.removeEventListener('pointerdown',_onFirstInteraction, true);
-            document.removeEventListener('scroll',     _onFirstInteraction, true);
+            document.removeEventListener('touchstart',  _onFirstInteraction, true);
+            document.removeEventListener('touchend',    _onFirstInteraction, true);
+            document.removeEventListener('click',       _onFirstInteraction, true);
+            document.removeEventListener('pointerdown', _onFirstInteraction, true);
+            document.removeEventListener('scroll',      _onFirstInteraction, true);
         }
 
         // Try autoplay immediately (works on desktop)
         _playBgAudio();
 
-        // Trigger on tap, press, or scroll — covers all mobile interaction patterns
+        // Trigger on tap, press, or scroll — covers all mobile gestures
         document.addEventListener('touchstart',  _onFirstInteraction, { once: true, capture: true });
         document.addEventListener('touchend',    _onFirstInteraction, { once: true, capture: true });
         document.addEventListener('click',       _onFirstInteraction, { once: true, capture: true });
